@@ -12,6 +12,7 @@ import random
 import string
 import platform
 import shlex
+import MySQLdb
 
 
 def color_print(msg, color='red', exits=False):
@@ -153,6 +154,15 @@ class PreSetup(object):
 			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
+	def _test_db_conn(self):
+		try:
+			MySQLdb.connect(host=self.db_host, port=int(self.db_port), user=self.db_user, passwd=self.db_pass, db=self.db)
+			color_print('数据库连接成功', color='green')
+			return True
+		except MySQLdb.OperationalError, e:
+			color_print('数据库连接失败 %s' % (e), color='red')
+			return False
+
 	def check_platform(self):
 		'''
 		系统平台检查
@@ -187,7 +197,7 @@ class PreSetup(object):
 		'''
 		安装pip依赖包
 		'''
-		color_print('开始安装依赖pip包', 'green')
+		color_print('开始安装依赖pip包', color='green')
 		bash('pip uninstall -y pycrypto')
 		bash('rm -rf /usr/lib64/python2.6/site-packages/Crypto/')
 		ret_code = bash('pip install -r requirements.txt')
@@ -230,7 +240,7 @@ class PreSetup(object):
 		while True:
 			mysql = raw_input('是否需要安装新的MYSQL服务器? (y/n) [y]: ').lower()
 			if mysql != 'n':
-				self._setup_mysql()		# 安装一个新的MYSQL服务器
+				self._setup_mysql()		# 安装一个新的MYSQL服务器, 手动给root用户设置一个mysql登陆密码
 			else:
 				db_host = raw_input('请输入数据库服务器IP [127.0.0.1]: ').strip()
 				db_port = raw_input('请输入数据库服务器端口 [3306]: ').strip()
@@ -248,6 +258,10 @@ class PreSetup(object):
 					self.db_pass = db_pass
 				if db:
 					self.db = db
+
+			if self._test_db_conn():
+				break
+		color_print('mysql连接测试完成', color='green')
 
 	def start(self):
 		color_print('请务必先查看wiki https://github.com/jumpserver/jumpserver/wiki')			# 颜色输出函数
