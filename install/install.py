@@ -120,11 +120,38 @@ class PreSetup(object):
 	@staticmethod
 	def check_bash_return(ret_code, error_msg):
 		'''
-		依据返回值判断所安装的rpm依赖包是否安装成功
+		依据返回值判断所安装的rpm依赖包是否安装成功, 返回值不为0, 程序退出
 		'''
 		if ret_code != 0:
 			color_print(error_msg, color='red')
 			sys.exit()
+
+	def _setup_mysql(self):
+		color_print('开始安装设置mysql (请手动设置mysql安全)', color='green')
+		color_print('默认用户名: %s 默认密码: %s' % (self.db_user, self.db_pass), color='green')
+		if self._is_redhat:
+			if self._is_centos7 or self._is_fedora_new:
+				ret_code = bash('yum -y install mariadb-server mariadb-devel')
+				self.check_bash_return(ret_code, '安装mysql(mariadb)失败, 请检查安装源是否更新或手动安装!')
+				bash('systemctl enable mariadb.service')
+				bash('systemctl start mariadb.service')
+			else:
+				ret_code = bash('yum -y install mysql-server')
+				self.check_bash_return(ret_code, '安装mysql失败, 请检查安装源是否更新或手动安装!')
+				bash('service mysqld start')
+				bash('chkconfig mysqld on')
+			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
+			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
+
+		if self._is_ubuntu:
+			cmd1 = 'echo mysql-server mysql-server/root_password select '' | debconf-set-selections'
+			cmd2 = 'echo mysql-server mysql-server/root_password_again select '' | debconf-set-selections'
+			cmd3 = 'apt-get -y install mysql-server'
+			ret_code = bash('%s; %s; %s' % (cmd1, cmd2, cmd3))
+			self.check_bash_return(ret_code, '安装mysql失败, 请检查安装源是否更新或手动安装!')
+			bash('service mysql start')
+			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
+			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
 	def check_platform(self):
 		'''
@@ -196,6 +223,32 @@ class PreSetup(object):
 		ip = raw_input('请输入您服务器的IP地址，用户浏览器可以访问 [%s]: ' % (get_ip_addr())).strip()
 		self.ip = ip if ip else get_ip_addr()
 
+	def _input_mysql(self):
+		'''
+		是否安装一个新的MYSQL服务， 检查数据库能否正常连接
+		'''
+		while True:
+			mysql = raw_input('是否需要安装新的MYSQL服务器? (y/n) [y]: ').lower()
+			if mysql != 'n':
+				self._setup_mysql()		# 安装一个新的MYSQL服务器
+			else:
+				db_host = raw_input('请输入数据库服务器IP [127.0.0.1]: ').strip()
+				db_port = raw_input('请输入数据库服务器端口 [3306]: ').strip()
+				db_user = raw_input('请输入数据库服务器用户 [root]: ').strip()
+				db_pass = raw_input('请输入数据库服务器密码: ').strip()
+				db = raw_input('请输入使用的数据库 [jumpserver]: ').strip()
+
+				if db_host:
+					self.db_host = db_host
+				if db_port:
+					self.db_port = db_port
+				if db_user:
+					self.db_user = db_user
+				if db_pass:
+					self.db_pass = db_pass
+				if db:
+					self.db = db
+
 	def start(self):
 		color_print('请务必先查看wiki https://github.com/jumpserver/jumpserver/wiki')			# 颜色输出函数
 		time.sleep(3)
@@ -205,6 +258,7 @@ class PreSetup(object):
 		self._require_pip()
 		self._set_env()
 		self._input_ip()
+		self._input_mysql()
 
 
 if __name__ == '__main__':
