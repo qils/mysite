@@ -12,6 +12,7 @@ import random
 import string
 import platform
 import shlex
+import smtplib
 import MySQLdb
 
 
@@ -64,16 +65,16 @@ def get_ip_addr():
 
 class PreSetup(object):
 	def __init__(self):
-		self.db_host = '127.0.0.1'		# 指定数据库地址
-		self.db_port = 3306		# 指定数据库端口
-		self.db_user = 'root'		# 指定数据库用户名
-		self.db_pass = 'redhat'		# 指定数据库登录密码
-		self.db = 'jumpserver'		# 指定数据库名称
-		self.mail_host = 'smtp.qq.com'		# 指定邮箱地址
-		self.mail_port = 25		# 指定邮箱端口号
-		self.mail_addr = 'hello@jumpserver.org'		# 指定收件地址
-		self.mail_pass = 'test'		# 指定邮箱密码
-		self.ip = ''
+		self.db_host = '127.0.0.1'		# 默认数据库监听地址
+		self.db_port = 3306		# 默认数据库监听端口
+		self.db_user = 'root'		# 默认数据库用户名
+		self.db_pass = 'redhat'		# 默认数据库登录密码
+		self.db = 'jumpserver'		# 默认数据库名称
+		self.mail_host = 'smtp.qq.com'		# 默认邮箱地址
+		self.mail_port = 25		# 默认邮箱端口号
+		self.mail_addr = 'hello@jumpserver.org'		# 默认邮件地址
+		self.mail_pass = 'test'		# 默认邮箱密码
+		self.ip = ''		# 服务监听IP地址
 		self.key = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(16))		# 随机生成16位数
 		self.dist = platform.linux_distribution()[0].lower()		# 获取操作系统类型
 		self.version = platform.linux_distribution()[1]		# 获取操作系统版本号
@@ -141,6 +142,7 @@ class PreSetup(object):
 				self.check_bash_return(ret_code, '安装mysql失败, 请检查安装源是否更新或手动安装!')
 				bash('service mysqld start')
 				bash('chkconfig mysqld on')
+			bash('/usr/bin/mysqladmin -u %s password %s' % (self.db_user, self.db_pass))		# 给数据库root用户设置密码
 			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
@@ -151,6 +153,7 @@ class PreSetup(object):
 			ret_code = bash('%s; %s; %s' % (cmd1, cmd2, cmd3))
 			self.check_bash_return(ret_code, '安装mysql失败, 请检查安装源是否更新或手动安装!')
 			bash('service mysql start')
+			bash('/usr/bin/mysqladmin -u %s password %s' % (self.db_user, self.db_pass))		# 给数据库root用户设置密码
 			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
@@ -161,6 +164,26 @@ class PreSetup(object):
 			return True
 		except MySQLdb.OperationalError, e:
 			color_print('数据库连接失败 %s' % (e), color='red')
+			return False
+
+	def _test_mail(self):
+		'''
+		测试邮件地址是否能正常发邮件
+		'''
+		try:
+			if self.mail_port == 465:
+				smtp = smtplib.SMTP_SSL(self.mail_host, port=self.mail_port, timeout=2)
+			else:
+				smtp = smtplib.SMTP(self.mail_host, port=self.mail_port, timeout=2)
+			smtp.login(self.mail_addr, self.mail_pass)
+			smtp.sendmail(self.mail_addr, (self.mail_addr,), '''From:%s\r\nTo:%s\r\nSubject: Jumpserver Mail Test!\r\n\r\n Mail test passed!\r\n''' % (self.mail_addr, self.mail_addr))
+			smtp.quit()
+			return True
+		except Exception, e:
+			color_print(e, color='red')
+			skip = raw_input('是否跳过? [y/n]: ').lower()
+			if skip == 'y':
+				return True
 			return False
 
 	def check_platform(self):
@@ -263,6 +286,26 @@ class PreSetup(object):
 				break
 		color_print('mysql连接测试完成', color='green')
 
+	def _input_smtp(self):
+		'''
+		验证邮箱是否可用
+		'''
+		while True:
+			self.mail_host = raw_input('请输入SMTP地址: ').strip()
+			mail_port = raw_input('请输入SMTP端口 [25]: ').strip()
+			self.mail_addr = raw_input('请输入账户: ').strip()
+			self.mail_pass = raw_input('请输入账户密码: ').strip()
+			if mail_port:
+				self.mail_port = int(mail_port)
+
+			if self._test_mail():
+				color_print('请登陆邮箱查收邮件, 然后确认是否继续安装\n', color='green')
+				smtp = raw_input('是否继续? [y/n]: ').lower()
+				if smtp == 'n':
+					continue
+				else:
+					break
+
 	def start(self):
 		color_print('请务必先查看wiki https://github.com/jumpserver/jumpserver/wiki')			# 颜色输出函数
 		time.sleep(3)
@@ -273,6 +316,7 @@ class PreSetup(object):
 		self._set_env()
 		self._input_ip()
 		self._input_mysql()
+		self._input_smtp()
 
 
 if __name__ == '__main__':
