@@ -344,7 +344,7 @@ class PreSetup(object):
 		self._input_mysql()
 		self._input_smtp()
 		self.write_conf()
-
+		os.system('python %s' % (os.path.join(jms_dir, 'install/next.py')))
 
 if __name__ == '__main__':
 	pre_setup = PreSetup()
