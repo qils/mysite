@@ -14,6 +14,10 @@ import platform
 import shlex
 import smtplib
 import MySQLdb
+import ConfigParser
+
+jms_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))		# jumpserver 配置文件所在目录
+sys.path.append(jms_dir)		# 项目家目录增加至python模块查找目录
 
 
 def color_print(msg, color='red', exits=False):
@@ -306,6 +310,28 @@ class PreSetup(object):
 				else:
 					break
 
+	def write_conf(self, conf_file=os.path.join(jms_dir, 'jumpserver.conf')):
+		'''
+		配置文件写入, 依据自己环境重新设置
+		'''
+		color_print('开始写入配置文件', color='green')
+		conf = ConfigParser.ConfigParser()
+		conf.read(conf_file)
+		conf.set('base', 'url', 'http://%s' % (self.ip))
+		conf.set('base', 'key', self.key)
+		conf.set('db', 'host', self.db_host)
+		conf.set('db', 'port', self.db_port)
+		conf.set('db', 'user', self.db_user)
+		conf.set('db', 'password', self.db_pass)
+		conf.set('db', 'database', self.db)
+		conf.set('mail', 'email_host', self.mail_host)
+		conf.set('mail', 'email_port', self.mail_port)
+		conf.set('mail', 'email_host_user', self.mail_addr)
+		conf.set('mail', 'email_host_password', self.mail_pass)
+
+		with open(conf_file, 'w') as f:
+			conf.write(f)
+
 	def start(self):
 		color_print('请务必先查看wiki https://github.com/jumpserver/jumpserver/wiki')			# 颜色输出函数
 		time.sleep(3)
@@ -317,6 +343,7 @@ class PreSetup(object):
 		self._input_ip()
 		self._input_mysql()
 		self._input_smtp()
+		self.write_conf()
 
 
 if __name__ == '__main__':
