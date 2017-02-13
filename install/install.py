@@ -32,7 +32,7 @@ def color_print(msg, color='red', exits=False):
 		'title': '\033[30;42m%s\033[0m',
 		'info': '\033[32m%s\033[0m'
 	}
-	msg = color_msg.get(color) % (msg)
+	msg = color_msg.get(color) % (msg, )
 	print msg
 	if exits:
 		time.sleep(2)
@@ -147,7 +147,7 @@ class PreSetup(object):
 				bash('service mysqld start')
 				bash('chkconfig mysqld on')
 			bash('/usr/bin/mysqladmin -u %s password %s' % (self.db_user, self.db_pass))		# 给数据库root用户设置密码
-			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
+			bash('mysql -e "create database %s default charset=utf8"' % (self.db, ))
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
 		if self._is_ubuntu:
@@ -158,7 +158,7 @@ class PreSetup(object):
 			self.check_bash_return(ret_code, '安装mysql失败, 请检查安装源是否更新或手动安装!')
 			bash('service mysql start')
 			bash('/usr/bin/mysqladmin -u %s password %s' % (self.db_user, self.db_pass))		# 给数据库root用户设置密码
-			bash('mysql -e "create database %s default charset=utf8"' % (self.db))
+			bash('mysql -e "create database %s default charset=utf8"' % (self.db, ))
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
 	def _test_db_conn(self):
@@ -167,7 +167,7 @@ class PreSetup(object):
 			color_print('数据库连接成功', color='green')
 			return True
 		except MySQLdb.OperationalError, e:
-			color_print('数据库连接失败 %s' % (e), color='red')
+			color_print('数据库连接失败 %s' % (e, ), color='red')
 			return False
 
 	def _test_mail(self):
@@ -317,7 +317,7 @@ class PreSetup(object):
 		color_print('开始写入配置文件', color='green')
 		conf = ConfigParser.ConfigParser()
 		conf.read(conf_file)
-		conf.set('base', 'url', 'http://%s' % (self.ip))
+		conf.set('base', 'url', 'http://%s' % (self.ip, ))
 		conf.set('base', 'key', self.key)
 		conf.set('db', 'host', self.db_host)
 		conf.set('db', 'port', self.db_port)
