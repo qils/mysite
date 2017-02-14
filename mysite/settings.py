@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'juser',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -80,3 +81,4 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+AUTH_USER_MODEL = 'juser.User'
