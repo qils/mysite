@@ -21,7 +21,7 @@ class UserGroup(models.Model):
 
 class User(AbstractUser):
 	'''
-	用户表
+	用户表, 需要在全局配置文件settings里面设置AUTH_USER_MODEL = juser.User 参数， 否则有报错
 	'''
 	user_role_choices = (
 		('SU', 'SuperUser'),
