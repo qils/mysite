@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# --*-- coding: utf-8 --*--
 """
 Django settings for mysite project.
 
@@ -10,7 +12,11 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import ConfigParser
+
+config = ConfigParser.ConfigParser()
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+config.read(os.path.join(BASE_DIR, 'jumpserver.conf'))      # 读取jumpserver配置文件
 
 
 # Quick-start development settings - unsuitable for production
@@ -55,13 +61,37 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+DATABASES = {}
+if config.get('db', 'engine') == 'mysql':
+    DB_HOST = config.get('db', 'host')
+    DB_PORT = config.get('db', 'port')
+    DB_USER = config.get('db', 'user')
+    DB_PASSWORD = config.get('db', 'password')
+    DB_DATABASE = config.get('db', 'database')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': DB_DATABASE,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
     }
-}
+elif config.get('db', 'engine') == 'sqlite':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': config.get('db', 'database'),
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
