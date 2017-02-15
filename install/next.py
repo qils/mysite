@@ -83,7 +83,8 @@ class SetUp(object):
 		os.chmod('manage.py', 0755)
 		os.chmod('run_server.py', 0755)
 		os.chmod('service.sh', 0755)
-		os.chmod('logs', 0755)
+		os.chmod('logs', 0777)
+		os.chmod('keys', 0777)
 
 	@staticmethod
 	def _run_service():
