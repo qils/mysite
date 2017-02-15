@@ -72,12 +72,33 @@ class SetUp(object):
 		cmd = 'id %s 2>/dev/null 1>/dev/null || useradd %s' % (self.admin_user, self.admin_pass)		# 在设备上创建一个用户
 		shlex.os.system(cmd)
 
+	@staticmethod
+	def _chmod_file():
+		'''
+		对文件和目录的权限进行修改
+		'''
+		os.chdir(jms_dir)
+		os.chmod('init.sh', 0755)
+		os.chmod('connect.py', 0755)
+		os.chmod('manage.py', 0755)
+		os.chmod('run_server.py', 0755)
+		os.chmod('service.sh', 0755)
+		os.chmod('logs', 0755)
+
+	@staticmethod
+	def _run_service():
+		cmd = 'bash %s start' % (os.path.join(jms_dir, 'service.sh'))
+		shlex.os.system(cmd)
+		color_print('安装成功, Web登录请访问http://ip:8000, 祝你使用愉快\n请访问 https://github.com/jumpserver/jumpserver/wiki 查看文档', color='green')
+
 	def start(self):
 		print '开始安装JumpServer ......'
 		self._pull()
 		self._sync_db()
 		self._input_admin()
 		self._create_admin()
+		self._chmod_file()
+		self._run_service()
 
 if __name__ == '__main__':
 	setup = SetUp()
