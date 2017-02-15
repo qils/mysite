@@ -5,7 +5,7 @@ import os
 import socket
 import urllib
 import shlex
-from install.install import color_print
+from install.setup import color_print
 from mysite.api import get_mac_address
 from django.core.management import execute_from_command_line
 from juser.user_api import get_object, User, db_add_user
