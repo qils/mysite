@@ -43,7 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'juser',
-    'django-crontab',
+    'django_crontab',
 )
 
 MIDDLEWARE_CLASSES = (
