@@ -18,7 +18,9 @@ config = ConfigParser.ConfigParser()
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 config.read(os.path.join(BASE_DIR, 'jumpserver.conf'))      # 读取jumpserver配置文件
 
-
+# ======== Log ========
+IP = config.get('base', 'ip')
+PORT = config.get('base', 'port')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
