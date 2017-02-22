@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 from mysite.api import *
+from django.http import HttpResponse
 
 
 @require_role(role='user')
@@ -11,4 +12,4 @@ def index(request):
 
 @defend_attack		# 登陆次数检查装饰器
 def Login(request):
-	pass
+	return HttpResponse('OK')

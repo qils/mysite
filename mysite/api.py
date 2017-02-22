@@ -42,6 +42,7 @@ def defend_attck(func):
 		if int(request.session.get('visit', 1)) > 10:
 			logger.debug('请求次数: %s' % (request.session.get('visit', 1), ))
 			return HttpResponse('Forbidden', status=403)
+		logger.info('请求次数: %s' % (request.session.get('visit', 1), ))
 		request.session['visit'] = request.session.get('visit', 1) + 1
 		request.session.set_expiry(300)		# 设置会话过期时间为300秒
 		return func(request, *args, **kwargs)
