@@ -19,6 +19,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 config.read(os.path.join(BASE_DIR, 'jumpserver.conf'))      # 读取jumpserver配置文件
 
 # ======== Log ========
+LOG_DIR = os.path.join(BASE_DIR, 'logs')        # jumpserver日志目录
+LOG_LEVEL = config.get('base', 'log')       # 设置日志级别
 IP = config.get('base', 'ip')
 PORT = config.get('base', 'port')
 # Quick-start development settings - unsuitable for production
