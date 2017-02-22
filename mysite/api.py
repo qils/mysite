@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from juser.models import User, UserGroup
 
 
-def set_log(level, filename='jumpserver.log'):
+def set_log(level, filename='jumpserver.org'):
 	'''
 	写日志到日志文件函数
 	'''
@@ -38,7 +38,7 @@ def require_role(role='user'):
 	pass
 
 
-def defend_attck(func):
+def defend_attack(func):
 	'''
 	自定义防护装饰器,会话有效期内连续登陆超过10次, 将禁止登陆
 	'''
