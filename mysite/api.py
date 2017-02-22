@@ -34,6 +34,10 @@ def set_log(level, filename='jumpserver.log'):
 	return logger_f
 
 
+def require_role(role='user'):
+	pass
+
+
 def defend_attck(func):
 	'''
 	自定义防护装饰器,会话有效期内连续登陆超过10次, 将禁止登陆
