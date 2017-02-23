@@ -117,5 +117,5 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'juser.User'
-TEMPLATE_DIRS = os.path.join(BASE_DIR, 'templates')
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
