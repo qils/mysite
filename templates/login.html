@@ -21,7 +21,7 @@
             {% if error %}
                 <div class="alert alert-danger text-center">{{ error }}</div>
             {% endif %}
-            <h2>Welcome to JumpServer</h2>
+            <h2>欢迎进入 JumpServer</h2>
             <form class="m-t" role="form" method="post" action="">
                 <div class="form-group">
                     <input type="text" name="username" class="form-control" placeholder="Username" required="length[6~50]">
@@ -29,9 +29,9 @@
                 <div class="form-group">
                     <input type="password" name="password" class="form-control" placeholder="Password" required="">
                 </div>
-                <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
+                <button type="submit" class="btn btn-primary block full-width m-b">登陆</button>
 
-                <a href="{% url 'password_forget' %}"><small>Forgot password? </small></a>
+                <a href="{% url 'password_forget' %}"><small>忘记密码? </small></a>
             </form>
             <p class="m-t"> <small><b>Copyright</b> Jumpserver.org Organization © 2014-2015</small> </p>
         </div>
