@@ -30,7 +30,7 @@ try:
     EMAIL_USE_SSL = config.getboolean('mail', 'email_use_ssl')      # 是否使用SSL
 except ConfigParser.NoOptionError:
     EMAIL_USE_SSL = False
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend' if EMAIL_USE_SSL else 'django.core.mail.backends.smpt.EmailBackend'  # 发送邮件后端
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend' if EMAIL_USE_SSL else 'django.core.mail.backends.smtp.EmailBackend'  # 发送邮件后端
 EMAIL_TIMEOUT = 5       # 发送邮件超时时间
 
 # ======== Log ========
