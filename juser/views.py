@@ -29,7 +29,7 @@ def forget_password(request):
 			try:
 				send_mail('忘记跳板机密码', msg, MAIL_FROM, [email], fail_silently=False)		# fail_silently=False, 邮件发送失败触发异常
 			except Exception, e:
-				logger.error('邮件发送失败')
+				logger.error('邮件发送失败')		# 记录日志
 				return http_error(request, e)
 			msg = '请登录邮箱, 点击连接重置密码'
 			return http_success(request, msg)
