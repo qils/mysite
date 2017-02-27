@@ -4,10 +4,13 @@
 import os
 import uuid
 import logging
+import hashlib
 from mysite import settings
 from django.http import HttpResponse
 from juser.models import User, UserGroup
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
+from django.shortcuts import render_to_response
 
 
 def set_log(level, filename='jumpserver.org'):
@@ -76,5 +79,31 @@ def get_object(model, **kwargs):
 		the_object = None
 	return the_object
 
+
+class PyCrypt(object):
+	'''
+	jumpserver 加密类, 封装多种加密函数
+	'''
+	@staticmethod
+	def md5_crypt(string):
+		'''
+		md5非对称加密方法
+		'''
+		return hashlib.new('md5', string).hexdigest()
+
+
+def http_success(request, msg):
+	'''
+	返回成功页面
+	'''
+	return render_to_response('success.html', locals())
+
+
+def http_error(request, msg):
+	'''
+	返回失败页面
+	'''
+	message = msg
+	return render_to_response('error.html', locals())
 
 logger = set_log(settings.LOG_LEVEL)

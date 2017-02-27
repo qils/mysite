@@ -18,11 +18,28 @@ config = ConfigParser.ConfigParser()
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 config.read(os.path.join(BASE_DIR, 'jumpserver.conf'))      # 读取jumpserver配置文件
 
+
+# ======== mail config ========
+MAIL_ENABLE = config.get('mail', 'mail_enable')     # 邮箱能否登录
+EMAIL_HOST = config.get('mail', 'email_host')       # 邮箱地址
+EMAIL_PORT = config.get('mail', 'email_port')       # 邮箱端口
+EMAIL_HOST_USER = config.get('mail', 'email_host_user')     # 邮箱登录用户
+EMAIL_HOST_PASSWORD = config.get('mail', 'email_host_password')     # 邮箱登录密码
+EMAIL_USE_TLS = config.getboolean('mail', 'email_use_tls')      # 是否使用TLS
+try:
+    EMAIL_USE_SSL = config.getboolean('mail', 'email_use_ssl')      # 是否使用SSL
+except ConfigParser.NoOptionError:
+    EMAIL_USE_SSL = False
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend' if EMAIL_USE_SSL else 'django.core.mail.backends.smpt.EmailBackend'  # 发送邮件后端
+EMAIL_TIMEOUT = 5       # 发送邮件超时时间
+
 # ======== Log ========
 LOG_DIR = os.path.join(BASE_DIR, 'logs')        # jumpserver日志目录
 LOG_LEVEL = config.get('base', 'log')       # 设置日志级别
-IP = config.get('base', 'ip')
-PORT = config.get('base', 'port')
+IP = config.get('base', 'ip')           # 服务监听IP地址
+PORT = config.get('base', 'port')       # 服务监听端口
+KEY = config.get('base', 'key')     # 加密字符KEY, 随机生成的一个16位字符
+URL = config.get('base', 'url')     # 密码重置服务器地址
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 

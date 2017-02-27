@@ -79,7 +79,7 @@ class PreSetup(object):
 		self.mail_addr = 'hello@jumpserver.org'		# 默认邮件地址
 		self.mail_pass = 'test'		# 默认邮箱密码
 		self.ip = ''		# 服务监听IP地址
-		self.key = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(16))		# 随机生成16位数
+		self.key = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(16))		# 随机生成16位数, 当做加密的KEY
 		self.dist = platform.linux_distribution()[0].lower()		# 获取操作系统类型
 		self.version = platform.linux_distribution()[1]		# 获取操作系统版本号
 

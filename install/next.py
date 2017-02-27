@@ -68,7 +68,7 @@ class SetUp(object):
 		user = get_object(User, username=self.admin_user)		# 判断User表里面是否已存在该账号, 存在则删除记录后在创建
 		if user:
 			user.delete()
-		db_add_user(username=self.admin_user, password=self.admin_pass, role='SU', name='admin', groups='', admin_groups='', email='admin@jumpserver.ort', uuid='MayBeYouAreTheFirstUser', is_active=True)
+		db_add_user(username=self.admin_user, password=self.admin_pass, role='SU', name='admin', groups='', admin_groups='', email='admin@jumpserver.org', uuid='MayBeYouAreTheFirstUser', is_active=True)
 		cmd = 'id %s 2>/dev/null 1>/dev/null || useradd %s' % (self.admin_user, self.admin_pass)		# 在设备上创建一个用户
 		shlex.os.system(cmd)
 
