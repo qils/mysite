@@ -22,7 +22,7 @@ def forget_password(request):
 		if user:
 			timestamp = int(time.time())
 			hash_encode = PyCrypt.md5_crypt(str(user.uuid) + str(timestamp) + settings.KEY)		# 通过uuid, 时间戳, settings配置文件中的KEY算一个md5
-			msg = '''
+			msg = u'''
 				Hi %s, 请点击下面的连接重设密码
 				%s/juser/password/reset/?uuid=%s&timestamp=%s&hash=%s
 			''' % (user.name, settings.URL, user.uuid, timestamp, hash_encode)
