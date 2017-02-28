@@ -36,16 +36,16 @@
 
 <script>
     function countDown(secs,surl){
-         var jumpTo = document.getElementById('jumpTo');
-         jumpTo.innerHTML= secs + '秒' + '后返回上一页';
+         var jumpTo = document.getElementById('jumpTo');        // 返回拥有第一个满足条件id的对象
+         jumpTo.innerHTML = secs + '秒' + '后返回上一页';      // 设置或者获取标签中的html元素
          if(--secs>0){
-             setTimeout("countDown("+secs+",'"+surl+"')",1000);
+             setTimeout("countDown("+secs+",'"+surl+"')",1000);     // 一秒后调用countDown
              }
          else{
-             location.href=surl;
+             location.href=surl;        // 跳转到上个页面
              }
          }
-    countDown(5,document.referrer);
+    countDown(500,document.referrer);     // document.referrer 返回载入当前文档的URL
 </script>
 
 </html>
