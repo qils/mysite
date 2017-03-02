@@ -64,7 +64,7 @@ def reset_password(request):
 		if user:
 			user.set_password(new_password)
 			user.save()
-			logger.info('用户[%s]更新密码成功' % (user.username, ))		# 记录密码变更的用户
+			logger.info(u'用户[%s]更新密码成功' % (user.username, ))		# 记录密码变更的用户
 			return http_success(request, '密码重置成功')
 		else:
 			return HttpResponse('用户不存在')
