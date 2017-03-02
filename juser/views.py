@@ -47,7 +47,7 @@ def reset_password(request):
 	uuid_r = request.GET.get('uuid', '')
 	timestamp = request.GET.get('timestamp', '')
 	hash_encode = request.GET.get('hash', '')
-	action = '/juser/password/reset?uuid=%s&timestamp=%s&hash=%s' % (uuid_r, timestamp, hash_encode)
+	action = '/juser/password/reset/?uuid=%s&timestamp=%s&hash=%s' % (uuid_r, timestamp, hash_encode)
 
 	if hash_encode == PyCrypt.md5_crypt(uuid_r + timestamp + settings.KEY):
 		if int(time.time()) - int(timestamp) >= 600:		# 时间超过600秒后连接超时, 需重新生成连接
