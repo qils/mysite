@@ -29,8 +29,8 @@ def forget_password(request):
 			try:
 				send_mail('忘记跳板机密码', msg, MAIL_FROM, [email], fail_silently=False)		# fail_silently=False, 邮件发送失败触发异常
 			except Exception, e:
-				logger.error('邮件发送失败')		# 记录日志
-				return http_error(request, e)
+				logger.error('邮件发送失败: %s' % (e, ))		# 记录日志
+				return http_error(request, '邮件发送失败')
 			msg = '请登录邮箱, 点击连接重置密码'
 			return http_success(request, msg)
 		else:
@@ -71,4 +71,4 @@ def reset_password(request):
 	else:
 		return render_to_response('juser/reset_password.html', locals())
 
-	return http_error(request, '请求错误')
+	return http_error(request, '请求错误')		# 这个不会被调用到
