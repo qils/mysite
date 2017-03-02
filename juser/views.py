@@ -37,3 +37,38 @@ def forget_password(request):
 			error = '用户名不存在或邮件地址错误'
 
 	return render_to_response('juser/forget_password.html', locals())
+
+
+@defend_attack
+def reset_password(request):
+	'''
+	密码重置视图
+	'''
+	uuid_r = request.GET.get('uuid', '')
+	timestamp = request.GET.get('timestamp', '')
+	hash_encode = request.GET.get('hash', '')
+	action = '/juser/password/reset?uuid=%s&timestamp=%s&hash=%s' % (uuid_r, timestamp, hash_encode)
+
+	if hash_encode == PyCrypt.md5_crypt(uuid_r + timestamp + settings.KEY):
+		if int(time.time()) - int(timestamp) >= 600:		# 时间超过600秒后连接超时, 需重新生成连接
+			return HttpResponse('连接已超时')
+	else:
+		return HttpResponse('hash校验失败')
+
+	if request.method == 'POST':
+		new_password = request.POST.get('password', '')
+		password_confirm = request.POST.get('password_confirm', '')
+		if new_password != password_confirm:
+			return http_error(request, '两次输入的密码不匹配, 请重新输入')
+		user = get_object(User, uuid=uuid_r)
+		if user:
+			user.set_password(new_password)
+			user.save()
+			logger.info('用户[%s]更新密码成功' % (user.username, ))		# 记录密码变更的用户
+			return http_success(request, '密码重置成功')
+		else:
+			return HttpResponse('用户不存在')
+	else:
+		return render_to_response('juser/reset_password.html', locals())
+
+	return http_error(request, '请求错误')
