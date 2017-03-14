@@ -6,7 +6,7 @@ import uuid
 import logging
 import hashlib
 from mysite import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from juser.models import User, UserGroup
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
@@ -39,7 +39,23 @@ def set_log(level, filename='jumpserver.org'):
 
 
 def require_role(role='user'):
-	pass
+	'''
+	要求登录的用户属于某一种角色['SU', 'CU', 'GA']装饰器, 同时也会检测用户是否验证成功
+	'''
+	def _deco(func):
+		def __deco(request, *args, **kwargs):
+			request.session['pre_url'] = request.path		# 根据session中间件处理流程, 有会话修改时,会给客户端发送一个cookie session
+			if not request.user.is_authenticated():
+				return HttpResponseRedirect(reverse('login'))
+			if role == 'admin':
+				if request.user.role == 'CU':
+					return HttpResponseRedirect(reverse('index'))
+			elif role == 'super':
+				if request.user.role in ['CU', 'GA']:
+					return HttpResponseRedirect(reverse('index'))
+			return func(request, *args, **kwargs)
+		return __deco
+	return _deco
 
 
 def defend_attack(func):

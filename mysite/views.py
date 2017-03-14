@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 
 
-# @require_role(role='user')
+@require_role(role='user')		# 给视图添加访问权限
 def index(request):
 	return HttpResponse('OK')
 
@@ -44,3 +44,6 @@ def Login(request):
 		else:
 			error = '用户名或密码错误'
 	return render_to_response('login.html', {'error': error})
+
+
+
