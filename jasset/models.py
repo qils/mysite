@@ -75,7 +75,7 @@ class Asset(models.Model):
 	password = models.CharField(max_length=256, blank=True, null=True, verbose_name='密码')
 	use_default_auth = models.BooleanField(default=True, verbose_name='使用默认管理账号')
 	idc = models.ForeignKey(IDC, blank=True, null=True, on_delete=models.SET_NULL, verbose_name='机房')
-	mac = models.CharField(max_length=20, black=True, null=True, verbose_name='MAC地址')
+	mac = models.CharField(max_length=20, blank=True, null=True, verbose_name='MAC地址')
 	remote_ip = models.CharField(max_length=16, blank=True, null=True, verbose_name='远程管理卡IP')
 	brand = models.CharField(max_length=64, blank=True, null=True, verbose_name='硬件厂商型号')
 	cpu = models.CharField(max_length=64, blank=True, null=True, verbose_name='CPU')
