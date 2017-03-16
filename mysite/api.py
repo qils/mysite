@@ -43,7 +43,7 @@ def set_log(level, filename='jumpserver.org'):
 	logger_f.setLevel(logging.DEBUG)		# 指定最低日志级别为DEBUG, 低于该级别的日志会忽略
 	fh = logging.FileHandler(log_file)		# 指定文件处理程序, 将日志输入到文件
 	fh.setLevel(log_level_total.get(level, logging.DEBUG))
-	formatter = logging.Formatter('%(asctime)s - %(filename)s - %(pathname)s/%(levelname)s - %(message)s')		# 日志文件记录格式
+	formatter = logging.Formatter('%(asctime)s - %(pathname)s/%(filename)s - %(levelname)s - %(message)s')		# 日志文件记录格式
 	fh.setFormatter(formatter)
 	logger_f.addHandler(fh)
 	return logger_f
