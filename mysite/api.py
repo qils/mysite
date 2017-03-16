@@ -13,6 +13,17 @@ from django.core.mail import send_mail
 from django.shortcuts import render_to_response
 
 
+def is_role_request(request, role='user'):
+	'''
+	要求请求角色正确
+	'''
+	role_all = {'user': 'CU', 'super': 'SU', 'admin': 'GA'}
+	if request.user.role == role_all.get(role, 'user'):
+		return True
+	else:
+		return False
+
+
 def set_log(level, filename='jumpserver.org'):
 	'''
 	写日志到日志文件函数
@@ -32,7 +43,7 @@ def set_log(level, filename='jumpserver.org'):
 	logger_f.setLevel(logging.DEBUG)		# 指定最低日志级别为DEBUG, 低于该级别的日志会忽略
 	fh = logging.FileHandler(log_file)		# 指定文件处理程序, 将日志输入到文件
 	fh.setLevel(log_level_total.get(level, logging.DEBUG))
-	formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s - %(message)s')		# 日志文件记录格式
+	formatter = logging.Formatter('%(asctime)s - %(filename)s - %(pathname)s/%(levelname)s - %(message)s')		# 日志文件记录格式
 	fh.setFormatter(formatter)
 	logger_f.addHandler(fh)
 	return logger_f
