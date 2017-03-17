@@ -6,6 +6,8 @@ from mysite.api import *
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
+from jasset.models import Asset, IDC
+from jlog.models import Log, FileLog
 
 
 def getDaysByNum(num):
@@ -39,7 +41,7 @@ def index(request):
 	if is_role_request(request, role='user'):		# 普通用户返回的视图
 		return index_cu(request)
 	elif is_role_request(request, role='super'):		# 超级用户返回的视图
-
+		pass
 
 
 @defend_attack		# 登陆次数检查装饰器, 会话没过期内,连续登陆时间不能超过10次

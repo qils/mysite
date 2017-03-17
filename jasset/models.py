@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import datetime
 from django.db import models
 from juser.models import User, UserGroup
 # Create your models here.
