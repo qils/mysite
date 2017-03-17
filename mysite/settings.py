@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'juser',
     'jasset',
+    'jlog',
     'django_crontab',
 )
 
