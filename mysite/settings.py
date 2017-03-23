@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'jasset',
     'jlog',
     'django_crontab',
+    'django.contrib.humanize',
 )
 
 MIDDLEWARE_CLASSES = (
