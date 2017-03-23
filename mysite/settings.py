@@ -68,6 +68,7 @@ INSTALLED_APPS = (
     'jlog',
     'django_crontab',
     'django.contrib.humanize',
+    'mysite',
 )
 
 MIDDLEWARE_CLASSES = (
