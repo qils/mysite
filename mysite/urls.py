@@ -18,4 +18,5 @@ urlpatterns = patterns(
     url(r'^$', 'index', name='index'),
     url(r'^login/$', 'Login', name='login'),
     url(r'^juser/', include('juser.urls')),
+    url(r'^jasset/', include('jasset.urls')),
 )

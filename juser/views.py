@@ -72,3 +72,14 @@ def reset_password(request):
 		return render_to_response('juser/reset_password.html', locals())
 
 	return http_error(request, '请求错误')		# 这个不会被调用到
+
+
+def group_list(request):
+	pass
+
+
+def user_list(request):
+	pass
+
+
+

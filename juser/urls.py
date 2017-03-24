@@ -8,5 +8,7 @@ urlpatterns = patterns(
 	'juser.views',
 	url(r'^password/forget/$', 'forget_password', name='password_forget'),
 	url(r'^password/reset/$', 'reset_password', name='password_reset'),
+	url(r'^group/list/$', 'group_list', name='user_group_list'),
+	url(r'^user/list/$', 'user_list', name='user_list'),
 	# url(r'^user/detail/$', 'user_detail', name='user_detail'),
 )
