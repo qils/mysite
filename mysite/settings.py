@@ -66,6 +66,7 @@ INSTALLED_APPS = (
     'juser',
     'jasset',
     'jlog',
+    'jperm',
     'django_crontab',
     'django.contrib.humanize',
     'mysite',

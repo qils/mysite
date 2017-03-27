@@ -2,19 +2,16 @@
 # --*-- coding: utf-8 --*--
 
 from django.shortcuts import render
-
 # Create your views here.
 
 
-def group_list(request):
+def perm_sudo_list(request):
 	pass
 
 
-def asset_list(request):
+def perm_role_list(request):
 	pass
 
 
-def idc_list(request):
+def perm_rule_list(request):
 	pass
-
-

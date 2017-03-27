@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# --*-- coding: utf-8 --*--
+
 from django.conf.urls import patterns, include, url
 
 # from django.contrib import admin
@@ -19,4 +22,6 @@ urlpatterns = patterns(
     url(r'^login/$', 'Login', name='login'),
     url(r'^juser/', include('juser.urls')),
     url(r'^jasset/', include('jasset.urls')),
+    url(r'^jperm/', include('jperm.urls')),
+    url(r'^jlog/', include('jlog.urls')),
 )
