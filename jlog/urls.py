@@ -7,4 +7,5 @@ from jlog.views import *
 
 urlpatterns = patterns(
 	'',
+	url(r'^list/(\w+)/$', log_list, name='log_list'),
 )

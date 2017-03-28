@@ -82,4 +82,13 @@ def user_list(request):
 	pass
 
 
+def user_detail(request):
+	pass
 
+
+def profile(request):
+	pass
+
+
+def change_info(request):
+	pass

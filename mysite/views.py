@@ -167,4 +167,20 @@ def Login(request):
 	return render_to_response('login.html', {'error': error})
 
 
+def upload(request):
+	pass
+
+
+def download(request):
+	pass
+
+
+def setting(request):
+	pass
+
+
+def Logout(request):
+	pass
+
+
 

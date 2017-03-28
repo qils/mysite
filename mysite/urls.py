@@ -20,6 +20,10 @@ urlpatterns = patterns(
     # Examples:
     url(r'^$', 'index', name='index'),
     url(r'^login/$', 'Login', name='login'),
+    url(r'^logout/$', 'Logout', name='logout'),
+    url(r'^file/upload/$', 'upload', name='file_upload'),
+    url(r'^file/download/$', 'download', name='file_download'),
+    url(r'^setting', 'setting', name='setting'),
     url(r'^juser/', include('juser.urls')),
     url(r'^jasset/', include('jasset.urls')),
     url(r'^jperm/', include('jperm.urls')),
