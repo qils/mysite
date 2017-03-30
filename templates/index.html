@@ -329,8 +329,8 @@ $(document).ready(function(){
             'echarts/chart/line'
         ],
         function (ec) {
-            var top10Chart = ec.init(document.getElementById('top10'));     // 初始化ec实列
-            var option = {                                                  // 指定图表的配置选项
+            var top10Chart = ec.init(document.getElementById('top10'));
+            var option = {
                 title : {
                     text: '月数据总览',
                     subtext: '一个月内历史汇总',
@@ -357,7 +357,7 @@ $(document).ready(function(){
                     {
                         type : 'category',
                         boundaryGap : false,
-                        data : {{ date_month | safe}}       // 一个月的日期列表
+                        data : {{ date_month | safe}}
                     }
                 ],
                 yAxis : [
@@ -367,7 +367,7 @@ $(document).ready(function(){
                 ],
                 series : [
                     {
-                        name:'登陆次数',        // 统计一天的登录总次数
+                        name:'登陆次数',
                         type:'line',
                         smooth:true,
                         itemStyle: {normal: {areaStyle: {type: 'default'}}},
@@ -391,7 +391,7 @@ $(document).ready(function(){
                 ]
             };
 
-            top10Chart.setOption(option);       // 使用指定的配置选项和数据显示图表
+            top10Chart.setOption(option);       
         }
     );
 
