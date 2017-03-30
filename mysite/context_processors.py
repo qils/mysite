@@ -12,10 +12,10 @@ from jasset.models import Asset
 def name_proc(request):
 	user_id = request.user.id
 	role_id = {'SU': 2, 'GA': 1, 'CU': 0}.get(request.user.role, 0)
-	user_total_num = User.objects.all().count()
-	user_active_num = User.objects.filter(is_active=True).count()
-	host_total_num = Asset.objects.all().count()
-	host_active_num = Asset.objects.filter(is_active=True).count()
+	user_total_num = User.objects.all().count()		# 所有用户数
+	user_active_num = User.objects.filter(is_active=True).count()		# 所有激活用户数
+	host_total_num = Asset.objects.all().count()		# 所有资产数
+	host_active_num = Asset.objects.filter(is_active=True).count()		# 所有激活资产数
 	request.session.set_expiry(3600)
 
 	info_dic = {

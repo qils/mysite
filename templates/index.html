@@ -30,7 +30,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-sm-3">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
@@ -44,7 +43,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-sm-3">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
@@ -73,7 +71,8 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-sm-7" id="top10" style="margin-left: -15px;height: 346px;padding: 15px 0 15px 0;"></div>
+        <div class="col-sm-7" id="top10" style="margin-left: -15px;height: 346px;padding: 15px 0 15px 0;">
+        </div>
         <div class="col-sm-3 white-bg" id="top1" style="margin-left: -15px;height: 346px">
             <div class="statistic-box">
                 <h4>
@@ -85,12 +84,12 @@
                 <div class="row text-center">
                     <div class="col-sm-6">
                         <div id="activeUser"  style="width: 140px; height: 140px;">
-
                         </div>
                         <h5>用户</h5>
                     </div>
                     <div class="col-sm-6">
-                        <div id="activeAsset" style="width: 140px; height: 140px;"></div>
+                        <div id="activeAsset" style="width: 140px; height: 140px;">
+                        </div>
                         <h5>主机</h5>
                     </div>
                 </div>
@@ -198,7 +197,7 @@
                     <h5>最近十次登录</h5>
                     <div class="ibox-tools">
                         <span class="label label-info-light">10 Messages</span>
-                       </div>
+                    </div>
                 </div>
                 <div class="ibox-content ibox-heading">
                     <h3><i class="fa fa-paper-plane-o"></i> 登录记录 </h3>
@@ -221,7 +220,6 @@
                                             {% endifequal %}
                                             <strong>{{ login.user }}</strong> 登录了{{ login.host }} <br>
                                             <small class="text-muted">{{ login.start_time }}</small>
-
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -243,7 +241,6 @@
                                                     {% endifequal %}
                                                     <strong>{{ login.user }}</strong> 登录了{{ login.host }} <br>
                                                     <small class="text-muted">{{ login.start_time }}</small>
-
                                                 </div>
                                             </div>
                                         {% endfor %}
@@ -332,8 +329,8 @@ $(document).ready(function(){
             'echarts/chart/line'
         ],
         function (ec) {
-            var top10Chart = ec.init(document.getElementById('top10'));
-            var option = {
+            var top10Chart = ec.init(document.getElementById('top10'));     // 初始化ec实列
+            var option = {                                                  // 指定图表的配置选项
                 title : {
                     text: '月数据总览',
                     subtext: '一个月内历史汇总',
@@ -360,7 +357,7 @@ $(document).ready(function(){
                     {
                         type : 'category',
                         boundaryGap : false,
-                        data : {{ date_month | safe}}
+                        data : {{ date_month | safe}}       // 一个月的日期列表
                     }
                 ],
                 yAxis : [
@@ -370,7 +367,7 @@ $(document).ready(function(){
                 ],
                 series : [
                     {
-                        name:'登陆次数',
+                        name:'登陆次数',        // 统计一天的登录总次数
                         type:'line',
                         smooth:true,
                         itemStyle: {normal: {areaStyle: {type: 'default'}}},
@@ -394,7 +391,7 @@ $(document).ready(function(){
                 ]
             };
 
-            top10Chart.setOption(option);
+            top10Chart.setOption(option);       // 使用指定的配置选项和数据显示图表
         }
     );
 

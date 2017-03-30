@@ -81,11 +81,11 @@ def index(request):
 	if is_role_request(request, role='user'):		# 普通用户返回的视图
 		return index_cu(request)
 	elif is_role_request(request, role='super'):		# 超级用户返回的视图
-		users = User.objects.all()		# 过滤所有账号
-		hosts = Asset.objects.all()		# 过滤所有资产
-		online = Log.objects.filter(is_finished=0)
-		online_host = online.values('host').distinct()		# values()获取host列所有数据， distinct()暂时没法去重相同的数据
-		online_user = online.values('user').distinct()		# 同上
+		users = User.objects.all()		# 所有账号
+		hosts = Asset.objects.all()		# 所有资产
+		online = Log.objects.filter(is_finished=0)		# 在线登录的用户, is_finished为0, 表示在线用户
+		online_host = online.values('host').distinct()		# values()获取host列所有数据, distinct()暂时没法去重相同的数据
+		online_user = online.values('user').distinct()		# 同上, 所有在线用户的记录
 		active_users = User.objects.filter(is_active=1)		# 所有激活的账号
 		active_hosts = Asset.objects.filter(is_active=1)		# 所有激活的主机
 
@@ -107,24 +107,24 @@ def index(request):
 
 		# 一周top10用户和主机
 		week_data = Log.objects.filter(start_time__range=[from_week, datetime.datetime.now()])		# 一周之内的日志
-		user_top_ten = week_data.values('user').annotate(times=Count('user')).order_by('-times')[:10]		# 倒序排列取前十
-		host_top_ten = week_data.values('host').annotate(times=Count('host')).order_by('-times')[:10]		# 同上
+		user_top_ten = week_data.values('user').annotate(times=Count('user')).order_by('-times')[:10]		# 倒序排列取前十登录用户数
+		host_top_ten = week_data.values('host').annotate(times=Count('host')).order_by('-times')[:10]		# 取前十被访问的主机
 
 		for user_info in user_top_ten:		# 增加最后一次登录日期
-			username= user_info.get('user')
+			username = user_info.get('user')
 			last = Log.objects.filter(user=username).latest('start_time')
 			user_info['last'] = last
 
 		for host_info in host_top_ten:
 			host = host_info.get('host')
-			last = Log.objects.filter(host=host).latest('start_time')
+			last = Log.objects.filter(host=host).latest('start_time')		# 取最近一次登录设备的记录
 			host_info['last'] = last
 
 		# 一周top5
-		week_users = week_data.values('user').distinct().count()		# 去重后用户数
+		week_users = week_data.values('user').distinct().count()		# 去重后用户登录数
 		week_hosts = week_data.count()		# 总数量
 
-		user_top_five = week_data.values('user').annotate(times=Count('user')).order_by('-times')[:5]
+		user_top_five = week_data.values('user').annotate(times=Count('user')).order_by('-times')[:5]		# 取前5登录次数最多的用户
 		color = ['label-success', 'label-info', 'label-primary', 'label-default', 'label-warnning']
 
 		# 最后10次登录

@@ -8,15 +8,18 @@ from juser.models import User
 
 
 class Log(models.Model):
-	user = models.CharField(max_length=20, null=True)
-	host = models.CharField(max_length=200, null=True)
+	'''
+	主机登录日志
+	'''
+	user = models.CharField(max_length=20, null=True)		# 登录用户
+	host = models.CharField(max_length=200, null=True)		# 登录主机名
 	remote_ip = models.CharField(max_length=100)
 	login_type = models.CharField(max_length=100)
 	log_path = models.CharField(max_length=100)
-	start_time = models.DateTimeField(null=True)
+	start_time = models.DateTimeField(null=True)		# 登录设备时间
 	pid = models.IntegerField()
-	is_finished = models.BooleanField(default=False)
-	end_time = models.DateTimeField(null=True)
+	is_finished = models.BooleanField(default=False)		# 是否退出设备
+	end_time = models.DateTimeField(null=True)		# 登出设备时间
 	filename = models.CharField(max_length=40)
 
 	def __unicode__(self):
