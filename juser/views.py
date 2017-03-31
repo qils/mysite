@@ -86,8 +86,16 @@ def user_detail(request):
 	pass
 
 
+@require_role(role='user')
 def profile(request):
-	pass
+	'''
+	用户个人信息视图函数
+	'''
+	user_id = request.user.id
+	if not user_id:
+		return HttpResponseRedirect(reverse('index'))
+	user = User.objects.filter(id=user_id)
+	my_render('juser/profile.html', locals(), request)
 
 
 def change_info(request):

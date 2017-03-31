@@ -42,3 +42,9 @@ def get_role(user_id):
 		return '普通用户'
 
 
+@register.filter(name='bool2str')
+def bool2str(value):
+	if value:
+		return '是'
+	else:
+		return '否'

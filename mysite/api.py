@@ -12,6 +12,11 @@ from jasset.models import Asset, AssetGroup
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
+from django.template import RequestContext
+
+
+def my_render(template, data, request):
+	return render_to_response(template, data, context_instance=RequestContext(request))
 
 
 def is_role_request(request, role='user'):
