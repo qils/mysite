@@ -39,9 +39,9 @@
                         </tr>
                         <tr>
                             <td class="text-center">添加日期： </td>
-                            <td colspan="2" class="text-center">{{ user.date_joined }}</td>
+                            <td colspan="2" class="text-center">{{ user.date_joined | date:"Y-m-d H:i:s"}}</td>
                             <td class="text-center">最后登录： </td>
-                            <td colspan="3" class="text-center">{{ user.last_login }}</td>
+                            <td colspan="3" class="text-center">{{ user.last_login | date:"Y-m-d H:i:s"}}</td>
                         </tr>
                         <tr>
                             <td colspan="1" class="text-center">用户组：</td>
