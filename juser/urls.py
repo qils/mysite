@@ -14,4 +14,5 @@ urlpatterns = patterns(
 	url(r'^user/detail/$', 'user_detail', name='user_detail'),
 	url(r'^user/profile/$', 'profile', name='user_profile'),
 	url(r'^user/update/$', 'change_info', name='user_update'),
+	url(r'^key/gen/$', 'regen_ssh_key', name='key_gen'),
 )

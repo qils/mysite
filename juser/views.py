@@ -99,4 +99,35 @@ def profile(request):
 
 
 def change_info(request):
+	'''
+	用户信息修改视图
+	'''
+	header_title, path1, path2 = '修改信息', '用户管理', '修改个人信息'
+	user_id = request.user.id
+	user = User.objects.get(id=user_id)
+	error = ''
+
+	if not user:
+		return HttpResponseRedirect(reverse('index'))
+
+	if request.method == 'POST':
+		name = request.POST.get('name', '')
+		password = request.POST.get('password', '')
+		email = request.POST.get('email', '')
+
+		if '' in [name, email]:
+			error = '姓名或者邮件地址为空'
+
+		if not error:
+			user.name = name
+			user.email = email
+			user.save()
+			if len(password) > 0:
+				user.set_password(password)
+				user.save()
+			msg = '用户信息修改成功'
+	return my_render('juser/change_info.html', locals(), request)
+
+
+def regen_ssh_key(request):
 	pass
