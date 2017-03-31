@@ -95,7 +95,7 @@ def profile(request):
 	if not user_id:
 		return HttpResponseRedirect(reverse('index'))
 	user = User.objects.filter(id=user_id)
-	my_render('juser/profile.html', locals(), request)
+	return my_render('juser/profile.html', locals(), request)
 
 
 def change_info(request):
