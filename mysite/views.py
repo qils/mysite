@@ -5,7 +5,7 @@ import datetime
 from mysite.api import *
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from jasset.models import Asset, IDC
 from jlog.models import Log, FileLog
 from django.utils import timezone
@@ -179,8 +179,10 @@ def setting(request):
 	pass
 
 
+@require_role(role='user')
 def Logout(request):
-	pass
+	logout(request)
+	return HttpResponseRedirect(reverse('index'))
 
 
 
