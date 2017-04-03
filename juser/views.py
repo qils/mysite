@@ -138,4 +138,5 @@ def regen_ssh_key(request):
 
 	username = user.username
 	ssh_key_pass = PyCrypt.gen_rand_key(16)		# 随机生成的16位字符的密码
-	gen_ssh_key(username, ssh_key_pass)
+	gen_ssh_key(username, ssh_key_pass)		# 生成秘钥对
+	return HttpResponse('ssh密钥已生成，密码为 %s, 请到下载页面下载' % (ssh_key_pass, ))
