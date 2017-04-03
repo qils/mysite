@@ -44,7 +44,7 @@ def mkdir(dir_name, username='', mode=755):
 	'''
 	检查目录是否存在, 不存在就创建目录, 并且权限设置正确
 	'''
-	cmd = '[! -d %s] && mkdir -p %s && chmod %s %s' % (dir_name, dir_name, mode, dir_name)
+	cmd = '[ ! -d %s ] && mkdir -p %s && chmod %s %s' % (dir_name, dir_name, mode, dir_name)
 	bash(cmd)
 	if username:
 		chown(dir_name, username)
