@@ -129,5 +129,13 @@ def change_info(request):
 	return my_render('juser/change_info.html', locals(), request)
 
 
+@require_role(role='user')
 def regen_ssh_key(request):
-	pass
+	uuid_r = request.GET.get('uuid', '')
+	user = get_object(User, uuid=uuid_r)
+	if not user:
+		return HttpResponse('用户不存在')
+
+	username = user.username
+	ssh_key_pass = PyCrypt.gen_rand_key(16)		# 随机生成的16位字符的密码
+	gen_ssh_key(username, ssh_key_pass)

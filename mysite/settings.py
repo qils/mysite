@@ -17,6 +17,7 @@ import ConfigParser
 config = ConfigParser.ConfigParser()
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 config.read(os.path.join(BASE_DIR, 'jumpserver.conf'))      # 读取jumpserver配置文件
+KEY_DIR = os.path.join(BASE_DIR, 'keys')
 
 
 # ======== mail config ========

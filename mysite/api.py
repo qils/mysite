@@ -3,8 +3,11 @@
 
 import os
 import uuid
+import pwd
 import logging
 import hashlib
+import random
+import subprocess
 from mysite import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from juser.models import User, UserGroup
@@ -13,6 +16,38 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
+
+def chown(path, user, group=''):
+	'''
+	设置文件或者目录的所有者
+	'''
+	if not group:
+		group = user
+
+	try:
+		uid = pwd.getpwnam(user).pw_uid
+		gid = pwd.getpwnam(user).pw_gid
+		os.chown(path, uid, gid)
+	except KeyError:
+		pass
+
+
+def bash(cmd):
+	'''
+	执行bash 命令
+	'''
+	return subprocess.call(cmd, shell=True)
+
+
+def mkdir(dir_name, username='', mode=755):
+	'''
+	检查目录是否存在, 不存在就创建目录, 并且权限设置正确
+	'''
+	cmd = '[! -d %s] && mkdir -p %s && chmod %s %s' % (dir_name, dir_name, mode, dir_name)
+	bash(cmd)
+	if username:
+		chown(dir_name, username)
 
 
 def my_render(template, data, request):
@@ -123,6 +158,25 @@ class PyCrypt(object):
 		md5非对称加密方法
 		'''
 		return hashlib.new('md5', string).hexdigest()
+
+	@staticmethod
+	def gen_rand_key(length=16, especial=False):
+		'''
+		默认随机生成16位字符密码
+		'''
+		salt_key = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'
+		symbol = '!@$%^&*()_'
+		salt_list = []
+		if especial:
+			for i in range(length-4):
+				salt_list.append(random.choice(salt_key))
+			for i in range(4):
+				salt_list.append(random.choice(symbol))
+		else:
+			for i in range(length):
+				salt_list.append(random.choice(salt_key))
+		salt = ''.join(salt_list)
+		return salt
 
 
 def http_success(request, msg):

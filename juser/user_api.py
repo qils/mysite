@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import os
 from juser.models import AdminGroup
 from mysite.api import *
 
@@ -31,3 +32,25 @@ def db_add_user(**kwargs):
 			if group_object:
 				AdminGroup(user=user, group=group_object).save()
 	return user
+
+
+def gen_ssh_key(username, password='', key_dir=os.path.join(settings.KEY_DIR, 'user'), authorized_keys=True, home='/home', length=2048):
+	'''
+	生成一个用户的ssh秘钥对
+	'''
+	logger.debug('生成ssh key, 并设置authorized_keys')
+	private_key_file = os.path.join(key_dir, username + '.pem')
+	mkdir(key_dir, mode=777)
+	if os.path.isfile(private_key_file):
+		os.unlink(private_key_file)		# 文件存在首先删除文件
+	ret = bash('echo -e "y\n" | ssh-keygen -t rsa -f %s -b %s -P "%s"' % (private_key_file, length, password))
+
+	if authorized_keys:
+		auth_key_dir = os.path.join(home, username, '.ssh')
+		mkdir(auth_key_dir, username=username, mode=700)
+		authorized_key_file = os.path.join(auth_key_dir, 'authorized_keys')
+		with open(private_key_file + '.pub') as pub_f:
+			with open(authorized_key_file, 'w') as auth_f:
+				auth_f.write(pub_f.read())
+		os.chmod(authorized_key_file, 0600)
+		chown(authorized_key_file, username)
