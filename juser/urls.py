@@ -19,4 +19,5 @@ urlpatterns = patterns(
 	url(r'^key/down/$', 'down_key', name='key_down'),
 	url(r'^user/edit/$', 'user_edit', name='user_edit'),
 	url(r'^user/del/$', 'user_del', name='user_del'),
+	url(r'^mail/retry/$', 'send_mail_retry', name='mail_retry'),
 )

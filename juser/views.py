@@ -168,3 +168,7 @@ def user_edit(request):
 
 def user_del(request):
 	pass
+
+
+def send_mail_retry(request):
+	pass
