@@ -8,6 +8,7 @@ from django.shortcuts import render, render_to_response
 
 MAIL_FROM = settings.EMAIL_HOST_USER
 
+
 @defend_attack
 def forget_password(request):
 	'''
@@ -78,8 +79,19 @@ def group_list(request):
 	pass
 
 
+@require_role(role='super')
 def user_list(request):
-	pass
+	'''
+	查看所有用户视图
+	'''
+	user_role = {'SU': '超级管理员', 'GA': '组管理员', 'CU': '普通用户'}
+	header_title, path1, path2 = '查看用户', '用户管理', '用户列表'
+	keyword = request.GET.get('keyword', '')
+	gid = request.GET.get('gid', '')
+	user_list = User.objects.all().order_by('username')
+
+	users_list, p, users, page_range, current_page, show_first, show_end = pages(user_list, request)
+	return my_render('juser/user_list.html', locals(), request)
 
 
 def user_detail(request):
@@ -140,3 +152,19 @@ def regen_ssh_key(request):
 	ssh_key_pass = PyCrypt.gen_rand_key(16)		# 随机生成的16位字符的密码
 	gen_ssh_key(username, ssh_key_pass)		# 生成秘钥对
 	return HttpResponse('ssh密钥已生成，密码为 %s, 请到下载页面下载' % (ssh_key_pass, ))
+
+
+def user_add(request):
+	pass
+
+
+def down_key(request):
+	pass
+
+
+def user_edit(request):
+	pass
+
+
+def user_del(request):
+	pass

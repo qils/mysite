@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import os
 from django import template
 from mysite.api import *
 
@@ -48,3 +49,32 @@ def bool2str(value):
 		return '是'
 	else:
 		return '否'
+
+
+@register.filter(name='groups2str')
+def groups2str(group_list):
+	'''
+	用户组列表转换为str
+	'''
+	if len(group_list) < 3:
+		return ' '.join([group.name for group in group_list])
+	else:
+		return '%s ...' % (' '.join([group.name for group in group_list[0:2]]))
+
+
+@register.filter(name='user_perm_asset_num')
+def user_perm_asset_num(user_id):
+	user = get_object(User, id=user_id)
+	if user:
+		return 0
+
+
+@register.filter(name='key_exist')
+def key_exist(username):
+	'''
+	用户的ssh key 是否存在
+	'''
+	if os.path.isfile(os.path.join(settings.KEY_DIR, username + '.pem')):
+		return True
+	else:
+		return False

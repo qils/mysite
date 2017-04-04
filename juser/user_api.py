@@ -39,7 +39,7 @@ def gen_ssh_key(username, password='', key_dir=os.path.join(settings.KEY_DIR, 'u
 	生成一个用户的ssh秘钥对
 	'''
 	logger.debug('生成ssh key, 并设置authorized_keys')
-	private_key_file = os.path.join(key_dir, username + '.pem')
+	private_key_file = os.path.join(key_dir, username + '.pem')		# 根据每个用户名创建私钥文件
 	mkdir(key_dir, mode=777)
 	if os.path.isfile(private_key_file):
 		os.unlink(private_key_file)		# 文件存在首先删除文件

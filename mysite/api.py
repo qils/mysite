@@ -9,6 +9,7 @@ import hashlib
 import random
 import subprocess
 from mysite import settings
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect
 from juser.models import User, UserGroup
 from jasset.models import Asset, AssetGroup
@@ -16,6 +17,45 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
+
+def page_list_return(total, current):
+	'''
+	分页, 返回本次分页最小页到最大页数列表
+	'''
+	min_page = current - 2 if current - 4 > 0 else 1
+	max_page = min_page + 4 if min_page	+ 4 < total else total
+
+	return range(min_page, max_page+1)
+
+
+def pages(post_objects, request):
+	'''
+	分页通用函数, 返回分页对象元组
+	'''
+	paginator = Paginator(post_objects, 20)		# 创建每页显示20条数据的分页对象
+	try:
+		current_page = int(request.GET.get('page', 1))		# 获取当前页码, 默认当前页码为1
+	except ValueError:
+		current_page = 1
+
+	page_range = page_list_return(len(paginator.page_range), current_page)		# 返回分页起始页及结束页
+	try:
+		page_objects = paginator.page(current_page)		# 获取当前页数据
+	except (EmptyPage, InvalidPage):
+		page_objects = paginator.page(paginator.num_pages)		# 如果有异常则取最后一页的数据
+
+	if current_page >= 5:
+		show_first = 1
+	else:
+		show_first = 0
+
+	if current_page <= int(len(paginator.page_range) - 3):
+		show_end = 1
+	else:
+		show_end = 0
+
+	return post_objects, paginator, page_objects, page_range, current_page, show_first, show_end
 
 
 def chown(path, user, group=''):
