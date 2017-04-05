@@ -74,7 +74,7 @@ def key_exist(username):
 	'''
 	用户的ssh key 是否存在
 	'''
-	if os.path.isfile(os.path.join(settings.KEY_DIR, username + '.pem')):
+	if os.path.isfile(os.path.join(settings.KEY_DIR, 'user', username + '.pem')):
 		return True
 	else:
 		return False

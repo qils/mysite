@@ -28,7 +28,7 @@
                         <a id="del_btn" class="btn btn-sm btn-danger "> 删除所选 </a>
                         <form id="search_form" method="get" action="" class="pull-right mail-search">
                             <div class="input-group">
-                                <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="Search">
+                                <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="输入关键字">
                                 <div class="input-group-btn">
                                     <button id='search_btn' type="submit" class="btn btn-sm btn-primary">
                                         -搜索-
@@ -46,7 +46,7 @@
                                 </th>
                                 <th class="text-center">用户名</th>
                                 <th class="text-center">姓名</th>
-                                <th class="text-center">小组</th>
+                                <th class="text-center">所属用户组</th>
                                 <th class="text-center">权限</th>
                                 <th class="text-center">主机数量</th>
                                 <th class="text-center">激活</th>
@@ -70,12 +70,12 @@
                                     {% if user.username|key_exist %}
                                         <a  href="{% url 'key_down' %}?uuid={{ user.uuid }}" >下载</a>
                                     {% else %}
-                                        <a href="#" onclick="genSSH('{{ user.username }}','{% url 'key_gen' %}?uuid={{ user.uuid }}')">NoKey GenOne?</a>
+                                        <a href="#" onclick="genSSH('{{ user.username }}','{% url 'key_gen' %}?uuid={{ user.uuid }}')">生成SSH Key?</a>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
                                     <a href="{% url 'user_edit' %}?id={{ user.id }}" class="btn btn-xs btn-info">编辑</a>
-                                    <a value="{{ user.uuid }}" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="{{ user.uuid }}" class="btn btn-xs btn-warning email">邮件</a>
                                     <a value="{% url 'user_del' %}?id={{ user.id }}" class="btn btn-xs btn-danger del {% if user.username == 'admin' %} disabled {% endif %}">删除</a>
                                 </td>
                             </tr>
@@ -85,7 +85,7 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
-                                Showing {{ users.start_index }} to {{ users.end_index }} of {{ p.count }} entries
+                                显示 {{ users.start_index }} 到 {{ users.end_index }} 共 {{ p.count }} 条目
                             </div>
                         </div>
                         {% include 'paginator.html' %}

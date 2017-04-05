@@ -24,7 +24,7 @@ def page_list_return(total, current):
 	分页, 返回本次分页最小页到最大页数列表
 	'''
 	min_page = current - 2 if current - 4 > 0 else 1
-	max_page = min_page + 4 if min_page	+ 4 < total else total
+	max_page = min_page + 4 if min_page + 4 < total else total
 
 	return range(min_page, max_page+1)
 

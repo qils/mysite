@@ -88,9 +88,9 @@ def user_list(request):
 	header_title, path1, path2 = '查看用户', '用户管理', '用户列表'
 	keyword = request.GET.get('keyword', '')
 	gid = request.GET.get('gid', '')
-	user_list = User.objects.all().order_by('username')
+	users_list = User.objects.all().order_by('username')
 
-	users_list, p, users, page_range, current_page, show_first, show_end = pages(user_list, request)
+	users_list, p, users, page_range, current_page, show_first, show_end = pages(users_list, request)
 	return my_render('juser/user_list.html', locals(), request)
 
 
