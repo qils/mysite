@@ -42,11 +42,11 @@ class PermRule(models.Model):
 	date_added = models.DateTimeField(auto_now=True)
 	name = models.CharField(max_length=100, unique=True)
 	comment = models.CharField(max_length=100)
-	asset = models.ManyToManyField(Asset, related_name='perm_rule')
-	asset_group = models.ManyToManyField(AssetGroup, related_name='perm_rule')
-	user = models.ManyToManyField(User, related_name='perm_rule')
-	user_group = models.ManyToManyField(UserGroup, related_name='perm_rule')
-	role = models.ManyToManyField(PermSudo, related_name='perm_rule')
+	asset = models.ManyToManyField(Asset, related_name='perm_rule')		# 多对多关联到资产表
+	asset_group = models.ManyToManyField(AssetGroup, related_name='perm_rule')		# 多对对关联到资产组表
+	user = models.ManyToManyField(User, related_name='perm_rule')			# 多对多关联到用户表
+	user_group = models.ManyToManyField(UserGroup, related_name='perm_rule')		# 多对多关联到用户组表
+	role = models.ManyToManyField(PermSudo, related_name='perm_rule')		# 多对多关联到PermRole表
 
 	def __unicode__(self):
 		return self.name

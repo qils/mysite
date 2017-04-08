@@ -4,6 +4,7 @@
 import os
 from django import template
 from mysite.api import *
+from jperm.perm_api import get_group_user_perm
 
 register = template.Library()		# 扩展模板系统的全局变量
 
@@ -66,6 +67,9 @@ def groups2str(group_list):
 def user_perm_asset_num(user_id):
 	user = get_object(User, id=user_id)
 	if user:
+		user_perm_info = get_group_user_perm(user)
+		return len(user_perm_info.get('asset').keys())
+	else:
 		return 0
 
 
