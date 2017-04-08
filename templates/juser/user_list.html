@@ -106,6 +106,7 @@
     $(document).ready(function(){
         $('.del').click(function(){
             var row = $(this).closest('tr');
+            layer.alert('确定删除');
             if (confirm("确定删除")) {
             $.get(
                     $(this).attr('value'),
