@@ -68,6 +68,7 @@ def user_perm_asset_num(user_id):
 	user = get_object(User, id=user_id)
 	if user:
 		user_perm_info = get_group_user_perm(user)
+		logger.debug('I am here')
 		return len(user_perm_info.get('asset').keys())
 	else:
 		return 0
