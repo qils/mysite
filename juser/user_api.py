@@ -6,8 +6,29 @@ from juser.models import AdminGroup
 from mysite.api import *
 
 
+def group_add_user(group, user_id=None, username=None):
+	'''
+	往用户组记录中添加用户
+	'''
+	if user_id:
+		user = get_object(User, id=user_id)
+	else:
+		user = get_object(User, username=username)
+
+	if user:
+		group.user_set.add(user)
+
+
 def db_add_group(**kwargs):
-	pass
+	'''
+	添加一条用户组记录
+	'''
+	users = kwargs.pop('users_id')		# 去掉在次对用户组是否存在的检查
+	group = UserGroup(**kwargs)		# 创建一条用户组记录
+	group.save()
+
+	for user_id in users:
+		group_add_user(group, user_id)
 
 
 def db_add_user(**kwargs):
