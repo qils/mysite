@@ -199,3 +199,11 @@ def send_mail_retry(request):
 
 def group_add(request):
 	pass
+
+
+def group_del(request):
+	pass
+
+
+def group_edit(request):
+	pass
