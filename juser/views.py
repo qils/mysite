@@ -197,8 +197,20 @@ def send_mail_retry(request):
 	pass
 
 
+@require_role(role='super')
 def group_add(request):
-	pass
+	'''
+	增加用户组视图
+	'''
+	error = ''
+	msg = ''
+	header_title, path1, path2 = '添加用户组', '用户管理', '添加用户组'
+	user_all = User.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('juser/group_add.html', locals(), request)
 
 
 def group_del(request):
