@@ -200,7 +200,7 @@ def send_mail_retry(request):
 @require_role(role='super')
 def group_add(request):
 	'''
-	增加用户组视图
+	添加用户组视图
 	'''
 	error = ''
 	msg = ''
@@ -208,7 +208,26 @@ def group_add(request):
 	user_all = User.objects.all()
 
 	if request.method == 'POST':
-		pass
+		group_name = request.POST.get('group_name', '')
+		users_selected = request.POST.getlist('users_selected', '')
+		logger.info(users_selected)
+		comment = request.POST.get('comment', '')
+
+		try:
+			if not group_name:
+				error = '输入的用户组为空'
+				raise ServerError(error)
+
+			if get_object(UserGroup, name=group_name):
+				error = '用户组已存在'
+				raise ServerError(error)
+			db_add_group(name=group_name, users_id=users_selected, comment=comment)		# 往用户组表中插入一条记录
+		except ServerError:
+			pass
+		except TypeError:
+			error = '添加用户组失败'
+		else:
+			msg = '添加用户组成功'
 
 	return my_render('juser/group_add.html', locals(), request)
 

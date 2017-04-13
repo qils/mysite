@@ -19,6 +19,13 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 
+class ServerError(Exception):
+	'''
+	自定义异常
+	'''
+	pass
+
+
 def page_list_return(total, current):
 	'''
 	分页, 返回本次分页最小页到最大页数列表

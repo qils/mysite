@@ -6,6 +6,10 @@ from juser.models import AdminGroup
 from mysite.api import *
 
 
+def db_add_group(**kwargs):
+	pass
+
+
 def db_add_user(**kwargs):
 	'''
 	给数据库中添加数据
