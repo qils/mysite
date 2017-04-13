@@ -9,6 +9,18 @@ from jperm.perm_api import get_group_user_perm
 register = template.Library()		# 扩展模板系统的全局变量
 
 
+@register.filter(name='members_count')
+def members_count(group_id):
+	'''
+	统计一个用户组里面所有用户的总数
+	'''
+	group = get_object(UserGroup, id=group_id)
+	if group:
+		return group.user_set.count()
+	else:
+		return 0
+
+
 @register.filter(name='to_avatar')		# 自定义过滤器
 def to_avatar(role_id='0'):
 	'''

@@ -75,8 +75,18 @@ def reset_password(request):
 	return http_error(request, '请求错误')		# 这个不会被调用到
 
 
+@require_role(role='super')
 def group_list(request):
-	pass
+	'''
+	用户组列表视图
+	'''
+	header_title, path1, path2 = '查看用户组', '用户管理', '查看用户组'
+	keyword = request.GET.get('search', '')
+	user_group_list = UserGroup.objects.all().order_by('name')
+	group_id = request.GET.get('id', '')
+
+	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
+	return my_render('juser/group_list.html', locals(), request)
 
 
 @require_role(role='super')
@@ -184,4 +194,8 @@ def user_del(request):
 
 
 def send_mail_retry(request):
+	pass
+
+
+def group_add(request):
 	pass

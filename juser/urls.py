@@ -20,4 +20,8 @@ urlpatterns = patterns(
 	url(r'^user/edit/$', 'user_edit', name='user_edit'),
 	url(r'^user/del/$', 'user_del', name='user_del'),
 	url(r'^mail/retry/$', 'send_mail_retry', name='mail_retry'),
+	url(r'^group/add/$', 'group_add', name='user_group_add'),
+	url(r'^group/edit/$', 'group_edit', name='user_group_edit'),
+	url(r'^group/del/$', 'group_del', name='user_group_del'),
+
 )
