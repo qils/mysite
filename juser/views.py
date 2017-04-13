@@ -154,8 +154,21 @@ def regen_ssh_key(request):
 	return HttpResponse('ssh密钥已生成，密码为 %s, 请到下载页面下载' % (ssh_key_pass, ))
 
 
+@require_role(role='super')
 def user_add(request):
-	pass
+	'''
+	添加用户视图
+	'''
+	error = ''
+	msg = ''
+	header_title, path1, path2 = '添加用户', '用户管理', '添加用户'
+	user_role = {'SU': '超级管理员', 'CU': '普通用户'}
+	group_all = UserGroup.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('juser/user_add.html', locals(), request)
 
 
 def down_key(request):
