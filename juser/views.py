@@ -5,6 +5,7 @@
 import time
 from juser.user_api import *
 from django.shortcuts import render, render_to_response
+from django.db.models import Q
 
 MAIL_FROM = settings.EMAIL_HOST_USER
 
@@ -235,5 +236,17 @@ def group_del(request):
 	pass
 
 
+@require_role(role='super')
 def group_edit(request):
-	pass
+	error = ''
+	msg = ''
+	header_title, path1, path2 = '编辑用户组', '用户管理', '编辑用户组'
+
+	if request.method == 'GET':
+		group_id = request.GET.get('id', '')
+		user_group = get_object(UserGroup, id=group_id)
+		users_selected = User.objects.filter(group=user_group)		# 过滤组中添加的用户记录
+		users_remain = User.objects.filter(~Q(group=user_group))		# 反选没有添加到该组中的用户
+		users_all = User.objects.all()		# 所有的用户
+
+	return my_render('juser/group_edit.html', locals(), request)
