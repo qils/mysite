@@ -273,6 +273,7 @@ def group_edit(request):
 			user_group.save()
 		except ServerError, e:
 			error = e
+			logger.debug(e)
 
 		if not error:
 			return HttpResponseRedirect(reverse('user_group_list'))
@@ -280,5 +281,5 @@ def group_edit(request):
 			users_all = User.objects.all()
 			users_selected = User.objects.filter(group__id=group_id)
 			users_remain = User.objects.filter(~Q(group__id=group_id))
-			
+
 	return my_render('juser/group_edit.html', locals(), request)
