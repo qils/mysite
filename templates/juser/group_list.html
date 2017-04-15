@@ -92,16 +92,15 @@
 <script>
     $(document).ready(function(){
         $('.del').click(function(){
-            var row = $(this).closest('tr');
+            var row = $(this).closest('tr');        // 过滤tr元素
             if (confirm("确定删除")) {
-            $.get(
+            $.get(                                  // 往后台发送一个删除组记录请求
                     $(this).attr('value'),
                     {},
                     function(data){
                         row.remove();
                         alert(data);
                     }
-
             )}
         });
 

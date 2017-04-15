@@ -233,8 +233,17 @@ def group_add(request):
 	return my_render('juser/group_add.html', locals(), request)
 
 
+@require_role(role='super')
 def group_del(request):
-	pass
+	'''
+	删除用户组视图
+	'''
+	group_ids = request.GET.get('id'. '')
+	group_id_list = group_ids.split(',')
+	for group_id in group_id_list:
+		UserGroup.objects.filter(id=group_id).delete()		# 当把用户组删除时, 用户和用户组对应的表记录也会同样被删除
+
+	return HttpResponse('删除成功')
 
 
 @require_role(role='super')
@@ -280,7 +289,7 @@ def group_edit(request):
 			return HttpResponseRedirect(reverse('user_group_list'))
 		else:
 			users_all = User.objects.all()
-			users_selected = User.objects.filter(group__id=group_id)
+			users_selected = User.objects.filter(group__id=group_id)		# 防止user_group对象生成之前发生异常, 改用这种过滤方式
 			users_remain = User.objects.filter(~Q(group__id=group_id))
 
 	return my_render('juser/group_edit.html', locals(), request)
