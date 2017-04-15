@@ -6,6 +6,7 @@ import time
 from juser.user_api import *
 from django.shortcuts import render, render_to_response
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 MAIL_FROM = settings.EMAIL_HOST_USER
 
@@ -83,7 +84,7 @@ def group_list(request):
 	'''
 	header_title, path1, path2 = '查看用户组', '用户管理', '查看用户组'
 	keyword = request.GET.get('search', '')
-	user_group_list = UserGroup.objects.all().order_by('name')
+	user_group_list = UserGroup.objects.all().order_by('name')		# 组名排序
 	group_id = request.GET.get('id', '')
 
 	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
@@ -248,5 +249,36 @@ def group_edit(request):
 		users_selected = User.objects.filter(group=user_group)		# 过滤组中添加的用户记录
 		users_remain = User.objects.filter(~Q(group=user_group))		# 反选没有添加到该组中的用户
 		users_all = User.objects.all()		# 所有的用户
+	elif request.method == 'POST':
+		group_id = request.POST.get('group_id', '')
+		group_name = request.POST.get('group_name', '')
+		users_selected = request.POST.getlist('users_selected', [])
+		comment = request.POST.get('comment', '')
 
+		try:
+			if '' in [group_id, group_name]:
+				raise ServerError('用户组名不能为空')
+
+			if len(UserGroup.objects.filter(name=group_name)) > 1:
+				raise ServerError('用户组名已经存在')
+
+			user_group = get_object_or_404(UserGroup, id=group_id)		# 获取UserGroup表中的组记录, 如果有返回记录值, 没有触发异常
+			user_group.user_set.clear()		# 清除用户组中所有的用户
+
+			for user in User.objects.filter(id__in=users_selected):
+				user.group.add(UserGroup.objects.get(id=group_id))		# 将所选择的用户关联到一个用户组
+
+			user_group.name = group_name
+			user_group.comment = comment
+			user_group.save()
+		except ServerError, e:
+			error = e
+
+		if not error:
+			return HttpResponseRedirect(reverse('user_group_list'))
+		else:
+			users_all = User.objects.all()
+			users_selected = User.objects.filter(group__id=group_id)
+			users_remain = User.objects.filter(~Q(group__id=group_id))
+			
 	return my_render('juser/group_edit.html', locals(), request)
