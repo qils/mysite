@@ -271,8 +271,10 @@ def group_edit(request):
 			user_group.name = group_name
 			user_group.comment = comment
 			user_group.save()
-		except Exception, e:
+		except ServerError, e:
 			error = e
+		except Exception :
+			error = '用户组名已经存在'
 
 		if not error:
 			return HttpResponseRedirect(reverse('user_group_list'))
