@@ -87,6 +87,12 @@ def group_list(request):
 	user_group_list = UserGroup.objects.all().order_by('name')		# 组名排序
 	group_id = request.GET.get('id', '')
 
+	if keyword:
+		user_group_list = user_group_list.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))		# 组合查询
+
+	if group_id:
+		user_group_list = user_group_list.filter(id=group_id)
+		
 	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
 	return my_render('juser/group_list.html', locals(), request)
 
