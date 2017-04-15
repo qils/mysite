@@ -238,7 +238,7 @@ def group_del(request):
 	'''
 	删除用户组视图
 	'''
-	group_ids = request.GET.get('id'. '')
+	group_ids = request.GET.get('id', '')
 	group_id_list = group_ids.split(',')
 	for group_id in group_id_list:
 		UserGroup.objects.filter(id=group_id).delete()		# 当把用户组删除时, 用户和用户组对应的表记录也会同样被删除
