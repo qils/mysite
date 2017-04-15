@@ -12,7 +12,7 @@ class UserGroup(models.Model):
 	用户组表
 	'''
 
-	name = models.CharField(max_length=80, unique=True)
+	name = models.CharField(max_length=80, unique=True)		# 组名唯一
 	comment = models.CharField(max_length=160, blank=True, null=True)
 
 	def __unicode__(self):

@@ -259,7 +259,7 @@ def group_edit(request):
 			if '' in [group_id, group_name]:
 				raise ServerError('用户组名不能为空')
 
-			if len(UserGroup.objects.filter(name=group_name)) > 1:
+			if len(UserGroup.objects.filter(name=group_name)) > 1:		# 如果是大于等于1, 那么每次编辑组时组名必须修改, 只是大于1, 会造成对组名修改时触发UserGroup模型中组名唯一异常, 这个异常没有被捕获
 				raise ServerError('用户组名已经存在')
 
 			user_group = get_object_or_404(UserGroup, id=group_id)		# 获取UserGroup表中的组记录, 如果有返回记录值, 没有触发异常
@@ -271,9 +271,8 @@ def group_edit(request):
 			user_group.name = group_name
 			user_group.comment = comment
 			user_group.save()
-		except ServerError, e:
+		except Exception, e:
 			error = e
-			logger.debug(e)
 
 		if not error:
 			return HttpResponseRedirect(reverse('user_group_list'))
