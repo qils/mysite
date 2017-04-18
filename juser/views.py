@@ -216,7 +216,7 @@ def user_add(request):
 		else:
 			try:
 				if not re.match(r'^\w+$', username):		# 用户名不能有特殊字符
-					error = '用户名不合法'
+					error = u'用户名不合法'
 					raise ServerError(error)
 				user = db_add_user(		# 检查正常, 开始创建一个用户对象
 					username=username,
