@@ -4,6 +4,7 @@
 import os
 from juser.models import AdminGroup
 from mysite.api import *
+from mysite.settings import import BASE_DIR
 
 
 def group_add_user(group, user_id=None, username=None):
@@ -41,7 +42,7 @@ def db_add_user(**kwargs):
 	role = kwargs.get('role', 'CU')		# 用户角色, 普通用户, 超级用户, 用户组管理用户
 	user = User(**kwargs)		# 在User 表里创建一条用户记录
 	user.set_password(kwargs.get('password'))		# 修改User密码
-	user.save()
+	user.save()		# 保存记录
 
 	if groups_post:		# 创建用户时是否指定该用户属于哪个用户组, 如果有则将所属组增加到用户记录
 		group_list = []
@@ -79,3 +80,31 @@ def gen_ssh_key(username, password='', key_dir=os.path.join(settings.KEY_DIR, 'u
 				auth_f.write(pub_f.read())
 		os.chmod(authorized_key_file, 0600)
 		chown(authorized_key_file, username)
+
+
+def server_add_user(username, ssh_key_pwd=''):
+	'''
+	在服务器上创建一个主机用户
+	'''
+	bash("useradd -s '%s' '%s'" % (os.path.join(BASE_DIR, 'init.sh'), username))
+	gen_ssh_key(username, ssh_key_pwd)		# 创建用户的ssh key
+
+
+def db_del_user(username):
+	'''
+	从User表中删除用户
+	'''
+	user = get_object(User, username=username)
+	if user:
+		user.delete()
+
+
+def server_del_user(username):
+	'''
+	从服务器上删除一个主机用户
+	'''
+	bash('userdel -f -r %s' % (username, ))		# 删除主机用户命令
+	logger.debug('rm -f %s/%s_*.pem' % (os.path.join(settings.KEY_DIR, 'user'), username))		# 记录删除日志
+	private_key_file = os.path.join(settings.KEY_DIR, 'user', username + '.pem')
+	os.unlink(private_key_file)		# 删除用户ssh key 文件
+

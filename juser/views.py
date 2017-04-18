@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 # Create your views here.
 
+import re
 import time
 from juser.user_api import *
 from django.shortcuts import render, render_to_response
@@ -184,7 +185,67 @@ def user_add(request):
 	group_all = UserGroup.objects.all()
 
 	if request.method == 'POST':
-		pass
+		username = request.POST.get('username', '')		# 获取提交的用户名
+		password = PyCrypt.gen_rand_key(16)		# 随机生成16位字符的密码
+		name = request.POST.get('name', '')
+		email = request.POST.get('email', '')
+		groups = request.POST.getlist('groups', [])		# 获取选中的用户组
+		admin_groups = request.POST.getlist('admin_groups', [])		# 获取管理组
+		role = request.POST.get('role', 'CU')		# 获取用户定义的角色
+		uuid_r = uuid.uuid4().get_hex()		# 32位字符的uuid
+		ssh_key_pwd = PyCrypt.gen_rand_key(16)
+		extra = request.POST.getlist('extra', [])
+		is_active = False if '0' in extra else True		# 设置用户是否激活
+		send_mail_need = True if '1' in extra else False		# 是否发送邮件
+
+		try:
+			if '' in [username, password, ssh_key_pwd, name, role]:		# 比填项,不能为空
+				error = '带*内容不能为空'
+				raise ServerError(error)
+
+			check_user_is_exist = User.objects.filter(username=username)		# 检查用户是否已经存在
+			if check_user_is_exist:
+				error = '用户名已经存在'
+				raise ServerError(error)
+
+			if username in ['root']:
+				error = '用户名不能为root'
+				raise ServerError(error)
+		except ServerError:
+			pass
+		else:
+			try:
+				if not re.match(r'^\w+$', username):		# 用户名不能有特殊字符
+					error = '用户名不合法'
+					raise ServerError(error)
+				user = db_add_user(		# 检查正常, 开始创建一个用户对象
+					username=username,
+					name=name,
+					password=password,
+					email=email,
+					role=role,
+					uuid=uuid_r,
+					groups=groups,
+					admin_groups=admin_groups,
+					ssh_key_pwd=ssh_key_pwd,
+					is_active=is_active,
+					date_joined=datetime.datetime.now()
+				)
+				server_add_user(username=username, ssh_key_pwd=ssh_kew_pwd)		# 每个后台系统用户必须在服务器主机上创建一个主机用户
+				user = get_object(User, username=username)
+				if groups:
+					user_groups = []
+					for user_group_id in groups:
+						user_groups.extend(UserGroup.objects.filter(id=user_group_id))
+			except (ServerError, IndexError), e:
+				error = '添加用户: %s 失败 %s ' % (username, e)
+				try:
+					db_del_user(username)
+					server_del_user(username)
+				except Exception:
+					pass
+			else:
+				pass
 
 	return my_render('juser/user_add.html', locals(), request)
 
