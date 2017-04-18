@@ -150,13 +150,14 @@
         });
         $('.shiftCheckbox').shiftcheckbox();
     });
-function genSSH(username, url) {
-    if (confirm('Are you sure to gen a sshkey for user ' + username)) {
-        $.get(url, function (data) {
-            alert(data);
-            location.reload()
-        })
-    }
+
+    function genSSH(username, url) {
+        if (confirm('Are you sure to gen a sshkey for user ' + username)) {
+            $.get(url, function (data) {
+                alert(data);
+                location.reload()
+            })
+        }
 }
 </script>
 {% endblock %}

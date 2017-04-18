@@ -92,7 +92,7 @@ def group_list(request):
 
 	if group_id:
 		user_group_list = user_group_list.filter(id=group_id)
-		
+
 	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
 	return my_render('juser/group_list.html', locals(), request)
 

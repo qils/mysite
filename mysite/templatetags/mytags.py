@@ -70,9 +70,9 @@ def groups2str(group_list):
 	用户组列表转换为str
 	'''
 	if len(group_list) < 3:
-		return ' '.join([group.name for group in group_list])
+		return '|'.join([group.name for group in group_list])
 	else:
-		return '%s ...' % (' '.join([group.name for group in group_list[0:2]]))
+		return '%s ...' % ('|'.join([group.name for group in group_list[0:2]]))
 
 
 @register.filter(name='user_perm_asset_num')

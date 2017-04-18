@@ -107,7 +107,7 @@
         $('#del_btn').click(function(){
             var check_array = [];
             if (confirm("确定删除")) {
-                $(".gradeX input:checked").each(function() {
+                $(".gradeX input:checked").each(function() {        // checked: 表示选中
                     check_array.push($(this).attr("value"))
                 });
                 $.get("{% url 'user_group_del' %}",
