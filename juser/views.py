@@ -231,7 +231,7 @@ def user_add(request):
 					is_active=is_active,
 					date_joined=datetime.datetime.now()
 				)
-				server_add_user(username=username, ssh_key_pwd=ssh_kew_pwd)		# 每个后台系统用户必须在服务器主机上创建一个主机用户
+				server_add_user(username=username, ssh_key_pwd=ssh_key_pwd)		# 每个后台系统用户必须在服务器主机上创建一个主机用户
 				user = get_object(User, username=username)
 				if groups:
 					user_groups = []
