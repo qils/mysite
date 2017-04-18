@@ -4,7 +4,7 @@
 import os
 from juser.models import AdminGroup
 from mysite.api import *
-from mysite.settings import import BASE_DIR
+from mysite.settings import BASE_DIR
 
 
 def group_add_user(group, user_id=None, username=None):
