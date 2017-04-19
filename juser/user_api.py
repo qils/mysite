@@ -106,7 +106,8 @@ def server_del_user(username):
 	bash('userdel -f -r %s' % (username, ))		# 删除主机用户命令
 	logger.debug('rm -f %s/%s_*.pem' % (os.path.join(settings.KEY_DIR, 'user'), username))		# 记录删除日志
 	private_key_file = os.path.join(settings.KEY_DIR, 'user', username + '.pem')
-	os.unlink(private_key_file)		# 删除用户ssh key 文件
+	if os.path.isfile(private_key_file):
+		os.unlink(private_key_file)		# 删除用户ssh key 文件
 
 
 def user_add_mail(user, kwargs):
