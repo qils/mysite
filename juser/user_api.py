@@ -17,7 +17,7 @@ def group_add_user(group, user_id=None, username=None):
 		user = get_object(User, username=username)
 
 	if user:
-		group.user_set.add(user)
+		group.user_set.add(user)		# 往用户组中添加用户
 
 
 def db_add_group(**kwargs):

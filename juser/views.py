@@ -260,8 +260,28 @@ def user_edit(request):
 	pass
 
 
+@require_role(role='admin')
 def user_del(request):
-	pass
+	'''
+	删除用户视图
+	'''
+	if request.method == 'GET':
+		user_ids = request.GET.get('id', '')
+		user_id_list = user_ids.split(',')
+	elif request.method == 'POST':
+		user_ids = request.POST.get('id', '')
+		user_id_list = user_ids.split(',')
+	else:
+		return HttpResponse('错误请求')
+
+	for user_id in user_id_list:
+		user = get_object(User, id=user_id)
+		if user and user.username != 'admin':		# 限制admin用户不能被删除
+			username = user.username		# 提前保留用户名
+			logger.debug(u'删除用户 %s ' % (username, ))		# 记录删除日志
+			server_del_user(username)		# 把用户从服务器主机上清除
+			user.delete()
+	return HttpResponse(u'删除成功')
 
 
 def send_mail_retry(request):
@@ -344,7 +364,7 @@ def group_edit(request):
 			user_group.user_set.clear()		# 清除用户组中所有的用户
 
 			for user in User.objects.filter(id__in=users_selected):
-				user.group.add(UserGroup.objects.get(id=group_id))		# 将所选择的用户关联到一个用户组
+				user.group.add(UserGroup.objects.get(id=group_id))		# 将所选择的用户添加到一个用户组
 
 			user_group.name = group_name
 			user_group.comment = comment
