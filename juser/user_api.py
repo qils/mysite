@@ -4,7 +4,7 @@
 import os
 from juser.models import AdminGroup
 from mysite.api import *
-from mysite.settings import BASE_DIR
+from mysite.settings import BASE_DIR, EMAIL_HOST_USER as MAIL_FROM
 
 
 def group_add_user(group, user_id=None, username=None):
@@ -107,4 +107,40 @@ def server_del_user(username):
 	logger.debug('rm -f %s/%s_*.pem' % (os.path.join(settings.KEY_DIR, 'user'), username))		# 记录删除日志
 	private_key_file = os.path.join(settings.KEY_DIR, 'user', username + '.pem')
 	os.unlink(private_key_file)		# 删除用户ssh key 文件
+
+
+def user_add_mail(user, kwargs):
+	'''
+	给添加的用户发送邮件
+	'''
+	user_role = {'SU': u'超级管理员', 'CU': u'普通用户', 'GA': u'组管理员'}
+	mail_title = u'恭喜你的跳板机用户 %s 添加成功' % (user.name, )		# 设置邮件主题
+	mail_msg = u'''
+	Hi, %s
+		你的用户名: %s
+		你的权限: %s
+		你的web登录密码: %s
+		你的ssh秘钥文件密码: %s
+		秘钥下载地址: %s/juser/key/down/?uuid=%s
+		说明: 请登录跳板机后台下载秘钥, 然后使用秘钥登录跳板机!
+	''' % (user.name, user.username, user_role.get(user.role, u'普通用户'), kwargs.get('password'), kwargs.get('ssh_key_pwd'), settings.URL, user.uuid)
+	try:
+		send_mail(mail_title, mail_msg, MAIL_FROM, [user.email], fail_silently=True)
+	except Exception, e:
+		logger.debug('%s' % (e, ))
+
+
+def get_display_msg(user, password='', ssh_key_pwd='', send_mail_need=False):
+	if send_mail_need:
+		msg = u'添加用户 %s 成功! 用户名, 密码已发送到 %s 邮箱!!!' % (user.name, user.email)
+	else:
+		msg = u'''
+		跳板机地址: %s </br>
+		用户名: %s </br>
+		密码: %s </br>
+		密钥密码: %s </br>
+		密钥下载URL: %s/juser/key/down/?uuid=%s </br>
+		该账号可以登录web和跳板机
+		''' % (settings.URL, user.username, password, ssh_key_pwd, settings.URL, user.uuid)
+	return msg
 

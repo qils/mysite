@@ -238,14 +238,16 @@ def user_add(request):
 					for user_group_id in groups:
 						user_groups.extend(UserGroup.objects.filter(id=user_group_id))
 			except (ServerError, IndexError), e:
-				error = u'添加用户: %s 失败 %s' % (username, e)
+				error = u'添加用户: %s 失败 %s' % (username, e)		# e必须要用unicode表示,否则报编码错误
 				try:
 					db_del_user(username)
 					server_del_user(username)
 				except Exception:
 					pass
 			else:
-				pass
+				if settings.MAIL_ENABLE and send_mail_need:		# 发送邮件到添加的用户邮箱
+					user_add_mail(user, kwargs=locals())
+				msg = get_display_msg(user, password=password, ssh_key_pwd=ssh_key_pwd, send_mail_need=send_mail_need)
 
 	return my_render('juser/user_add.html', locals(), request)
 
