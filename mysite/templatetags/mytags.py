@@ -59,9 +59,9 @@ def get_role(user_id):
 @register.filter(name='bool2str')
 def bool2str(value):
 	if value:
-		return '是'
+		return '<b class="btn btn-xs btn-info">是</b>'
 	else:
-		return '否'
+		return '<b class="btn btn-xs btn-danger">否</b>'
 
 
 @register.filter(name='groups2str')
