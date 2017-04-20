@@ -106,8 +106,17 @@ def user_list(request):
 	user_role = {'SU': '超级管理员', 'GA': '组管理员', 'CU': '普通用户'}
 	header_title, path1, path2 = '查看用户', '用户管理', '用户列表'
 	keyword = request.GET.get('keyword', '')
-	gid = request.GET.get('gid', '')
+	gid = request.GET.get('gid', '')		# 从用户组连接过来的带gid参数
 	users_list = User.objects.all().order_by('username')
+
+	if gid:
+		user_group = UserGroup.objects.filter(id=gid)
+		if user_group:
+			user_group = user_group[0]
+			users_list = user_group.user_set.all()		# 反查询一个用户组所关联的所有用户
+
+	if keyword:
+		users_list = User.objects.filter(Q(username__icontains=keyword) | Q(name__icontanis=keyword))		# 组合查询
 
 	users_list, p, users, page_range, current_page, show_first, show_end = pages(users_list, request)
 	return my_render('juser/user_list.html', locals(), request)
