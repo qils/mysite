@@ -32,7 +32,7 @@
                             <div class="text-left">
                                 <table class="table">
                                     <tr>
-                                        <td class="text-navy">ID</td>
+                                        <td class="text-navy">用户ID</td>
                                         <td>{{ user.id }}</td>
                                     </tr>
                                     <tr>
@@ -48,27 +48,29 @@
                                         <td>{{ user.id | get_role }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-navy">key</td>
+                                        <td class="text-navy">SSH Key</td>
                                         {% if user.username|key_exist %}
                                         <td><a  href="{% url 'key_down' %}?id={{ user.id }}" >下载</a></td>
                                         {% else %}
-                                        <td><span style="color: #586b7d">NoKey</span></td>
+                                        <td><span style="color: #586b7d">没有ssh key</span></td>
                                         {% endif %}
                                     </tr>
                                     <tr>
-                                        <td class="text-navy">Email</td>
+                                        <td class="text-navy">邮件地址</td>
                                         <td>{{ user.email }}</td>
                                     </tr>
                                     <tr>
                                         <td class="text-navy">激活</td>
+                                        {% autoescape off %}
                                         <td>{{ user.is_active|bool2str }}</td>
+                                        {% endautoescape %}
                                     </tr>
                                     <tr>
                                         <td class="text-navy">添加日期</td>
                                         <td>{{ user.date_joined|date:"Y-m-d H:i:s" }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-navy">最后登录</td>
+                                        <td class="text-navy">最后登录Web系统</td>
                                         <td>{{ user.last_login|date:"Y-m-d H:i:s" }}</td>
                                     </tr>
                                     <tr>
@@ -93,7 +95,7 @@
                                         <td class="text-navy">授权主机组</td>
                                         <td>
                                              <table class="table">
-                                                 {% for group in  user_perm_info.asset_group.keys%}
+                                                 {% for group in  user_perm_info.asset_group.keys %}
                                                     <tr>
                                                         <td><a href="{% url 'user_group_list' %}?id={{ group.id }}">{{ group.name }}</a></td>
                                                     </tr>
@@ -182,7 +184,6 @@
                         </div>
                         <div class="ibox-content">
                             <div id="last">
-
                                 <div class="feed-activity-list" >
                                     {% for log in user_log_ten %}
                                         <div class="feed-element">
@@ -237,6 +238,5 @@
         })
     })
 </script>
-
-
+    
 {% endblock %}
