@@ -283,8 +283,24 @@ def down_key(request):
 	pass
 
 
+@require_role(role='super')
 def user_edit(request):
-	pass
+	'''
+	用户编辑视图
+	'''
+	header_title, path1, path2 = '编辑用户', '用户管理', '编辑用户'
+	if request.method == 'GET':
+		user_id = request.GET.get('id', '')
+		if not user_id:
+			return HttpResponseRedirect(reverse('user_list'))
+		user_role = {'SU': u'超级管理员', 'CU': u'普通用户'}
+		user = get_object(User, id=user_id)
+		group_all = UserGroup.objects.all()
+		if user:
+			groups_str = ' '.join([str(group.id) for group in user.group.all()])
+			admin_groups_str = ' '.join([str(admingroup.id) for admingroup in user.admingroup_set.all()])
+
+	return my_render('juser/user_edit.html', locals(), request)
 
 
 @require_role(role='admin')
