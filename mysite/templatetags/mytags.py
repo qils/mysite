@@ -94,3 +94,12 @@ def key_exist(username):
 		return True
 	else:
 		return False
+
+
+@register.filter(name=int2str):
+def int2str(value):
+	'''
+	int 转为 str
+	'''
+	return str(value)
+	
