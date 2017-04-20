@@ -116,7 +116,7 @@ def user_list(request):
 			users_list = user_group.user_set.all()		# 反查询一个用户组所关联的所有用户
 
 	if keyword:
-		users_list = users_list.filter(Q(username__icontains=keyword) | Q(name__icontanis=keyword))		# 组合查询
+		users_list = users_list.filter(Q(username__icontains=keyword) | Q(name__icontains=keyword))		# 组合查询
 
 	users_list, p, users, page_range, current_page, show_first, show_end = pages(users_list, request)
 	return my_render('juser/user_list.html', locals(), request)
