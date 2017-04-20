@@ -14,6 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect
 from juser.models import User, UserGroup
 from jasset.models import Asset, AssetGroup
+from jlog.models import Log
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
