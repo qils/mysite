@@ -129,7 +129,7 @@ def user_detail(request):
 	if request.session.get('role_id') == 0:
 		user_id = request.session['role_id']		# 给普通用户获取user_id 号
 	else:
-		user_id = request.GET.get('user_id', '')
+		user_id = request.GET.get('id', '')
 
 	user = get_object(User, id=user_id)
 	if not user:
