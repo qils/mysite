@@ -20,7 +20,7 @@ def get_group_user_perm(ob):
 	else:
 		rule_all = []
 
-	perm['rule'] = rule_all
+	perm['rule'] = rule_all		# 所有的授权规则
 	perm_asset_group = perm['asset_group'] = {}
 	perm_asset = perm['asset'] = {}
 	perm_role = perm['role'] = {}
@@ -28,13 +28,13 @@ def get_group_user_perm(ob):
 		asset_groups = rule.asset_group.all()		# 获取授权规则关联的所有资产组
 		assets = rule.asset.all()		# 获取授权规则关联的所有资产
 		perm_roles = rule.role.all()		# 获取授权规则关联的授权角色
-		group_assets = []
+		group_assets = []		# 一条规则关联的所有资产组中的所有资产
 		for asset_group in asset_groups:
 			group_assets.extend(asset_group.asset_set.all())		# 过滤一个资产组所关联的所有资产
 
-		# 获取一个规则授权的角色所对应的资产
+		# 获取一个规则授权的角色所对应的资产, 资产组
 		for role in perm_roles:
-			if perm_role.get('role'):
+			if perm_role.get(role):
 				perm_role[role]['asset'] = perm_role[role].get('asset', set()).union(set(assets).union(set(group_assets)))
 				perm_role[role]['asset_group'] = perm_role[role].get('asset_group', set()).union(set(asset_groups))
 			else:

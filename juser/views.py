@@ -8,6 +8,7 @@ from juser.user_api import *
 from django.shortcuts import render, render_to_response
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from jperm.perm_api import get_group_user_perm
 
 MAIL_FROM = settings.EMAIL_HOST_USER
 
@@ -122,8 +123,25 @@ def user_list(request):
 	return my_render('juser/user_list.html', locals(), request)
 
 
+@require_role(role='user')
 def user_detail(request):
-	pass
+	header_title, path1, path2 = '用户详情', '用户管理', '用户详情'
+	if request.session.get('role_id') == 0:
+		user_id = request.session['role_id']		# 给普通用户获取user_id 号
+	else:
+		user_id = request.GET.get('user_id', '')
+
+	user = get_object(User, id=user_id)
+	if not user:
+		return HttpResponseRedirect(reverse('user_list'))
+
+	user_perm_info = get_group_user_perm(user)
+	role_assets = user_perm_info.get('role')
+	user_log_ten = Log.objects.filter(user=user.username).order_by('id')[0:10]
+	user_log_last = Log.objects.filter(user=user.username).order_by('id')[0:50]
+	user_log_last_num = len(user_log_last)
+
+	return my_render('juser/user_detail.html', locals(), request)
 
 
 @require_role(role='user')
