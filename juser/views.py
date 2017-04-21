@@ -328,6 +328,21 @@ def user_edit(request):
 			is_active=is_active,
 		)
 
+		if email_need:
+			msg = u'''
+			Hi, %s
+					你的信息已修改, 请登录跳板机查看详细信息
+					地址: %s
+					用户名: %s
+					密码: %s (如果密码为空, 表示原密码!!!)
+					权限: %s
+			''' % (user.name, settings.URL, user.username, password, user_role.get(user.role, '普通用户'))
+			try:
+				send_mail('你的信息已修改', msg, MAIL_FROM, [email], fail_silently=False)
+			except Exception, e:
+				logger.debug('%s' % (e, ))		# 邮件发送失败记录日志
+
+		return HttpResponseRedirect(reverse('user_list'))
 	return my_render('juser/user_edit.html', locals(), request)
 
 
