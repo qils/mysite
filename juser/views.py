@@ -299,6 +299,34 @@ def user_edit(request):
 		if user:
 			groups_str = ' '.join([str(group.id) for group in user.group.all()])
 			admin_groups_str = ' '.join([str(admingroup.id) for admingroup in user.admingroup_set.all()])
+	else:
+		user_id = request.GET.get('id', '')		# 模板表单提交的地址带id问号参数
+		password = request.POST.get('password', '')		# 修改用户密码
+		name = request.POST.get('name', '')
+		email = request.POST.get('email', '')
+		groups = request.POST.getlist('groups', [])		# 加入的用户组
+		role_post = request.POST.get('role', 'CU')
+		admin_groups = request.POST.getlist('admin_groups', [])
+		extra = request.POST.getlist('extra', [])
+		is_active = True if '0' in extra else False
+		email_need = True if '1' in extra else False
+		user_role = {'SU': u'超级管理员', 'CU': u'普通用户', u'GA': '用户组管理员'}
+
+		if user_id:
+			user = get_object(User, id=user_id)
+		else:
+			return HttpResponseRedirect(reverse('user_list'))
+
+		db_update_user(
+			user_id=user_id,
+			password=password,
+			name=name,
+			email=email,
+			groups=groups,
+			admin_groups=admin_groups,
+			role=role_post,
+			is_active=is_active,
+		)
 
 	return my_render('juser/user_edit.html', locals(), request)
 

@@ -145,3 +145,34 @@ def get_display_msg(user, password='', ssh_key_pwd='', send_mail_need=False):
 		''' % (settings.URL, user.username, password, ssh_key_pwd, settings.URL, user.uuid)
 	return msg
 
+
+def db_update_user(**kwargs):
+	'''
+	用户信息数据库更新
+	'''
+	groups_post = kwargs.pop('groups')
+	admin_groups_post = kwargs.pop('admin_groups')
+	user_id = kwargs.pop('user_id')
+	user = User.objects.filter(id=user_id)
+	if user:
+		user_get = user[0]
+		password = kwargs.pop('password')		# 去掉密码
+		user_get.update(**kwargs)		# 更新数据
+		if password.strip():		# 密码不为空时, 才更新密码
+			user_get.set_password(password)
+			user_get.save()
+	else:
+		return None
+
+	group_select = []		# 定义一个空列表, 用来保存用户组记录
+	if groups_post:
+		for group_id in groups_post:
+			group = UserGroup.objects.filter(id=group_id)
+			group_select.extend(group)
+	user_get.group = group_select		# 更新用户所添加的组信息
+
+	if admin_groups_post:
+		user_get.admingroup_set.all().delete()
+		for admin_group_id in admin_groups_post:
+			group = get_object(UserGroup, id=admin_group_id)
+			AdminGroup(user=user_get, group=group).save()
