@@ -157,7 +157,7 @@ def db_update_user(**kwargs):
 	if user:
 		user_get = user[0]
 		password = kwargs.pop('password')		# 去掉密码
-		user_get.update(**kwargs)		# 更新数据
+		user.update(**kwargs)		# 更新数据
 		if password.strip():		# 密码不为空时, 才更新密码
 			user_get.set_password(password)
 			user_get.save()
