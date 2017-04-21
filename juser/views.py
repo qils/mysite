@@ -279,8 +279,27 @@ def user_add(request):
 	return my_render('juser/user_add.html', locals(), request)
 
 
+@require_role(role='user')
 def down_key(request):
-	pass
+	if is_role_request(request, 'super'):
+		uuid_r = request.GET.get('uuid', '')		# 管理员直接从GET请求参数里面获取uuid
+	else:
+		uuid_r = request.user.uuid		# 普通用户从user对象里面获取uuid
+
+	user = get_object(User, uuid=uuid_r)
+	if user:
+		username = user.username
+		private_key_file = os.path.join(settings.KEY_DIR, 'user', username+'.pem')
+		if os.path.isfile(private_key_file):
+			f = open(private_key_file)
+			data = f.read()
+			f.close()
+			response = HttpResponse(data, content_type='application/octet-stream')		# 指定返回其他的文本类型
+			response['Content-Disposition'] = 'attachment; filename=%s' % (os.path.basename(private_key_file), )
+			if request.user.role == 'CU':
+				os.unlink(private_key_file)		# 普通用户下载完后删除key文件
+			return response
+	return HttpResponse('没有发现key文件, 联系管理员')
 
 
 @require_role(role='super')

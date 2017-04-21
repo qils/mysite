@@ -23,5 +23,4 @@ urlpatterns = patterns(
 	url(r'^group/add/$', 'group_add', name='user_group_add'),
 	url(r'^group/edit/$', 'group_edit', name='user_group_edit'),
 	url(r'^group/del/$', 'group_del', name='user_group_del'),
-
 )
