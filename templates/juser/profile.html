@@ -23,8 +23,8 @@
                                 <td class="text-center" width="120">用户ID</td>
                                 <td class="text-center">用户名</td>
                                 <td class="text-center">姓名</td>
-                                <td class="text-center">关联用户</td>
-                                <td class="text-center">Email</td>
+                                <td class="text-center">关联用户组</td>
+                                <td class="text-center">邮箱地址</td>
                                 <td class="text-center">激活</td>
                             </tr>
                         </thead>
@@ -35,7 +35,9 @@
                             <td class="text-center">{{ user.name }}</td>
                             <td class="text-center">{{ user.id | get_role }}</td>
                             <td class="text-center">{{ user.email }}</td>
+                            {% autoescape off %}
                             <td class="text-center">{{ user.is_active|bool2str }}</td>
+                            {% endautoescape %}
                         </tr>
                         <tr>
                             <td class="text-center">添加日期： </td>
