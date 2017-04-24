@@ -154,7 +154,7 @@
     });
 
     function genSSH(username, url) {
-        if (confirm('Are you sure to gen a sshkey for user ' + username)) {
+        if (confirm('确认重新生成SSH Key密钥对 ' + username)) {
             $.get(url, function (data) {
                 alert(data);
                 location.reload()
