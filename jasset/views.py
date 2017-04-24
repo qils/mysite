@@ -44,7 +44,24 @@ def group_add(request):
 	asset_all = Asset.objects.all()
 
 	if request.method == 'POST':
-		pass
+		name = request.POST.get('name', '')		# 获取主机组名称
+		asset_select = request.POST.getlist('asset_select', [])		# 获取往主机组中所添加的主机, 返回由所有选择的主机ID组成的列表
+		comment = request.POST.get('comment', '')
+
+		try:
+			if not name:
+				emg = u'主机组名不能为空'
+				raise ServerError(emg)
+
+			asset_group_test = get_object(AssetGroup, name=name)		# 检测主机组是否存在
+			if asset_group_test:
+				emg = u'组名 %s 已存在' % (name, )
+				raise ServerError(emg)
+		except ServerError:
+			pass
+		else:
+			db_add_group(name=name, comment=comment, asset_select=asset_select)
+			smg = u'主机组 %s 添加成功' % (name, )
 
 	return my_render('jasset/group_add.html', locals(), request)
 
