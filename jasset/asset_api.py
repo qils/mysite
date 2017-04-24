@@ -4,7 +4,7 @@
 from mysite.api import *
 
 
-def group_add_asset(asset_group, asset_id=None, asset_ip=None)
+def group_add_asset(asset_group, asset_id=None, asset_ip=None):
 	'''
 	资产添加到资产组
 	'''
