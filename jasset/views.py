@@ -4,11 +4,11 @@
 from django.shortcuts import render
 from mysite.api import *
 from django.db.models import Q
-from jasset.models import AssetGroup
+from jasset.models import AssetGroup, Asset
 # Create your views here.
 
 
-@require_role(role='admin')
+@require_role('admin')
 def group_list(request):
 	'''
 	资产组表视图
@@ -35,8 +35,18 @@ def idc_list(request):
 	pass
 
 
+@require_role('admin')
 def group_add(request):
-	pass
+	'''
+	添加主机组视图
+	'''
+	header_title, path1, path2 = u'添加资产组', u'资产管理', u'添加资产组'
+	asset_all = Asset.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jasset/group_add.html', locals(), request)
 
 
 def group_edit(request):
