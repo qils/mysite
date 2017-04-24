@@ -5,6 +5,7 @@ from django.shortcuts import render
 from mysite.api import *
 from django.db.models import Q
 from jasset.models import AssetGroup, Asset
+from jasset.asset_api import *
 # Create your views here.
 
 
