@@ -2,12 +2,29 @@
 # --*-- coding: utf-8 --*--
 
 from django.shortcuts import render
-
+from mysite.api import *
+from django.db.models import Q
+from jasset.models import AssetGroup
 # Create your views here.
 
 
+@require_role(role='admin')
 def group_list(request):
-	pass
+	'''
+	资产组表视图
+	'''
+	header_title, path1, path2 = u'查看资产组', u'资产管理', u'查看资产组'
+	asset_group_list = AssetGroup.objects.all()		# 过滤所有资产组名
+	keyword = request.GET.get('keyword', '')
+	group_id = request.GET.get('id', '')
+	if group_id:
+		asset_group_list = asset_group_list.filter(id=group_id)
+
+	if keyword:
+		asset_group_list = asset_group_list.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))
+
+	asset_group_list, p, asset_groups, page_range, current_page, show_first, show_end = pages(asset_group_list, request)
+	return my_render('jasset/group_list.html', locals(), request)
 
 
 def asset_list(request):
@@ -15,6 +32,18 @@ def asset_list(request):
 
 
 def idc_list(request):
+	pass
+
+
+def group_add(request):
+	pass
+
+
+def group_edit(request):
+	pass
+
+
+def group_del(request):
 	pass
 
 
