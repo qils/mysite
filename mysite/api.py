@@ -11,7 +11,7 @@ import datetime
 import subprocess
 from mysite import settings
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from juser.models import User, UserGroup
 from jasset.models import Asset, AssetGroup
 from jlog.models import Log

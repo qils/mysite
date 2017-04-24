@@ -389,8 +389,26 @@ def user_del(request):
 	return HttpResponse(u'删除成功')
 
 
+@require_role(role='admin')
 def send_mail_retry(request):
-	pass
+	'''
+	重发邮件视图
+	'''
+	uuid_r = request.GET.get('uuid', '')
+	user = get_object(User, uuid=uuid_r)
+	if user:
+		msg = u'''
+		跳板机地址: %s
+		用户名: %s
+		重设密码: %s
+		请登录web站点点击个人信息页面重新生成ssh key秘钥
+		''' % (settings.URL, user.username, settings.URL)
+		try:
+			send_mail(u'邮件重发', msg, MAIL_FROM, [user.email], fail_silently=False)
+		except IndexError:
+			return Http404
+
+	return HttpResponse(u'发送成功')
 
 
 @require_role(role='super')
