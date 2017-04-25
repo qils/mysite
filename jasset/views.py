@@ -67,8 +67,24 @@ def group_add(request):
 	return my_render('jasset/group_add.html', locals(), request)
 
 
+@require_role('admin')
 def group_edit(request):
-	pass
+	'''
+	编辑资产组视图
+	'''
+	header_title, path1, path2 = u'编辑主机组', u'资产管理', u'编辑主机组'
+	group_id = request.GET.get('id', '')
+	group = get_object(AssetGroup, id=group_id)
+
+	asset_all = Asset.objects.all()		# 筛选所有主机
+	asset_select = Asset.objects.filter(group=group)		# 筛选添加到资产组中的主机
+	asset_no_select = [a for a in asset_all if a not in asset_select]
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jasset/group_edit.html', locals(), request)
+
 
 
 @require_role('admin')
