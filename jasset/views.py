@@ -71,7 +71,19 @@ def group_edit(request):
 	pass
 
 
+@require_role('admin')
 def group_del(request):
-	pass
+	'''
+	删除资产组视图
+	'''
+	group_ids = request.GET.get('id', '')
+	group_id_list = group_ids.split(',')
+
+	for group_id in group_id_list:
+		asset_group = AssetGroup.objects.filter(id=group_id)
+		if asset_group:
+			asset_group.delete()
+
+	return HttpResponse(u'删除成功')
 
 
