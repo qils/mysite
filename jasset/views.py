@@ -76,15 +76,34 @@ def group_edit(request):
 	group_id = request.GET.get('id', '')
 	group = get_object(AssetGroup, id=group_id)
 
-	asset_all = Asset.objects.all()		# 筛选所有主机
+	asset_all = Asset.objects.all()		# 筛选所有主机资产
 	asset_select = Asset.objects.filter(group=group)		# 筛选添加到资产组中的主机
 	asset_no_select = [a for a in asset_all if a not in asset_select]
 
 	if request.method == 'POST':
-		pass
+		name = request.POST.get('name', '')
+		asset_select = request.POST.getlist('asset_select', [])
+		comment = request.POST.get('comment', '')
 
+		try:
+			if not name:
+				emg = u'资产组名不能为空'
+				raise ServerError(emg)
+
+			if group.name != name:		# 资产组名修改后检测修改后的名称是否和已存在的名称有冲突
+				asset_group_test = get_object(AssetGroup, name=name)
+				if asset_group_test:
+					emg = u'资产组名 %s 已经存在' % (name, )
+					raise ServerError(emg)
+		except ServerError:
+			pass
+		else:
+			group.asset_set.clear()		# 清除资产组中的所有主机
+			db_update_group(id=group_id, name=name, comment=comment, asset_select=asset_select)
+			smg = u'主机组 %s 编辑成功' % (name, )
+
+		return HttpResponseRedirect(reverse('asset_group_list'))
 	return my_render('jasset/group_edit.html', locals(), request)
-
 
 
 @require_role('admin')

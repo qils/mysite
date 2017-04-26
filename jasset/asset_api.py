@@ -30,3 +30,17 @@ def db_add_group(**kwargs):
 		asset_group.save()
 		for asset_id in asset_id_list:
 			group_add_asset(asset_group, asset_id)		# 往资产组中添加资产
+
+
+def db_update_group(**kwargs):
+	'''
+	更新资产组数据表
+	'''
+	group_id = kwargs.pop('id')
+	asset_id_list = kwargs.pop('asset_select')
+	asset_group = get_object(AssetGroup, id=group_id)
+
+	for asset_id in asset_id_list:
+		group_add_asset(asset_group, asset_id)		# 重新将资产主机添加到资产组
+
+	AssetGroup.objects.filter(id=group_id).update(**kwargs)
