@@ -72,6 +72,7 @@ def group_edit(request):
 	'''
 	编辑资产组视图
 	'''
+	emg = ''
 	header_title, path1, path2 = u'编辑主机组', u'资产管理', u'编辑主机组'
 	group_id = request.GET.get('id', '')
 	group = get_object(AssetGroup, id=group_id)
@@ -102,7 +103,8 @@ def group_edit(request):
 			db_update_group(id=group_id, name=name, comment=comment, asset_select=asset_select)
 			smg = u'主机组 %s 编辑成功' % (name, )
 
-		return HttpResponseRedirect(reverse('asset_group_list'))
+		if not emg:
+			return HttpResponseRedirect(reverse('asset_group_list'))
 	return my_render('jasset/group_edit.html', locals(), request)
 
 
