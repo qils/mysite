@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'jlog',
     'jperm',
     'django_crontab',
+    'bootstrapform',
     'django.contrib.humanize',
     'mysite',
 )

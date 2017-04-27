@@ -6,6 +6,7 @@ from mysite.api import *
 from django.db.models import Q
 from jasset.models import AssetGroup, Asset, IDC
 from jasset.asset_api import *
+from jasset.forms import IdcForm
 # Create your views here.
 
 
@@ -138,8 +139,18 @@ def idc_list(request):
 	return my_render('jasset/idc_list.html', locals(), request)
 
 
+@require_role('admin')
 def idc_add(request):
-	pass
+	'''
+	IDC增加视图
+	'''
+	header_title, path1, path2 = '', '', ''
+	if request.method == 'POST':
+		pass
+	else:
+		idc_form = IdcForm()
+
+	return my_render('jasset/idc_add.html', locals(), request)
 
 
 def idc_edit(request):
