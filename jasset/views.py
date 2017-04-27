@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from mysite.api import *
 from django.db.models import Q
-from jasset.models import AssetGroup, Asset
+from jasset.models import AssetGroup, Asset, IDC
 from jasset.asset_api import *
 # Create your views here.
 
@@ -26,14 +26,6 @@ def group_list(request):
 
 	asset_group_list, p, asset_groups, page_range, current_page, show_first, show_end = pages(asset_group_list, request)
 	return my_render('jasset/group_list.html', locals(), request)
-
-
-def asset_list(request):
-	pass
-
-
-def idc_list(request):
-	pass
 
 
 @require_role('admin')
@@ -124,3 +116,35 @@ def group_del(request):
 	return HttpResponse(u'删除成功')
 
 
+def asset_list(request):
+	pass
+
+
+@require_role('admin')
+def idc_list(request):
+	'''
+	IDC视图
+	'''
+	header_title, path1, path2 = u'查看IDC', u'资产管理', u'查看IDC'
+	posts = IDC.objects.all()
+	keyword = request.GET.get('keyword', '')
+	if keyword:
+		posts = IDC.objects.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))		# 过滤IDC名称或者备注包含关键字的记录
+	else:
+		posts = IDC.objects.exclude(name='ALL').order_by('id')		# 过滤IDC name不为ALL的记录
+
+	contact_list, p, contacts, page_range, current_page, show_first, show_end = pages(posts, request)
+
+	return my_render('jasset/idc_list.html', locals(), request)
+
+
+def idc_add(request):
+	pass
+
+
+def idc_edit(request):
+	pass
+
+
+def idc_del(request):
+	pass

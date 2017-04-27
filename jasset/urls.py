@@ -6,9 +6,12 @@ from jasset.views import *
 
 urlpatterns = patterns(
     '',
-    url(r'^group/list/$', group_list, name='asset_group_list'),
     url(r'^asset/list/$', asset_list, name='asset_list'),
     url(r'^idc/list/$', idc_list, name='idc_list'),
+    url(r'^idc/add/$', idc_add, name='idc_add'),
+    url(r'^idc/edit/$', idc_edit, name='idc_edit'),
+    url(r'^idc/del/$', idc_del, name='idc_del'),
+    url(r'^group/list/$', group_list, name='asset_group_list'),
     url(r'^group/add/$', group_add, name='asset_group_add'),
     url(r'^group/edit/$', group_edit, name='asset_group_edit'),
     url(r'^group/del/$', group_del, name='asset_group_del'),
