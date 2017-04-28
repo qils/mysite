@@ -144,9 +144,20 @@ def idc_add(request):
 	'''
 	IDC增加视图
 	'''
-	header_title, path1, path2 = '', '', ''
+	header_title, path1, path2 = '添加IDC', '资产管理', '添加IDC'
 	if request.method == 'POST':
-		pass
+		idc_form = IdcForm(request.POST)
+		if idc_form.is_valid():		# 判断提交过来的数据是否有效
+			idc_name = idc_form.cleaned_data['name']		# 数据验证通过, 所提交的数据保存在一个cleaned_data字典中
+			if IDC.objects.filter(name=idc_name):
+				emg = u'添加失败, IDC名称 %s 已经存在' % (idc_name, )
+				return my_render('jasset/idc_add.html', locals(), request)
+			else:
+				idc_form.save()
+				smg = u'IDC: %s添加成功' % (idc_name, )
+				return HttpResponseRedirect(reverse('idc_list'))
+		else:
+			emg = u'表单数据验证不通过, 请重新提交'
 	else:
 		idc_form = IdcForm()
 
