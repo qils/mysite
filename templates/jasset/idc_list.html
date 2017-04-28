@@ -49,6 +49,7 @@
                                 {% endifequal %}
                                 <th class="text-center"> 机房名 </th>
                                 <th class="text-center"> 主机数量 </th>
+                                <th class="text-center"> 机房带宽 </th>
                                 <th class="text-center"> 联系人 </th>
                                 <th class="text-center"> 电话 </th>
                                 <th class="text-center"> 备注 </th>
@@ -63,6 +64,7 @@
                                 </td>
                                 <td class="text-center"> <a href="{% url 'asset_list' %}?idc_id={{ post.id }}">{{ post.name }}</a> </td>
                                 <td class="text-center"> <a href="{% url 'asset_list' %}?idc_id={{ post.id }}">{{ post.asset_set.count }}</a> </td>
+                                <td class="text-center"> {{ post.bandwidth }} </td>
                                 <td class="text-center"> {{ post.linkman }} </td>
                                 <td class="text-center"> {{ post.phone }} </td>
                                 <td class="text-center"> {{ post.comment }} </td>
