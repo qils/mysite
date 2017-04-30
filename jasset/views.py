@@ -149,11 +149,11 @@ def idc_add(request):
 		idc_form = IdcForm(request.POST)
 		if idc_form.is_valid():		# 判断提交过来的数据是否有效
 			idc_name = idc_form.cleaned_data['name']		# 数据验证通过, 所提交的数据保存在一个cleaned_data字典中
-			if IDC.objects.filter(name=idc_name):
+			if IDC.objects.filter(name=idc_name):		# 机房名称必须唯一
 				emg = u'添加失败, IDC名称 %s 已经存在' % (idc_name, )
 				return my_render('jasset/idc_add.html', locals(), request)
 			else:
-				idc_form.save()
+				idc_form.save()		# 在jasset_idc表中添加记录
 				smg = u'IDC: %s添加成功' % (idc_name, )
 				return HttpResponseRedirect(reverse('idc_list'))
 		else:
@@ -168,5 +168,17 @@ def idc_edit(request):
 	pass
 
 
+@require_role('admin')
 def idc_del(request):
-	pass
+	'''
+	单个删除, 或批量删除IDC记录
+	'''
+	idc_ids = request.GET.get('id', '')
+	idc_id_list = idc_ids.split(',')
+
+	for idc_id in idc_id_list:
+		if idc_id:
+			IDC.objects.filter(id=idc_id).delete()
+
+	return HttpResponseRedirect(reverse('idc_list'))
+
