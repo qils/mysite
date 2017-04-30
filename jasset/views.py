@@ -184,6 +184,7 @@ def idc_edit(request):
 
 	return my_render('jasset/idc_edit.html', locals(), request)
 
+
 @require_role('admin')
 def idc_del(request):
 	'''
