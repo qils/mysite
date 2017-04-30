@@ -178,6 +178,7 @@ def idc_edit(request):
 			idc_name = idc_form.cleaned_data['name']
 			if idc.name != idc_name:		# idc的名称被修改, 需要对比修改后的名称是否存在相同的记录
 				if IDC.objects.filter(name=idc_name):
+					logger.debug('%s' % (idc_name, ))
 					emg = u'IDC名称已经存在'
 				else:
 					idc_form.save()
