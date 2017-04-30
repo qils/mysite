@@ -173,19 +173,17 @@ def idc_edit(request):
 	idc_id = request.GET.get('id', '')
 	idc = get_object(IDC, id=idc_id)
 	if request.method == 'POST':
+		idc_name = request.POST.get('name', '')
+		if idc.name != idc_name:
+			if IDC.objects.filter(name=idc_name):
+				emg = u'IDC名称已经存在'
+				idc_form = IdcForm(instance=idc)
+				return my_render('jasset/idc_edit.html', locals(), request)
+			
 		idc_form = IdcForm(request.POST, instance=idc)
 		if idc_form.is_valid():
-			idc_name = idc_form.cleaned_data['name']
-			logger.debug('%s: %s' % (idc_name, idc.name))
-			if idc.name != idc_name:		# idc的名称被修改, 需要对比修改后的名称是否存在相同的记录
-				if IDC.objects.filter(name=idc_name):
-					emg = u'IDC名称已经存在'
-				else:
-					idc_form.save()
-					return HttpResponseRedirect(reverse('idc_list'))
-			else:
-				idc_form.save()
-				return HttpResponseRedirect(reverse('idc_list'))
+			idc_form.save()
+			return HttpResponseRedirect(reverse('idc_list'))
 		else:
 			emg = u'IDC编辑失败'
 	else:
