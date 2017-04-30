@@ -175,8 +175,16 @@ def idc_edit(request):
 	if request.method == 'POST':
 		idc_form = IdcForm(request.POST, instance=idc)
 		if idc_form.is_valid():
-			idc_form.save()
-			return HttpResponseRedirect(reverse('idc_list'))
+			idc_name = idc_form.cleaded_data['name']
+			if idc.name != idc_name:		# idc的名称被修改, 需要对比修改后的名称是否存在相同的记录
+				if IDC.objects.filter(name=idc_name):
+					emg = u'IDC名称已经存在'
+				else:
+					idc_form.save()
+					return HttpResponseRedirect(reverse('idc_list'))
+			else:
+				idc_form.save()
+				return HttpResponseRedirect(reverse('idc_list'))
 		else:
 			emg = u'IDC编辑失败'
 	else:
