@@ -132,7 +132,7 @@ def idc_list(request):
 	if keyword:
 		posts = IDC.objects.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))		# 过滤IDC名称或者备注包含关键字的记录
 	else:
-		posts = IDC.objects.exclude(name='ALL').order_by('id')		# 过滤IDC name不为ALL的记录
+		posts = IDC.objects.exclude(name='ALL').order_by('id')		# 过滤IDC name不为ALL的记录, 依据ID号排序
 
 	contact_list, p, contacts, page_range, current_page, show_first, show_end = pages(posts, request)
 
@@ -164,14 +164,30 @@ def idc_add(request):
 	return my_render('jasset/idc_add.html', locals(), request)
 
 
+@require_role('admin')
 def idc_edit(request):
-	pass
+	'''
+	编辑IDC记录视图
+	'''
+	header_title, path1, path2 = u'编辑IDC', u'资产管理', u'编辑IDC'
+	idc_id = request.GET.get('id', '')
+	idc = get_object(IDC, id=idc_id)
+	if request.method == 'POST':
+		idc_form = IdcForm(request.POST, instance=idc)
+		if idc_form.is_valid():
+			idc_form.save()
+			return HttpResponseRedirect(reverse('idc_list'))
+		else:
+			emg = u'IDC编辑失败'
+	else:
+		idc_form = IdcForm(instance=idc)
 
+	return my_render('jasset/idc_edit.html', locals(), request)
 
 @require_role('admin')
 def idc_del(request):
 	'''
-	单个删除, 或批量删除IDC记录
+	单个删除, 或批量删除IDC记录视图
 	'''
 	idc_ids = request.GET.get('id', '')
 	idc_id_list = idc_ids.split(',')
