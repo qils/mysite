@@ -188,7 +188,10 @@ def idc_edit(request):
 		else:
 			emg = u'IDC编辑失败'
 	else:
-		idc_form = IdcForm(instance=idc)
+		if idc:
+			idc_form = IdcForm(instance=idc)
+		else:
+			return HttpResponseRedirect(reverse('idc_list'))
 
 	return my_render('jasset/idc_edit.html', locals(), request)
 
