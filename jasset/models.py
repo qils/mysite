@@ -46,7 +46,8 @@ class AssetGroup(models.Model):
 
 class IDC(models.Model):
 	name = models.CharField(max_length=32, verbose_name='机房名称')
-	bandwidth = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name='机房带宽')
+	bandwidth = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name='上联带宽')
+	avaliable_bandwidth = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name='CDN可用上联带宽')
 	linkman = models.CharField(max_length=16, blank=True, null=True, default='', verbose_name='联系人')
 	phone = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name='联系电话')
 	address = models.CharField(max_length=128, blank=True, null=True, default='', verbose_name='机房地址')

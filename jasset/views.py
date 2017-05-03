@@ -174,12 +174,12 @@ def idc_edit(request):
 	idc = get_object(IDC, id=idc_id)
 	if request.method == 'POST':
 		idc_name = request.POST.get('name', '')
-		if idc.name != idc_name:
+		if idc.name != idc_name:		# 增加机房名重名判断
 			if IDC.objects.filter(name=idc_name):
 				emg = u'IDC名称已经存在'
 				idc_form = IdcForm(instance=idc)
 				return my_render('jasset/idc_edit.html', locals(), request)
-			
+
 		idc_form = IdcForm(request.POST, instance=idc)
 		if idc_form.is_valid():
 			idc_form.save()
