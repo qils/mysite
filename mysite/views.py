@@ -183,6 +183,10 @@ def web_terminal(request):
 	pass
 
 
+def exec_cmd(request):
+	pass
+
+
 @require_role(role='user')
 def Logout(request):
 	logout(request)
