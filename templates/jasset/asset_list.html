@@ -30,7 +30,7 @@
 
                         <div class="col-sm-7" style="padding-left: 0px">
                             <label>
-                                <select name="idc" class="form-control m-b input-sm" onchange="change_info()">
+                                <select name="idc" class="form-control m-b input-sm" onchange="change_info()" style="height: 35%">
                                     <option value="">机房</option>
                                     {% for idc in idc_all %}
                                         {% ifequal idc.name idc_name %}
@@ -56,7 +56,7 @@
                             </label>
 
                             <label>
-                                <select name="asset_type" class="form-control m-b input-sm" onchange="change_info()">
+                                <select name="asset_type" class="form-control m-b input-sm" onchange="change_info()" style="height: 35%">
                                     <option value="">资产类型</option>
                                     {% for type in asset_types %}
                                         {% ifequal type.0|int2str asset_type %}
@@ -69,7 +69,7 @@
                             </label>
 
                             <label>
-                                <select name="status" class="form-control m-b input-sm" onchange="change_info()">
+                                <select name="status" class="form-control m-b input-sm" onchange="change_info()" style="height: 35%">
                                     <option value="">资产状态</option>
                                     {% for s in asset_status %}
                                         {% ifequal s.0|int2str status %}
