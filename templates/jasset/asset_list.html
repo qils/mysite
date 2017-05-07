@@ -43,7 +43,7 @@
                             </label>
 
                             <label>
-                                <select name="group" class="form-control m-b input-sm" onchange="change_info()">
+                                <select name="group" class="form-control m-b input-sm" onchange="change_info()" style="height: 35%">
                                     <option value="">主机组</option>
                                     {% for asset_group in asset_group_all %}
                                         {% ifequal asset_group.name group_name %}
