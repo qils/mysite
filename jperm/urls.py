@@ -8,5 +8,6 @@ urlpatterns = patterns(
 	'jperm.views',
 	url(r'^sudo/list/$', perm_sudo_list, name='sudo_list'),
 	url(r'^role/list/$', perm_role_list, name='role_list'),
+	url(r'^role/get/$', perm_role_get, name='role_get'),
 	url(r'^rule/list/$', perm_rule_list, name='rule_list'),
 )

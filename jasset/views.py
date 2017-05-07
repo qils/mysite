@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from mysite.api import *
 from django.db.models import Q
-from jasset.models import AssetGroup, Asset, IDC
+from jasset.models import AssetGroup, Asset, IDC, ASSET_TYPE, ASSET_STATUS
 from jasset.asset_api import *
 from jasset.forms import IdcForm
 # Create your views here.
@@ -117,8 +117,85 @@ def group_del(request):
 	return HttpResponse(u'删除成功')
 
 
-def asset_list(request):
+def asset_add(request):
 	pass
+
+
+def asset_detail(request):
+	pass
+
+
+def asset_edit(request):
+	pass
+
+
+def asset_del(request):
+	pass
+
+
+def asset_edit_batch(request):
+	pass
+
+
+def asset_update_batch(request):
+	pass
+
+
+@require_role('user')
+def asset_list(request):
+	'''
+	主机资产视图
+	'''
+	header_title, path1, path2 = u'查看资产', u'资产管理', u'查看资产'
+	username = request.user.username
+	user_perm = request.session['role_id']		# 用户权限, 2: SU, 1: GA, 0: CU
+	idc_all = IDC.objects.filter()		# 过滤所有的IDC信息
+	asset_group_all = AssetGroup.objects.all()		# 过滤所有的资产组信息
+	asset_types = ASSET_TYPE		# 资产类型, 定义7种资产类型
+	asset_status = ASSET_STATUS		# 资产状态, 三种状态: 已上线, 未上线, 已下架
+	idc_name = request.GET.get('idc', '')		# 从表单里面提交
+	group_name = request.GET.get('group', '')		# 从表单里面提交
+	asset_type = request.GET.get('asset_type', '')		# 从表单提交
+	status = request.GET.get('status', '')		# 从表单提交
+	keyword = request.GET.get('keyword', '')		# 从表单提交
+	export = request.GET.get('export', False)
+	group_id = request.GET.get('group_id', '')		# 在资产组中, 每一个资产组所关联的资产, 由group_id查询参数连接
+	idc_id = request.GET.get('idc_id', '')		# 在IDC中, 每一个IDC所关联的资产, 由idc_id查询参数连接
+	asset_id_all = request.GET.getlist('id', '')		# 获取所提交的所有资产
+
+	if group_id:
+		pass
+	elif idc_id:
+		pass
+	else:
+		if user_perm != 0:		# 非普通用户
+			asset_find = Asset.objects.all()		# 过滤所有资产信息
+		else:
+			pass
+
+	if idc_name:
+		pass
+
+	if group_name:
+		pass
+
+	if asset_type:
+		pass
+
+	if status:
+		pass
+
+	if keyword:
+		pass
+
+	if export:
+		pass
+
+	assets_list, p, assets, page_range, current_page, show_first, show_end = pages(asset_find, request)
+	if user_perm != 0:
+		return my_render('jasset/asset_list.html', locals(), request)
+	else:
+		return my_render('jasset/asset_cu_list.html', locals(), request)
 
 
 @require_role('admin')

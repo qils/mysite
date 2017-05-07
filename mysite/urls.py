@@ -23,6 +23,7 @@ urlpatterns = patterns(
     url(r'^logout/$', 'Logout', name='logout'),
     url(r'^file/upload/$', 'upload', name='file_upload'),
     url(r'^file/download/$', 'download', name='file_download'),
+    url(r'^terminal/$', 'web_terminal', name='terminal'),
     url(r'^setting', 'setting', name='setting'),
     url(r'^juser/', include('juser.urls')),
     url(r'^jasset/', include('jasset.urls')),

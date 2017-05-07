@@ -179,6 +179,10 @@ def setting(request):
 	pass
 
 
+def web_terminal(request):
+	pass
+
+
 @require_role(role='user')
 def Logout(request):
 	logout(request)

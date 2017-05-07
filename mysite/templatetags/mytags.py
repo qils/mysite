@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import os
+import ast
 from django import template
 from mysite.api import *
 from jperm.perm_api import get_group_user_perm
@@ -102,3 +103,36 @@ def int2str(value):
 	int 转为 str
 	'''
 	return str(value)
+
+
+@register.filter(name='group_str2')
+def groups_str2(group_list):
+	'''
+	将资产组列表转换为str
+	'''
+	if len(group_list) < 3:
+		return '|'.join([group.name for group in group_list])
+	else:
+		return '%s ...' % ('|'.join([group.name for group in group_list]))
+
+
+@register.filter(name='get_cpu_core')
+def get_cpu_core(cpu_info):
+	cpu_core = cpu_info.split('* ')[1] if cpu_info and '*' in cpu_info else cpu_info
+	return cpu_core
+
+
+@register.filter(name='get_disk_info')
+def get_disk_info(disk_info):
+	try:
+		disk_size = 0
+		if disk_info:
+			disk_dic = ast.literal_eval(disk_info)
+			for disk, size in disk_dic.items():
+				disk_size += size
+			disk_size = int(disk_size)
+		else:
+			disk_size = ''
+	except Exception:
+		disk_size = disk_info
+	return disk_size
