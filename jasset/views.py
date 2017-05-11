@@ -6,7 +6,8 @@ from mysite.api import *
 from django.db.models import Q
 from jasset.models import AssetGroup, Asset, IDC, ASSET_TYPE, ASSET_STATUS
 from jasset.asset_api import *
-from jasset.forms import IdcForm
+from jasset.forms import IdcForm, AssetForm
+from mysite.models import Setting
 # Create your views here.
 
 
@@ -117,8 +118,20 @@ def group_del(request):
 	return HttpResponse(u'删除成功')
 
 
+@require_role('admin')
 def asset_add(request):
-	pass
+	'''
+	添加资产视图
+	'''
+	header_title, path1, path2 = u'添加资产', u'资产管理', u'添加资产'
+	asset_group_all = AssetGroup.objects.all()		# 过滤所有资产组
+	af = AssetForm()		# 资产表单域
+	default_setting = get_object(Setting, name='default')
+	default_port = default_setting.field2 if default_setting else ''
+	if request.method == 'POST':
+		pass
+
+	return my_render('jasset/asset_add.html', locals(), request)
 
 
 def asset_detail(request):

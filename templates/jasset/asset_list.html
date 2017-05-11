@@ -418,8 +418,8 @@
 {#    });#}
 
     function change_info(){
-        var args = $("#asset_form").serialize();
-        window.location = "{% url 'asset_list' %}?" + args
+        var args = $("#asset_form").serialize();        // 序列化表单值, 创建URL编码文本字符串
+        window.location = "{% url 'asset_list' %}?" + args;      // 加载url
     }
 
     $("#search_input").keydown(function(e){
