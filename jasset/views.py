@@ -154,6 +154,10 @@ def asset_update_batch(request):
 	pass
 
 
+def asset_add_batch(request):
+	pass
+
+
 @require_role('user')
 def asset_list(request):
 	'''
