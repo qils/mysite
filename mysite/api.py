@@ -10,6 +10,8 @@ import random
 import datetime
 import subprocess
 from mysite import settings
+from Crypto.Cipher import AES		# 调用AES加密字符
+from binascii import b2a_hex, a2b_hex
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from juser.models import User, UserGroup
@@ -201,6 +203,10 @@ class PyCrypt(object):
 	'''
 	jumpserver 加密类, 封装多种加密函数
 	'''
+	def __init__(self, key):
+		self.key = key		# 原始加密密钥, 长度为16字符
+		self.mode = AES.MODE_CBC
+
 	@staticmethod
 	def md5_crypt(string):
 		'''
@@ -227,6 +233,24 @@ class PyCrypt(object):
 		salt = ''.join(salt_list)
 		return salt
 
+	def encrypt(self, passwd=None, length=32):
+		'''
+		对称加密, 加密生成密码
+		'''
+		if not passwd:
+			passwd = self.gen_rand_key()		# 不指定密码, 随机生成16位字符密码
+
+		cryptor = AES.new(self.key, self.mode, b'8122ca7d906ad5e1')
+		try:
+			count = len(passwd)
+		except TypeError:
+			raise ServerError('类型错误')
+
+		add = (length - (count % length))
+		passwd += '\0' * add		# 补码, passwd长度需要为length的整数倍
+		cipher_text = cryptor.encrypt(passwd)		# 加密后字符
+		return b2a_hex(cipher_text)
+
 
 def http_success(request, msg):
 	'''
@@ -242,4 +266,6 @@ def http_error(request, msg):
 	message = msg
 	return render_to_response('error.html', locals())
 
+
+CRYPTOR = PyCrypt(settings.KEY)		# KEY 是在部署环境是随机生成的16位字符
 logger = set_log(settings.LOG_LEVEL)

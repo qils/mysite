@@ -20,7 +20,7 @@ class IdcForm(forms.ModelForm):
 
 class AssetForm(forms.ModelForm):
 	'''
-	资产表单
+	资产表单, ModelForm是将表单域和模型字段对应起来
 	'''
 	class Meta:
 		model = Asset

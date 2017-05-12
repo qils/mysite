@@ -129,7 +129,37 @@ def asset_add(request):
 	default_setting = get_object(Setting, name='default')
 	default_port = default_setting.field2 if default_setting else ''
 	if request.method == 'POST':
-		pass
+		af_post = AssetForm(request.POST)		# 创建一个AssetForm 实列
+		hostname = request.POST.get('hostname', '')
+		ip = request.POST.get('ip', '')
+		is_active = True if request.POST.get('is_active') == 1 else False
+		use_default_auth = request.POST.get('use_default_auth', '')
+
+		try:
+			if Asset.objects.filter(hostname=unicode(hostname)):		# 检验是否有重名的hostname
+				error = u'该主机名 %s 已经存在' % (hostname, )
+				raise ServerError(error)
+			if len(hostname) > 54:
+				error = u'主机名长度不能超过54'
+				raise ServerError(error)
+		except ServerError:
+			pass
+		else:
+			if af_post.is_valid():
+				asset_save = af_post.save(commit=False)		# commit=False, 避免Model实列立即存储到数据库
+				if not use_default_auth:
+					password = request.POST.get('password', '')
+					password_encode = CRYPTOR.encrypt(password)		# 对称加密提交的密码
+					asset_save.password = password_encode
+				if not ip:		# 当没有输入主机IP时, 设置主机IP为主机名
+					asset_save.ip = hostname
+				asset_save.is_active = is_active if is_active else False
+				asset_save.save()		# 存储ModelForm实列到数据库
+				asset_save.save_m2m()		# 当使用commit=False, 需要手动调用save_m2m()来存储多对多字段内容
+				msg = u'主机 %s 添加成功' % (hostname, )
+			else:
+				msg = u'主机 %s 添加失败' % (hostname, )
+			return HttpResponseRedirect(reverse('asset_list'))
 
 	return my_render('jasset/asset_add.html', locals(), request)
 
