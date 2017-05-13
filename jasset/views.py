@@ -155,7 +155,7 @@ def asset_add(request):
 					asset_save.ip = hostname
 				asset_save.is_active = is_active if is_active else False
 				asset_save.save()		# 存储ModelForm实列到数据库
-				asset_save.save_m2m()		# 当使用commit=False, 需要手动调用save_m2m()来存储多对多字段内容
+				af_post.save_m2m()		# 当使用commit=False, 需要手动调用save_m2m()来存储多对多字段内容
 				msg = u'主机 %s 添加成功' % (hostname, )
 			else:
 				msg = u'主机 %s 添加失败' % (hostname, )
