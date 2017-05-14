@@ -153,7 +153,9 @@
                                     </tr>
                                     <tr>
                                         <td class="text-navy">激活</td>
+                                        {% autoescape off %}
                                         <td>{{ asset.is_active|bool2str }}</td>
+                                        {% endautoescape %}
                                     </tr>
                                     <tr>
                                         <td class="text-navy">添加日期</td>
