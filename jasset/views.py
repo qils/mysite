@@ -7,6 +7,7 @@ from django.db.models import Q
 from jasset.models import AssetGroup, Asset, IDC, ASSET_TYPE, ASSET_STATUS
 from jasset.asset_api import *
 from jasset.forms import IdcForm, AssetForm
+from jperm.perm_api import get_group_asset_perm, get_group_user_perm
 from mysite.models import Setting
 # Create your views here.
 
@@ -164,7 +165,31 @@ def asset_add(request):
 	return my_render('jasset/asset_add.html', locals(), request)
 
 
+@require_role('admin')
 def asset_detail(request):
+	'''
+	资产详细信息视图
+	'''
+	header_title, path1, path2 = u'主机详细信息', u'资产管理', u'主机详情'
+	asset_id = request.GET.get('id', '')
+	asset = get_object(Asset, id=asset_id)
+	perm_info = get_group_asset_perm(asset)
+	log = Log.objects.filter(host=asset.hostname)
+	if perm_info:
+		user_perm = []
+		for perm, value in perm_info.items():
+			if perm == 'user':
+				for user, role_dic in value.items():
+					user_perm.append([user, role_dic.get('role', '')])
+			elif perm == 'user_group' or perm == 'rule':
+				user_group_perm = value
+
+	asset_record = AssetRecord.objects.filter(asset=asset).order_by('-alert_time')
+
+	return my_render('jasset/asset_detail.html', locals(), request)
+
+
+def asset_update(request):
 	pass
 
 

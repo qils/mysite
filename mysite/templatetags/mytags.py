@@ -136,3 +136,33 @@ def get_disk_info(disk_info):
 	except Exception:
 		disk_size = disk_info
 	return disk_size
+
+
+@register.filter(name='ip_str_to_list')
+def ip_str_to_list(ip_str):
+	'''
+	将多IP字符转为IP列表
+	'''
+	return ip_str.split(',')
+
+
+@register.filter(name='str_to_dic')
+def str_to_dic(info):
+	if '{' in info:
+		info_dic = ast.literal_eval(info).iteritems()
+	else:
+		info_dic = {}
+	return info_dic
+
+
+@register.filter(name='str_to_list')
+def str_to_list(info):
+	return ast.literal_eval(info)
+
+
+@register.filter(name='str_to_code')
+def str_to_code(char_str):
+	if char_str:
+		return char_str
+	else:
+		return u'空'

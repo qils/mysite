@@ -15,7 +15,7 @@ from binascii import b2a_hex, a2b_hex
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from juser.models import User, UserGroup
-from jasset.models import Asset, AssetGroup
+from jasset.models import Asset, AssetGroup, AssetRecord
 from jlog.models import Log
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail

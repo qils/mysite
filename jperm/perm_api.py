@@ -72,3 +72,51 @@ def get_group_user_perm(ob):
 						'rule': perm_asset_group[asset_group].get('rule', set())
 					}
 	return perm
+
+
+def get_group_asset_perm(ob):
+	'''
+	ob为资产, 或者资产组,
+	获取资产, 资产组授权的用户, 用户组
+	'''
+	perm = {}
+	if isinstance(ob, Asset):
+		rule_all = PermRule.objects.filter(asset=ob)
+	elif isinstance(ob, AssetGroup):
+		rule_all = PermRule.objects.filter(asset_group=ob)
+	else:
+		rule_all = []
+
+	perm['rule'] = rule_all
+	perm_user = perm['user'] = {}
+	perm_user_group = perm['user_group'] = {}
+	for rule in rule_all:
+		users = rule.user.all()
+		user_groups = rule.user_group.all()
+
+		# 获取一个规则资产的用户
+		for user in users:
+			if perm_user.get(user):
+				perm_user[user].get('role', set()).update(set(rule.role.all()))
+				perm_user[user].get('rule', set()).add(rule)
+			else:
+				perm_user[user] = {'role': set(rule.role.all()), 'rule': set([rule])}
+
+		# 获取一个规则资产授权的用户组
+		for user_group in user_groups:
+			user_group_users = user_group.user_set.all()		# 获取一个用户组中所有的用户
+			if perm_user_group.get(user_group):
+				perm_user_group[user_group].get('role', set()).update(set(rule.role.all()))
+				perm_user_group[user_group].get('rule', set()).add(rule)
+			else:
+				perm_user_group[user_group] = {'role': set(rule.role.all()), 'rule': set([rule]), user: user_group_users}
+
+			# 将用户组中的资产添加到用户授权中
+			for user in user_group_users:
+				if perm_user.get(user):
+					perm_user[user].get('role', set()).update(perm_user_group[user_group].get('role', set()))		# 因为在perm_user_group, user_group['role']是一个集合, 所以这里不能用add函数
+					perm_user[user].get('rule', set()).update(perm_user_group[user_group].get('rule'), set())		# 解释同上
+				else:
+					perm_user[user] = {'role': perm_user_group[user_group].get('role', set()), 'rule': perm_user_group[user_group].get('rule', set())}
+
+	return perm

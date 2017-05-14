@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^asset/add/$', asset_add, name='asset_add'),
     url(r'^asset/list/$', asset_list, name='asset_list'),
     url(r"^asset/detail/$", asset_detail, name='asset_detail'),
+    url(r'^asset/update/$', asset_update, name='asset_update'),
     url(r'^asset/edit/$', asset_edit, name='asset_edit'),
     url(r'^asset/del/$', asset_del, name='asset_del'),
     url(r'^asset/edit_batch/$', asset_edit_batch, name='asset_edit_batch'),

@@ -21,3 +21,10 @@ def perm_rule_list(request):
 	pass
 
 
+def perm_role_detail(request):
+	pass
+
+
+def perm_rule_detail(request):
+	pass
+
