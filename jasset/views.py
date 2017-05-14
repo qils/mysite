@@ -133,7 +133,7 @@ def asset_add(request):
 		af_post = AssetForm(request.POST)		# 创建一个AssetForm 实列
 		hostname = request.POST.get('hostname', '')
 		ip = request.POST.get('ip', '')
-		is_active = True if request.POST.get('is_active') == 1 else False
+		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
 
 		try:
