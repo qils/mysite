@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import os
 import datetime
 from mysite.api import *
 from django.shortcuts import render_to_response
@@ -178,10 +179,56 @@ def download(request):
 
 @require_role('admin')
 def setting(request):
+	'''
+	默认配置视图, 支持配置用户名,密码或者配置一个私钥
+	'''
 	header_title, path1 = u'项目设置', u'设置'
 	setting_default = get_object(Setting, name='default')
 	if request.method == 'POST':
-		pass
+		try:
+			if request.POST.get('setting', '') == 'default':
+				username = request.POST.get('username', '')		# 默认用户名
+				password = request.POST.get('password', '')		# 默认密码
+				port = request.POST.get('port', '')		# 默认连接的端口号
+				private_key = request.POST.get('key', '')
+
+				if not password and not private_key:
+					raise ServerError('密码或者私钥,两个必填一个')
+
+				if len(password) > 30:
+					raise	ServerError('密码长度不能超过30字符')
+
+				private_key_dir = os.path.join(settings.BASE_DIR, 'keys', 'default')		# 私钥存放目录
+				private_key_path = os.path.join(private_key_dir, 'admin_user.pem')		# 私钥文件
+				mkdir(private_key_dir)
+				if private_key:		# 如果输入私钥, 就写入到文件
+					with open(private_key_path, 'w') as f:
+						f.write(private_key)
+					os.chmod(private_key_path, 0600)
+
+				if setting_default:
+					if password:		# 表示密码重新修改过
+						password_encode = CRYPTOR.encrypt(password)		# 重新加密密码后存储到setting表
+					else:
+						password_encode = password		# 表示密码没有重新修改
+					Setting.objects.filter(name='default').update(
+						field1=username,
+						field2=port,
+						field3=password_encode,
+						field4=private_key_path
+					)
+				else:
+					password_encode = CRYPTOR.encrypt(password)
+					Setting(
+						name='default',
+						field1=username,
+						field2=port,
+						field3=password_encode,
+						field4=private_key_path,
+					).save()
+				msg = '默认设置成功'
+		except ServerError as e:
+			error = e.message
 
 	return my_render('setting.html', locals(), request)
 
