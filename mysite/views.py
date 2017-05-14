@@ -11,6 +11,7 @@ from jlog.models import Log, FileLog
 from django.utils import timezone
 from django.db.models import Count
 from django.template import RequestContext
+from mysite.models import Setting
 
 
 def getDaysByNum(num):
@@ -175,8 +176,14 @@ def download(request):
 	pass
 
 
+@require_role('admin')
 def setting(request):
-	pass
+	header_title, path1 = u'项目设置', u'设置'
+	setting_default = get_object(Setting, name='default')
+	if request.method == 'POST':
+		pass
+
+	return my_render('setting.html', locals(), request)
 
 
 def web_terminal(request):
