@@ -193,8 +193,22 @@ def asset_update(request):
 	pass
 
 
+@require_role(role='super')
 def asset_edit(request):
-	pass
+	'''
+	资产主机编辑视图
+	'''
+	header_title, path1, path2 = u'修改资产', u'资产管理', u'修改资产'
+	asset_id = request.POST.get('id', '')
+	username = request.user.username
+	asset = get_object(Asset, id=asset_id)
+	if asset:
+		password_old = asset.password		# 保留旧password
+	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
+	if request.method == 'POST':
+		pass
+
+	return my_render('jasset/asset_edit.html', locals(), request)
 
 
 def asset_del(request):
