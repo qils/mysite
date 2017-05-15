@@ -199,7 +199,7 @@ def asset_edit(request):
 	资产主机编辑视图
 	'''
 	header_title, path1, path2 = u'修改资产', u'资产管理', u'修改资产'
-	asset_id = request.POST.get('id', '')
+	asset_id = request.GET.get('id', '')
 	username = request.user.username
 	asset = get_object(Asset, id=asset_id)
 	if asset:
