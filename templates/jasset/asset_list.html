@@ -112,6 +112,7 @@
                                     <th class="text-center"> CPU核数 </th>
                                     <th class="text-center"> 内存 </th>
                                     <th class="text-center"> 硬盘 </th>
+                                    <th class="text-center"> 主机状态 </th>
                                     <th class="text-center"> 操作 </th>
                                 </tr>
                             </thead>
@@ -130,6 +131,7 @@
                                     <td class="text-center"> {{ asset.cpu|get_cpu_core|default_if_none:"" }} </td>
                                     <td class="text-center"> {{ asset.memory|default_if_none:"" }}{% if asset.memory %}G{% endif %}</td>
                                     <td class="text-center"> {{ asset.disk|get_disk_info }}{% if asset.disk %}G{% endif %}</td>
+                                    <td class="text-center">{{ asset.status }}</td>
                                     <td class="text-center" data-editable='false'>
                                         <a href="{% url 'asset_edit' %}?id={{ asset.id }}" class="btn btn-xs btn-info">编辑</a>
                                         <a value="{{ asset.id }}" class="conn btn btn-xs btn-warning">连接</a>
