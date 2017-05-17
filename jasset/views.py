@@ -135,6 +135,7 @@ def asset_add(request):
 		ip = request.POST.get('ip', '')
 		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
+		logger.debug('%s: %s' % (type(use_default_auth), use_default_auth))
 
 		try:
 			if Asset.objects.filter(hostname=unicode(hostname)):		# 检验是否有重名的hostname
@@ -206,7 +207,12 @@ def asset_edit(request):
 		password_old = asset.password		# 保留旧password
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
-		pass
+		af_post = AssetForm(request.POST, instance=asset)
+		ip = request.POST.get('ip', '')
+		hostname = request.POST.get('hostname', '')
+		password = request.POST.get('password', '')
+		is_active = True if request.POST.get('is_active') == '1' else False
+		use_default_auth = request.POST.get('use_default_auth', '')
 
 	return my_render('jasset/asset_edit.html', locals(), request)
 
