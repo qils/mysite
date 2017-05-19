@@ -135,7 +135,6 @@ def asset_add(request):
 		ip = request.POST.get('ip', '')
 		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
-		logger.debug('%s: %s' % (type(use_default_auth), use_default_auth))
 
 		try:
 			if Asset.objects.filter(hostname=unicode(hostname)):		# 检验是否有重名的hostname
@@ -207,12 +206,39 @@ def asset_edit(request):
 		password_old = asset.password		# 保留旧password
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
-		af_post = AssetForm(request.POST, instance=asset)
+		af_post = AssetForm(request.POST, instance=asset)		# 加载数据优先级request.POST > instance
 		ip = request.POST.get('ip', '')
 		hostname = request.POST.get('hostname', '')
 		password = request.POST.get('password', '')
 		is_active = True if request.POST.get('is_active') == '1' else False
-		use_default_auth = request.POST.get('use_default_auth', '')
+		use_default_auth = request.POST.get('use_default_auth', '')		# 使用默认该值为字符no, 不使用默认该值为空字符
+		try:
+			asset_test = get_object(Asset, hostname=hostname)
+			if asset_test and asset_id != unicode(asset_test.id):		# 检验是否有重名的主机名
+				emg = u'主机名 %s 冲突' % (hostname, )
+				raise ServerError(emg)
+			if len(hostname) > 54:
+				emg = u'主机名长度不能超过54个字符'
+				raise ServerError(emg)
+			else:
+				if af_post.is_valid():		# 检验数据是否有效
+					af_save = af_post.save(commit=False)		# commit=False避免立即存储到数据库
+					if use_default_auth:		# 是否使用默认管理用户, 如果使用默认用户名, 密码留空, 如果不使用, 判断密码是否有更改
+						af_save.username = ''
+						af_save.password = ''
+					else:
+						if password:
+							password_encode = CRYPTOR.encrypt(password)
+							af_save.password = password_encode
+						else:
+							af_save.password = password_old		# 密码不修改还是原来的旧密码
+					af_save.is_active = True if is_active else False
+					af_save.save()
+					af_post.save_m2m()		# 存储对多对数据
+		except ServerError as e:
+			error = e.message
+			return my_render('jasset/asset_edit.html', locals(), request)
+		return HttpResponseRedirect(reverse('asset_detail') + '?id=%s' % (asset.id, ))
 
 	return my_render('jasset/asset_edit.html', locals(), request)
 
