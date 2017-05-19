@@ -234,6 +234,7 @@ def asset_edit(request):
 							af_save.password = password_old		# 密码不修改还是原来的旧密码
 					af_save.is_active = True if is_active else False
 					af_save.save()
+					logger.debug(af_post.__dict__)
 					af_post.save_m2m()		# 存储对多对数据
 		except ServerError as e:
 			error = e.message
