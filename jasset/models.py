@@ -102,9 +102,12 @@ class Asset(models.Model):
 
 
 class AssetRecord(models.Model):
+	'''
+	资产信息变更记录表, 谁更改了资产信息, 并且记录变更信息的前后对比
+	'''
 	asset = models.ForeignKey(Asset)		# 外键关联到Asset表
 	username = models.CharField(max_length=30, null=True)
-	alert_time = models.DateTimeField(auto_now_add=True)
+	alert_time = models.DateTimeField(auto_now_add=True)		# auto_now_add时间创建后不能修改
 	content = models.TextField(blank=True, null=True)
 	comment = models.TextField(blank=True, null=True)
 

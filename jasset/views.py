@@ -206,7 +206,6 @@ def asset_edit(request):
 		password_old = asset.password		# 保留旧password
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
-		logger.debug(dict(request.POST.iterlists()))
 		af_post = AssetForm(request.POST, instance=asset)		# 加载数据优先级request.POST > instance
 		ip = request.POST.get('ip', '')
 		hostname = request.POST.get('hostname', '')
@@ -236,6 +235,13 @@ def asset_edit(request):
 					af_save.is_active = True if is_active else False
 					af_save.save()
 					af_post.save_m2m()		# 存储对多对数据
+
+					info = asset_diff(af_post.__dict__.get('initial'), request.POST)		# 对比更新资产信息前,后差异
+					db_asset_alert(asset, username, info)		# 将变更信息记录到AssetRecord表
+					msg = u'主机 %s 修改成功' % (ip, )
+				else:
+					emg = u'主机 %s 修改失败' %(ip, )
+					raise ServerError(emg)
 		except ServerError as e:
 			error = e.message
 			return my_render('jasset/asset_edit.html', locals(), request)
