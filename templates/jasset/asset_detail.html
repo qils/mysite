@@ -285,7 +285,7 @@
                                                 {% for i in r.content|str_to_list %}
                                                     <div>{{ i.0 }} 由 <span class="text-success">{{ i.1|str_to_code }}</span> 改为 <span class="text-warning">{{ i.2|str_to_code }}</span></div>
                                                 {% endfor %}
-                                            <small class="text-success">{{ r.alert_time }}</small>
+                                            <small class="text-success">{{ r.alert_time|date:"Y-m-d H:i:s" }}</small>
                                         </div>
                                     </div>
                                 {% endfor %}

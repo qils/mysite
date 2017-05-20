@@ -224,7 +224,7 @@ def asset_edit(request):
 				if af_post.is_valid():		# 检验数据是否有效
 					af_save = af_post.save(commit=False)		# commit=False避免立即存储到数据库
 					if use_default_auth:		# 是否使用默认管理用户, 如果使用默认用户名, 密码留空, 如果不使用, 判断密码是否有更改
-						af_save.username = ''
+						af_save.username = ''		# 当使用默认时, 编辑完后username在数据表中会变为空
 						af_save.password = ''
 					else:
 						if password:
