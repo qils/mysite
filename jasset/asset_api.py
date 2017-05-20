@@ -63,7 +63,7 @@ def asset_diff(before, after):
 			after_dic_value = after_dic_values[0] if len(after_dic_values) > 0 else u''
 			uv = unicode(v) if v is not None else u''
 		if uv != after_dic_value:
-			alter_dic.update({k, [uv, after_dic_value]})		# 保留前后的信息
+			alter_dic.update({k: [uv, after_dic_value]})		# 保留前后的信息
 
 	for k, v in alter_dic.items():
 		if v == [None, u'']:		# 前面for循环已经判断了v值不为None
