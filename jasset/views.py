@@ -206,7 +206,7 @@ def asset_edit(request):
 		password_old = asset.password		# 保留旧password
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
-		logger.debug(request.POST.iterlists())
+		logger.debug(dict(request.POST.iterlists()))
 		af_post = AssetForm(request.POST, instance=asset)		# 加载数据优先级request.POST > instance
 		ip = request.POST.get('ip', '')
 		hostname = request.POST.get('hostname', '')
