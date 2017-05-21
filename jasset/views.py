@@ -251,8 +251,16 @@ def asset_edit(request):
 	return my_render('jasset/asset_edit.html', locals(), request)
 
 
+@require_role('admin')
 def asset_del(request):
-	pass
+	'''
+	删除资产主机视图
+	'''
+	asset_id = request.GET.get('id', '')
+	if asset_id:
+		Asset.objects.filter(id=asset_id).delete()
+
+	return HttpResponse('删除成功')
 
 
 def asset_edit_batch(request):
