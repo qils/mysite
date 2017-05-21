@@ -76,7 +76,7 @@ class Asset(models.Model):
 	username = models.CharField(max_length=16, blank=True, null=True, verbose_name='管理用户名')
 	password = models.CharField(max_length=256, blank=True, null=True, verbose_name='密码')
 	use_default_auth = models.BooleanField(default=True, verbose_name='使用默认管理账号')
-	idc = models.ForeignKey(IDC, blank=True, null=True, on_delete=models.SET_NULL, verbose_name='机房')
+	idc = models.ForeignKey(IDC, blank=True, null=True, on_delete=models.SET_NULL, verbose_name='机房')		# models.SET_NULL, 表示当外键IDC被删除时, 该IDC字段设置为NULL
 	mac = models.CharField(max_length=20, blank=True, null=True, verbose_name='MAC地址')
 	remote_ip = models.CharField(max_length=16, blank=True, null=True, verbose_name='远程管理卡IP')
 	brand = models.CharField(max_length=64, blank=True, null=True, verbose_name='硬件厂商型号')

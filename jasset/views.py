@@ -260,6 +260,15 @@ def asset_del(request):
 	if asset_id:
 		Asset.objects.filter(id=asset_id).delete()
 
+	if request.method == 'POST':		# 批量删除资产主机记录
+		asset_batch = request.GET.get('arg', '')
+		asset_id_all = str(request.POST.get('asset_id_all', ''))
+		if asset_batch:
+			asset_id_all = asset_id_all.split(',')
+			for asset_id in asset_id_all:
+				asset = get_object(Asset, id=asset_id)
+				asset.delete()
+				
 	return HttpResponse('删除成功')
 
 
