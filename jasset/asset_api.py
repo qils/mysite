@@ -86,7 +86,7 @@ def get_tuple_diff(asset_tuple, field_name, value):
 	return alert_info
 
 
-def db_asset_alert(asset, username, alert_dic):
+def db_asset_alert(asset, username, alert_dic, username_old=None):
 	'''
 	将资产变更信息记录到AssetRecord表
 	'''
@@ -119,7 +119,7 @@ def db_asset_alert(asset, username, alert_dic):
 				continue		# 以上条件满足,则use_default_auth字段没有变更
 			else:
 				name = asset.username		# 默认账号
-				alert_info = [field_name, '默认', name] if unicode(value[0]) == 'True' else [field_name, name, '默认']
+				alert_info = [field_name, '默认', name] if unicode(value[0]) == 'True' else [field_name, username_old, '默认']
 		elif field in ['username', 'password']:		# 如果变更的为用户名, 或者密码字段则不记录变更信息
 			continue
 		elif field == 'is_active':

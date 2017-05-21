@@ -204,6 +204,7 @@ def asset_edit(request):
 	asset = get_object(Asset, id=asset_id)
 	if asset:
 		password_old = asset.password		# 保留旧password
+		username_old = asset.username		# 保留旧的设备用户名, 资产变更时, 记录变更到使用默认管理用户时的用户名
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
 		af_post = AssetForm(request.POST, instance=asset)		# 加载数据优先级request.POST > instance
@@ -237,7 +238,7 @@ def asset_edit(request):
 					af_post.save_m2m()		# 存储对多对数据
 
 					info = asset_diff(af_post.__dict__.get('initial'), request.POST)		# 对比更新资产信息前,后差异
-					db_asset_alert(asset, username, info)		# 将变更信息记录到AssetRecord表
+					db_asset_alert(asset, username, info, username_old)		# 将变更信息记录到AssetRecord表
 					msg = u'主机 %s 修改成功' % (ip, )
 				else:
 					emg = u'主机 %s 修改失败' %(ip, )
