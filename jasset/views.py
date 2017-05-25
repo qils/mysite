@@ -268,7 +268,7 @@ def asset_del(request):
 			for asset_id in asset_id_all:
 				asset = get_object(Asset, id=asset_id)
 				asset.delete()
-				
+
 	return HttpResponse('删除成功')
 
 

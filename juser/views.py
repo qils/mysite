@@ -16,7 +16,7 @@ MAIL_FROM = settings.EMAIL_HOST_USER
 @defend_attack
 def forget_password(request):
 	'''
-	用户密码重置视图
+	用户密码重置视图, 用户输入的username, name, email作为user过滤条件
 	'''
 	if request.method == 'POST':
 		defend_attack(request)		# 暂时没找到这个函数调用的作用
@@ -65,7 +65,7 @@ def reset_password(request):
 		password_confirm = request.POST.get('password_confirm', '')
 		if new_password != password_confirm:
 			return http_error(request, '两次输入的密码不匹配, 请重新输入')
-		user = get_object(User, uuid=uuid_r)
+		user = get_object(User, uuid=uuid_r)		# 再次使用uuid过滤user对象
 		if user:
 			user.set_password(new_password)
 			user.save()

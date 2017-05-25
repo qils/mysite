@@ -24,8 +24,8 @@ def getDaysByNum(num):
 	date_li, date_str = [], []
 	for i in range(0, num):
 		today = today - oneday
-		date_li.append(today)
-		date_str.append(str(today)[5:])
+		date_li.append(today)		# 保存一个星期前的日期, 格式为年, 月, 日
+		date_str.append(str(today)[5:])		# 保存一个星期前的日期, 格式为月, 日
 	date_li.reverse()
 	date_str.reverse()
 	return date_li, date_str
@@ -54,7 +54,7 @@ def get_count_by_day(date_li, item):
 	data_li = get_data_by_day(date_li, item)
 	data_count_li = []
 	for data in data_li:
-		data_count_li.append(len(data))		# 计算每天的日志条数,去重之后的
+		data_count_li.append(len(data))		# 计算每天的日志条数,去重之后的, 活跃用户,活跃资产去重, 登录日志没有去重
 	return data_count_li
 
 
@@ -91,10 +91,10 @@ def index(request):
 		active_users = User.objects.filter(is_active=1)		# 所有激活的账号
 		active_hosts = Asset.objects.filter(is_active=1)		# 所有激活的主机
 
-		# 一个月历史汇总信息
+		# 一个月历史汇总信息, 从Log模型中过滤数据
 		date_li, date_str = getDaysByNum(30)
 		days_before_30 = timezone.now() + timezone.timedelta(days=-30)
-		date_month = repr(date_str)
+		date_month = repr(date_str)		# 前一个月的日期, 格式为, 年, 月, 日
 		active_user_per_month = str(get_count_by_day(date_li, 'user'))
 		active_asset_per_month = str(get_count_by_day(date_li, 'asset'))
 		active_login_per_month = str(get_count_by_day(date_li, 'login'))
@@ -102,9 +102,9 @@ def index(request):
 		# 活跃用户资产图
 		active_user_month = get_count_by_date(days_before_30, 'user')
 		disabled_user_count = len(users.filter(is_active=False))		# 未激活用户数量
-		inactive_user_month = len(users) - active_user_month		# 非活跃用户数量
+		inactive_user_month = len(users) - active_user_month		# 一个月内的非活跃用户数量
 		active_asset_month = get_count_by_date(days_before_30, 'asset')
-		disabled_asset_count = len(hosts.filter(is_active=False)) if hosts.filter(is_active=False) else 0
+		disabled_asset_count = len(hosts.filter(is_active=False)) if hosts.filter(is_active=False) else 0		# 未激活的主机数
 		inactive_asset_month = len(hosts) - active_asset_month if len(hosts) > active_asset_month else 0
 
 		# 一周top10用户和主机
@@ -123,7 +123,7 @@ def index(request):
 			host_info['last'] = last
 
 		# 一周top5
-		week_users = week_data.values('user').distinct().count()		# 去重后用户登录数
+		week_users = week_data.values('user').distinct().count()		# 去重后一周内用户登录数
 		week_hosts = week_data.count()		# 总数量
 
 		user_top_five = week_data.values('user').annotate(times=Count('user')).order_by('-times')[:5]		# 取前5登录次数最多的用户
@@ -141,7 +141,7 @@ def Login(request):
 	系统登陆界面视图
 	'''
 	error = ''		# 记录错误提示信息
-	if request.user.is_authenticated():
+	if request.user.is_authenticated():		# 判断用户是否通过验证
 		return HttpResponseRedirect(reverse('index'))
 	if request.method == 'GET':
 		return render_to_response('login.html')
@@ -149,9 +149,9 @@ def Login(request):
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		if username and password:
-			user = authenticate(username=username, password=password)
+			user = authenticate(username=username, password=password)		# 验证用户名, 密码是否正确,正确返回user对象
 			if user is not None:
-				if user.is_active:
+				if user.is_active:		# 检查用户是否激活
 					login(request, user)
 					if user.role == 'SU':
 						request.session['role_id'] = 2
@@ -159,7 +159,7 @@ def Login(request):
 						request.session['role_id'] = 1
 					else:
 						request.session['role_id'] = 0
-					return HttpResponseRedirect(request.session.get('pre_url', '/'))
+					return HttpResponseRedirect(request.session.get('pre_url', '/'))		# pre_url保存前一次的request.path
 				else:
 					error = '用户账户未激活'
 			else:

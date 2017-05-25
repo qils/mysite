@@ -110,7 +110,7 @@ def is_role_request(request, role='user'):
 	要求请求角色正确
 	'''
 	role_all = {'user': 'CU', 'super': 'SU', 'admin': 'GA'}
-	if request.user.role == role_all.get(role, 'user'):
+	if request.user.role == role_all.get(role, 'CU'):
 		return True
 	else:
 		return False
@@ -170,7 +170,7 @@ def defend_attack(func):
 			logger.debug('请求次数: %s' % (request.session.get('visit', 1), ))
 			return HttpResponse('Forbidden', status=403)
 		request.session['visit'] = request.session.get('visit', 0) + 1		# 修改为默认的0, 否则visit值多加1
-		request.session.set_expiry(300)		# 设置会话过期时间为300秒
+		request.session.set_expiry(300)		# 设置会话过期时间为300秒, 300秒内请求次数不能超过10次
 		return func(request, *args, **kwargs)
 	return _deco
 
