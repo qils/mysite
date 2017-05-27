@@ -89,7 +89,7 @@ def user_perm_asset_num(user_id):
 @register.filter(name='key_exist')
 def key_exist(username):
 	'''
-	用户的ssh key 是否存在
+	用户的ssh key 是否存在, 下载的是私钥
 	'''
 	if os.path.isfile(os.path.join(settings.KEY_DIR, 'user', username + '.pem')):
 		return True

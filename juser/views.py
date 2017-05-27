@@ -190,8 +190,8 @@ def user_add(request):
 	'''
 	error = ''
 	msg = ''
-	header_title, path1, path2 = '添加用户', '用户管理', '添加用户'
-	user_role = {'SU': '超级管理员', 'CU': '普通用户'}
+	header_title, path1, path2 = u'添加用户', u'用户管理', u'添加用户'
+	user_role = {'SU': u'超级管理员', 'CU': u'普通用户'}
 	group_all = UserGroup.objects.all()
 
 	if request.method == 'POST':
@@ -210,16 +210,16 @@ def user_add(request):
 
 		try:
 			if '' in [username, password, ssh_key_pwd, name, role]:		# 比填项,不能为空
-				error = '带*内容不能为空'
+				error = u'带*内容不能为空'
 				raise ServerError(error)
 
 			check_user_is_exist = User.objects.filter(username=username)		# 检查用户是否已经存在
 			if check_user_is_exist:
-				error = '用户名已经存在'
+				error = u'用户名已经存在'
 				raise ServerError(error)
 
 			if username in ['root']:
-				error = '用户名不能为root'
+				error = u'用户名不能为root'
 				raise ServerError(error)
 		except ServerError:
 			pass
