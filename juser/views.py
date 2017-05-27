@@ -80,26 +80,6 @@ def reset_password(request):
 
 
 @require_role(role='super')
-def group_list(request):
-	'''
-	用户组列表视图
-	'''
-	header_title, path1, path2 = '查看用户组', '用户管理', '查看用户组'
-	keyword = request.GET.get('search', '')
-	user_group_list = UserGroup.objects.all().order_by('name')		# 组名排序
-	group_id = request.GET.get('id', '')
-
-	if keyword:
-		user_group_list = user_group_list.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))		# 组合查询
-
-	if group_id:		# 在用户详细信息里面有组ID连接
-		user_group_list = user_group_list.filter(id=group_id)
-
-	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
-	return my_render('juser/group_list.html', locals(), request)
-
-
-@require_role(role='super')
 def user_list(request):
 	'''
 	查看所有用户视图
@@ -189,8 +169,11 @@ def change_info(request):
 
 @require_role(role='user')
 def regen_ssh_key(request):
+	'''
+	生成SSH Key秘钥对视图
+	'''
 	uuid_r = request.GET.get('uuid', '')
-	user = get_object(User, uuid=uuid_r)
+	user = get_object(User, uuid=uuid_r)		# 依据uuid来判断是否有该用户
 	if not user:
 		return HttpResponse('用户不存在')
 
@@ -412,6 +395,26 @@ def send_mail_retry(request):
 
 
 @require_role(role='super')
+def group_list(request):
+	'''
+	用户组列表视图
+	'''
+	header_title, path1, path2 = '查看用户组', '用户管理', '查看用户组'
+	keyword = request.GET.get('search', '')
+	user_group_list = UserGroup.objects.all().order_by('name')		# 筛选所有的用户组, 依据组名排序
+	group_id = request.GET.get('id', '')
+
+	if keyword:
+		user_group_list = user_group_list.filter(Q(name__icontains=keyword) | Q(comment__icontains=keyword))		# 组合查询
+
+	if group_id:		# 在用户详细信息里面有组ID连接
+		user_group_list = user_group_list.filter(id=group_id)
+
+	user_group_list, p, user_groups, page_range, current_page, show_first, show_end = pages(user_group_list, request)
+	return my_render('juser/group_list.html', locals(), request)
+
+
+@require_role(role='super')
 def group_add(request):
 	'''
 	添加用户组视图
@@ -469,9 +472,9 @@ def group_edit(request):
 		user_group = get_object(UserGroup, id=group_id)
 		users_selected = User.objects.filter(group=user_group)		# 过滤组中添加的用户记录
 		users_remain = User.objects.filter(~Q(group=user_group))		# 反选没有添加到该组中的用户
-		users_all = User.objects.all()		# 所有的用户
+		users_all = User.objects.all()		# 所有的用户, 在group_edit.html模板中没用使用
 	elif request.method == 'POST':
-		group_id = request.POST.get('group_id', '')
+		group_id = request.POST.get('group_id', '')		# 隐藏在模板中的字段
 		group_name = request.POST.get('group_name', '')
 		users_selected = request.POST.getlist('users_selected', [])
 		comment = request.POST.get('comment', '')

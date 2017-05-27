@@ -17,7 +17,7 @@ def members_count(group_id):
 	'''
 	group = get_object(UserGroup, id=group_id)
 	if group:
-		return group.user_set.count()
+		return group.user_set.count()		# 反向查询用户组中所有关联的用户数目
 	else:
 		return 0
 
