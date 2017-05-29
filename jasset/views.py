@@ -57,7 +57,7 @@ def group_add(request):
 			pass
 		else:
 			db_add_group(name=name, comment=comment, asset_select=asset_select)
-			smg = u'主机组 %s 添加成功' % (name, )
+			msg = u'主机组 %s 添加成功' % (name, )
 
 	return my_render('jasset/group_add.html', locals(), request)
 
@@ -364,7 +364,7 @@ def idc_add(request):
 	'''
 	IDC增加视图
 	'''
-	header_title, path1, path2 = '添加IDC', '资产管理', '添加IDC'
+	header_title, path1, path2 = u'添加IDC', u'资产管理', u'添加IDC'
 	if request.method == 'POST':
 		idc_form = IdcForm(request.POST)
 		if idc_form.is_valid():		# 判断提交过来的数据是否有效
@@ -374,7 +374,7 @@ def idc_add(request):
 				return my_render('jasset/idc_add.html', locals(), request)
 			else:
 				idc_form.save()		# 在jasset_idc表中添加记录
-				smg = u'IDC: %s添加成功' % (idc_name, )
+				msg = u'IDC: %s添加成功' % (idc_name, )
 				return HttpResponseRedirect(reverse('idc_list'))
 		else:
 			emg = u'表单数据验证不通过, 请重新提交'
@@ -400,7 +400,7 @@ def idc_edit(request):
 				idc_form = IdcForm(instance=idc)
 				return my_render('jasset/idc_edit.html', locals(), request)
 
-		idc_form = IdcForm(request.POST, instance=idc)
+		idc_form = IdcForm(request.POST, instance=idc)		# 指定IDC instance, 后续修改都作用于改instance
 		if idc_form.is_valid():
 			idc_form.save()
 			return HttpResponseRedirect(reverse('idc_list'))
@@ -408,7 +408,7 @@ def idc_edit(request):
 			emg = u'IDC编辑失败'
 	else:
 		if idc:
-			idc_form = IdcForm(instance=idc)
+			idc_form = IdcForm(instance=idc)		# 指定一个IDC instance
 		else:
 			return HttpResponseRedirect(reverse('idc_list'))
 

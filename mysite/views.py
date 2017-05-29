@@ -199,7 +199,7 @@ def setting(request):
 					raise ServerError('密码长度不能超过30字符')
 
 				private_key_dir = os.path.join(settings.BASE_DIR, 'keys', 'default')		# 私钥存放目录
-				private_key_path = os.path.join(private_key_dir, 'admin_user.pem')		# 私钥文件
+				private_key_path = os.path.join(private_key_dir, 'admin_user.pem')		# 私钥文件路径
 				mkdir(private_key_dir)
 				if private_key:		# 如果输入私钥, 就写入到文件
 					with open(private_key_path, 'w') as f:
