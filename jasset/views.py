@@ -306,30 +306,50 @@ def asset_list(request):
 	idc_id = request.GET.get('idc_id', '')		# 在IDC中, 每一个IDC所关联的资产, 由idc_id查询参数连接
 	asset_id_all = request.GET.getlist('id', '')		# 获取所提交的所有资产
 
-	if group_id:
-		pass
-	elif idc_id:
-		pass
+	if group_id:		# 从资产组过来的连接
+		group = get_object(AssetGroup, id=group_id)
+		if group:
+			asset_find = Asset.objects.filter(group=group)
+	elif idc_id:		# 从IDC过来的连接
+		idc = get_object(IDC, id=idc_id)
+		if idc_id:
+			asset_find = Asset.objects.filter(idc=idc)
 	else:
 		if user_perm != 0:		# 非普通用户
 			asset_find = Asset.objects.all()		# 过滤所有资产信息
-		else:
+		else:		# 普通用户
 			pass
 
 	if idc_name:
-		pass
+		asset_find = asset_find.filter(idc__name__contains=idc_name)		# 过滤满足条件的idc资产记录
 
 	if group_name:
-		pass
+		asset_find = asset_find.filter(group__name__contains=group_name)		# 过滤满足条件的group_name资产记录
 
 	if asset_type:
-		pass
+		asset_find = asset_find.filter(asset_type__contains=asset_type)		# 过滤满足条件的asset_type资产记录
 
 	if status:
-		pass
+		asset_find = asset_find.filter(status__contains=status)		# 过滤满足条件的status资产记录
 
 	if keyword:
-		pass
+		asset_find = asset_find.filter(
+			Q(hostname__contains=keyword) |
+			Q(other_ip__contains=keyword) |
+			Q(ip__contains=keyword) |
+			Q(remote_ip__contains=keyword) |
+			Q(comment__contains=keyword) |
+			Q(username__contains=keyword) |
+			Q(group__name__contains=keyword) |
+			Q(cpu__contains=keyword) |
+			Q(memory__contains=keyword) |
+			Q(disk__contains=keyword) |
+			Q(brand__contains=keyword) |
+			Q(cabinet__contains=keyword) |
+			Q(sn__contains=keyword) |
+			Q(system_type__contains=keyword) |
+			Q(system_version__contains=keyword)
+		)
 
 	if export:
 		pass
