@@ -94,9 +94,9 @@ def group_edit(request):
 		except ServerError:
 			pass
 		else:
-			group.asset_set.clear()		# 清除资产组中的所有主机
+			group.asset_set.clear()		# 清除资产组中的所有资产主机
 			db_update_group(id=group_id, name=name, comment=comment, asset_select=asset_select)
-			smg = u'主机组 %s 编辑成功' % (name, )
+			msg = u'主机组 %s 编辑成功' % (name, )
 
 		if not emg:
 			return HttpResponseRedirect(reverse('asset_group_list'))
