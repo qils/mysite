@@ -49,8 +49,8 @@
                                     </tr>
                                     <tr>
                                         <td class="text-navy">SSH Key</td>
-                                        {% if user.username|key_exist %}
-                                        <td><a  href="{% url 'key_down' %}?id={{ user.id }}" >下载</a></td>
+                                        {% if user.username|key_exist %}        {# comment #}这里需要修改为uuid, 否则超级管理员查看用户详细信息无效{# endcomment #}
+                                        <td><a  href="{% url 'key_down' %}?uuid={{ user.uuid }}" >下载</a></td>
                                         {% else %}
                                         <td><span style="color: #586b7d">没有ssh key</span></td>
                                         {% endif %}

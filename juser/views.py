@@ -105,9 +105,9 @@ def user_list(request):
 
 @require_role(role='user')
 def user_detail(request):
-	header_title, path1, path2 = '用户详情', '用户管理', '用户详情'
+	header_title, path1, path2 = u'用户详情', u'用户管理', u'用户详情'
 	if request.session.get('role_id') == 0:
-		user_id = request.session['role_id']		# 给普通用户获取user_id 号
+		user_id = request.user.id		# 普通用户只能获取自己的id
 	else:
 		user_id = request.GET.get('id', '')
 
@@ -290,16 +290,16 @@ def user_edit(request):
 	'''
 	用户编辑视图
 	'''
-	header_title, path1, path2 = '编辑用户', '用户管理', '编辑用户'
+	header_title, path1, path2 = u'编辑用户', u'用户管理', u'编辑用户'
 	if request.method == 'GET':
 		user_id = request.GET.get('id', '')
 		if not user_id:
 			return HttpResponseRedirect(reverse('user_list'))
 		user_role = {'SU': u'超级管理员', 'CU': u'普通用户'}
 		user = get_object(User, id=user_id)
-		group_all = UserGroup.objects.all()
+		group_all = UserGroup.objects.all()		# 所有用户组
 		if user:
-			groups_str = ' '.join([str(group.id) for group in user.group.all()])
+			groups_str = ' '.join([str(group.id) for group in user.group.all()])		# 筛选当前用户所加入的用户组
 			admin_groups_str = ' '.join([str(admingroup.id) for admingroup in user.admingroup_set.all()])
 	else:
 		user_id = request.GET.get('id', '')		# 模板表单提交的地址带id问号参数
@@ -312,7 +312,7 @@ def user_edit(request):
 		extra = request.POST.getlist('extra', [])
 		is_active = True if '0' in extra else False
 		email_need = True if '1' in extra else False
-		user_role = {'SU': u'超级管理员', 'CU': u'普通用户', u'GA': '用户组管理员'}
+		user_role = {'SU': u'超级管理员', 'CU': u'普通用户', 'GA': u'用户组管理员'}
 
 		if user_id:
 			user = get_object(User, id=user_id)
@@ -338,7 +338,7 @@ def user_edit(request):
 					用户名: %s
 					密码: %s (如果密码为空, 表示原密码!!!)
 					权限: %s
-			''' % (user.name, settings.URL, user.username, password, user_role.get(user.role, '普通用户'))
+			''' % (user.name, settings.URL, user.username, password, user_role.get(user.role, u'普通用户'))
 			try:
 				send_mail('你的信息已修改', msg, MAIL_FROM, [email], fail_silently=False)
 			except Exception, e:
