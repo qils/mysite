@@ -292,7 +292,7 @@ def asset_list(request):
 	header_title, path1, path2 = u'查看资产', u'资产管理', u'查看资产'
 	username = request.user.username
 	user_perm = request.session['role_id']		# 用户权限, 2: SU, 1: GA, 0: CU
-	idc_all = IDC.objects.filter()		# 过滤所有的IDC信息
+	idc_all = IDC.objects.filter().order_by('name')		# 过滤所有的IDC信息
 	asset_group_all = AssetGroup.objects.all()		# 过滤所有的资产组信息
 	asset_types = ASSET_TYPE		# 资产类型, 定义7种资产类型
 	asset_status = ASSET_STATUS		# 资产状态, 三种状态: 已上线, 未上线, 已下架
