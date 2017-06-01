@@ -176,7 +176,6 @@ def asset_detail(request):
 	perm_info = get_group_asset_perm(asset)
 	log = Log.objects.filter(host=asset.hostname)
 	if perm_info:
-		logger.info(perm_info)
 		user_perm = []
 		for perm, value in perm_info.items():
 			if perm == 'user':
@@ -185,7 +184,7 @@ def asset_detail(request):
 			elif perm == 'user_group' or perm == 'rule':
 				user_group_perm = value
 
-	asset_record = AssetRecord.objects.filter(asset=asset).order_by('-alert_time')
+	asset_record = AssetRecord.objects.filter(asset=asset).order_by('-alert_time')		# 资产变更记录
 
 	return my_render('jasset/asset_detail.html', locals(), request)
 
