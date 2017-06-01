@@ -94,7 +94,7 @@ def get_group_asset_perm(ob):
 		users = rule.user.all()
 		user_groups = rule.user_group.all()
 
-		# 获取一个规则资产的用户
+		# 获取一个规则资产授权的用户
 		for user in users:
 			if perm_user.get(user):
 				perm_user[user].get('role', set()).update(set(rule.role.all()))
@@ -109,13 +109,13 @@ def get_group_asset_perm(ob):
 				perm_user_group[user_group].get('role', set()).update(set(rule.role.all()))
 				perm_user_group[user_group].get('rule', set()).add(rule)
 			else:
-				perm_user_group[user_group] = {'role': set(rule.role.all()), 'rule': set([rule]), user: user_group_users}
+				perm_user_group[user_group] = {'role': set(rule.role.all()), 'rule': set([rule]), 'user': user_group_users}
 
 			# 将用户组中的资产添加到用户授权中
 			for user in user_group_users:
 				if perm_user.get(user):
 					perm_user[user].get('role', set()).update(perm_user_group[user_group].get('role', set()))		# 因为在perm_user_group, user_group['role']是一个集合, 所以这里不能用add函数
-					perm_user[user].get('rule', set()).update(perm_user_group[user_group].get('rule'), set())		# 解释同上
+					perm_user[user].get('rule', set()).update(perm_user_group[user_group].get('rule', set()))		# 解释同上
 				else:
 					perm_user[user] = {'role': perm_user_group[user_group].get('role', set()), 'rule': perm_user_group[user_group].get('rule', set())}
 

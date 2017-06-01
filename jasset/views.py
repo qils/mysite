@@ -159,7 +159,7 @@ def asset_add(request):
 				af_post.save_m2m()		# 当使用commit=False, 需要手动调用save_m2m()来存储多对多字段内容
 				msg = u'主机 %s 添加成功' % (hostname, )
 			else:
-				msg = u'主机 %s 添加失败' % (hostname, )
+				error = u'主机 %s 添加失败' % (hostname, )
 			return HttpResponseRedirect(reverse('asset_list'))
 
 	return my_render('jasset/asset_add.html', locals(), request)
@@ -176,6 +176,7 @@ def asset_detail(request):
 	perm_info = get_group_asset_perm(asset)
 	log = Log.objects.filter(host=asset.hostname)
 	if perm_info:
+		logger.info(perm_info)
 		user_perm = []
 		for perm, value in perm_info.items():
 			if perm == 'user':
