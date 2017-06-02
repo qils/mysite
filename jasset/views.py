@@ -280,6 +280,10 @@ def asset_update_batch(request):
 	pass
 
 
+def asset_upload(request):
+	pass
+
+
 @require_role('admin')
 def asset_add_batch(request):
 	'''
