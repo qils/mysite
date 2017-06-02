@@ -280,8 +280,13 @@ def asset_update_batch(request):
 	pass
 
 
+@require_role('admin')
 def asset_add_batch(request):
-	pass
+	'''
+	批量增加资产视图
+	'''
+	header_title, path1, path2 = u'添加资产', u'资产管理', u'批量添加'
+	return my_render('jasset/asset_add_batch.html', locals(), request)
 
 
 @require_role('user')

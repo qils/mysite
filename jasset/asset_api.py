@@ -53,8 +53,7 @@ def asset_diff(before, after):
 	'''
 	alter_dic = {}
 	before_dic, after_dic = before, dict(after.iterlists())		# before为更新前资产信息字段字典, after_dic是通过request.POST提交的更新后的列表组成的字典
-	logger.info(before_dic)
-	logger.info(after_dic)
+
 	for k, v in before_dic.items():
 		after_dic_values = after_dic.get(k, [])
 		if k == 'group':		# 多对多字段比较
@@ -94,7 +93,7 @@ def db_asset_alert(asset, username, alert_dic, username_old=None):
 	alert_list = []
 	asset_tuple_dic = {'status': ASSET_STATUS, 'env': ASSET_ENV, 'asset_type': ASSET_TYPE}
 	for field, value in alert_dic.iteritems():
-		field_name = Asset._meta.get_field_by_name(field)[0].verbose_name
+		field_name = Asset._meta.get_field_by_name(field)[0].verbose_name		# 获取每个字段的verbose_name
 		if field == 'idc':		# 判断变更的是否为idc字段
 			old = IDC.objects.filter(id=value[0]) if value[0] else u''
 			new = IDC.objects.filter(id=value[1]) if value[1] else u''
