@@ -280,8 +280,19 @@ def asset_update_batch(request):
 	pass
 
 
+@require_role('admin')
 def asset_upload(request):
-	pass
+	'''
+	上传的资产excel文件处理视图
+	'''
+	if request.method == 'POST':
+		excel_file = request.FILES.get('filename', '')
+		ret = excel_to_db(excel_file)		# 批量往资产表中添加资产
+		if ret:
+			msg = u'批量添加成功'
+		else:
+			emg = u'批量添加失败, 请检查格式!!!'
+	return my_render('jasset/asset_add_batch.html', locals(), request)
 
 
 @require_role('admin')

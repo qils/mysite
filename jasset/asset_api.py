@@ -1,8 +1,53 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import xlrd
 from mysite.api import *
 from jasset.models import ASSET_STATUS, ASSET_TYPE, ASSET_ENV
+
+
+def excel_to_db(excel_file):
+	'''
+	读取excel文件内容, 保存内容到资产表
+	'''
+	try:
+		data = xlrd.open_workbook(filename=None, file_contents=excel_file.read())		# 读取excel文件数据
+	except Exception, e:
+		return False
+	else:
+		table = data.sheets()[0]		# 通过索引顺序获取工作表
+		rows = table.nrows		# 获取总行数
+		for row_num in range(1, rows):
+			row = table.row_values(row_num)		# 获取某一行的内容
+			if row:
+				group_instance = []
+				ip, port, hostname, use_default_auth, username, password, group = row
+				if get_object(Asset, hostname=hostname):		# 是否有重复的主机
+					continue
+				if isinstance(password, int) or isinstance(password, float):
+					password = unicode(int(password))
+				use_default_auth = 1 if use_default_auth == u'默认' else 0
+				password_encode = CRYPTOR.encrypt(password)
+				if hostname:
+					asset = Asset(
+						ip=ip,
+						port=port,
+						hostname=hostname,
+						use_default_auth=use_default_auth,
+						username=username,
+						password=password_encode
+					)
+					asset.save()
+					group_list = group.split('/')		# 添加的主机组必须按/分隔
+					for group_name in group_list:
+						group = get_object(AssetGroup, name=group_name)
+						if group:		# 检查输入的主机组是否存在
+							group_instance.append(group)
+						else:
+							continue
+					asset.group = group_instance
+					asset.save()
+		return True
 
 
 def group_add_asset(asset_group, asset_id=None, asset_ip=None):

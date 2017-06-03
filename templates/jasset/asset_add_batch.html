@@ -40,8 +40,8 @@
                                 {% if emg %}
                                     <div class="alert alert-warning text-center">{{ emg }}</div>
                                 {% endif %}
-                                {% if smg %}
-                                    <div class="alert alert-success text-center">{{ smg }}</div>
+                                {% if msg %}
+                                    <div class="alert alert-success text-center">{{ msg }}</div>
                                 {% endif %}
                                 <p>请下载Excel文件, 按照格式填写主机信息, 上传导入. <a href="/static/files/excels/asset.xlsx">点击下载模板</a></p>
                                 <form action="{% url 'asset_upload' %}" method="POST" enctype="multipart/form-data">
