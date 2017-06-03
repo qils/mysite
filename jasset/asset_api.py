@@ -13,7 +13,6 @@ def excel_to_db(excel_file):
 	try:
 		data = xlrd.open_workbook(filename=None, file_contents=excel_file.read())		# 读取excel文件数据
 	except Exception, e:
-		logger.debug(e)
 		return False
 	else:
 		table = data.sheets()[0]		# 通过索引顺序获取工作表

@@ -272,8 +272,19 @@ def asset_del(request):
 	return HttpResponse('删除成功')
 
 
+@require_role('admin')
 def asset_edit_batch(request):
-	pass
+	'''
+	批量修改资产视图
+	'''
+	af = AssetForm()
+	name = request.user.username
+	asset_group_all = AssetGroup.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jasset/asset_edit_batch.html', locals(), request)
 
 
 def asset_update_batch(request):
