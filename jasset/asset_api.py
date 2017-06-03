@@ -29,6 +29,7 @@ def excel_to_db(excel_file):
 				use_default_auth = 1 if use_default_auth == u'默认' else 0
 				password_encode = CRYPTOR.encrypt(password)
 				if hostname:
+					logger.debug('---> here')
 					asset = Asset(
 						ip=ip,
 						port=port,

@@ -292,6 +292,7 @@ def asset_upload(request):
 			msg = u'批量添加成功'
 		else:
 			emg = u'批量添加失败, 请检查格式!!!'
+
 	return my_render('jasset/asset_add_batch.html', locals(), request)
 
 
