@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from mysite.api import *
 from django.db.models import Q
-from jasset.models import AssetGroup, Asset, IDC, ASSET_TYPE, ASSET_STATUS
+from jasset.models import AssetGroup, Asset, IDC, ASSET_TYPE, ASSET_STATUS, ASSET_ENV
 from jasset.asset_api import *
 from jasset.forms import IdcForm, AssetForm
 from jperm.perm_api import get_group_asset_perm, get_group_user_perm
@@ -282,8 +282,74 @@ def asset_edit_batch(request):
 	asset_group_all = AssetGroup.objects.all()
 
 	if request.method == 'POST':
-		pass
-
+		env = request.POST.get('env', '')
+		idc_id = request.POST.get('idc', '')
+		port = request.POST.get('port', '')
+		use_default_auth = request.POST.get('use_default_auth', '')
+		username = request.POST.get('username', '')
+		password = request.POST.get('password', '')
+		group = request.POST.getlist('group', [])
+		cabinet = request.POST.get('cabinet', '')
+		comment = request.POST.get('comment', '')
+		asset_id_all = unicode(request.GET.get('asset_id_all', ''))
+		asset_id_all = asset_id_all.split(',')
+		for asset_id in asset_id_all:		# 循环对需要修改的资产进行更改
+			alert_info = []
+			asset = get_object(Asset, id=asset_id)
+			if asset:
+				if env:		# 运行环境变更处理
+					if asset.env != int(env):		# 增加类型转换, 提交的env为字符整型
+						asset.env = env
+						alert_info.append([u'运行环境', asset.env, env])
+				if idc_id:		# 机房变更处理
+					idc = get_object(IDC, id=idc_id)
+					name_old = asset.idc.name if asset.idc else u''
+					if idc and idc.name != name_old:
+						asset.idc = idc
+						alert_info.append([u'机房名称', name_old, idc.name])
+				if port:		# 端口变更处理
+					if int(port) != asset.port:		# 增加类型转换, 提交的port为字符整型
+						asset.port = port
+						alert_info.append([u'端口号', asset.port, port])
+				if use_default_auth:		# 使用默认管理账号变更处理
+					if use_default_auth == 'default':
+						asset.use_default_auth = 1
+						asset.username = ''
+						asset.password = ''
+						alert_info.append([u'使用默认管理账号', asset.username, u'默认'])
+					elif use_default_auth == 'user_passwd':
+						asset.use_default_auth = 0
+						asset.username = username
+						password_encode = CRYPTOR.encrypt(password)
+						asset.password = password_encode
+						alert_info.append([u'使用默认管理账号', u'默认', username])
+				if group:
+					group_new, group_old, group_new_name, group_old_name = [], asset.group.all(), [], []
+					for group_id in group:
+						asset_group = get_object(AssetGroup, id=group_id)
+						if asset_group:
+							group_new.append(asset_group)
+					if not set(group_new) < set(group_old):		# 新资产组是否是旧资产组的子集, 是的话不记录组变更信息
+						group_instance = list(set(group_new) | set(group_old))		# 新, 旧资产组求集合
+						for asset_group in group_new:		# 源码这里用的是group_instance, 新的资产组包括旧的资产组
+							group_new_name.append(asset_group.name)
+						for asset_group in group_old:
+							group_old_name.append(asset_group.name)
+						asset.group = group_new
+						alert_info.append([u'主机组', '|'.join(group_old_name), '|'.join(group_new_name)])
+				if cabinet:
+					if asset.cabinet != cabinet:
+						asset.cabinet = cabinet
+						alert_info.append([u'机柜号', asset.cabinet, cabinet])
+				if comment:
+					if asset.comment != comment:
+						asset.comment = comment
+						alert_info.append([u'备注', asset.comment, comment])
+				asset.save()
+			if alert_info:
+				recode_name = unicode(name) + ' - ' + u'批量'
+				AssetRecord.objects.create(asset=asset, username=recode_name, content=alert_info)
+		return my_render('jasset/asset_update_status.html', locals(), request)
 	return my_render('jasset/asset_edit_batch.html', locals(), request)
 
 
