@@ -299,8 +299,10 @@ def asset_edit_batch(request):
 			if asset:
 				if env:		# 运行环境变更处理
 					if asset.env != int(env):		# 增加类型转换, 提交的env为字符整型
+						env_all = {1: u'生产环境', 2: u'测试环境'}
+						old_env = asset.env
 						asset.env = env
-						alert_info.append([u'运行环境', asset.env, env])
+						alert_info.append([u'运行环境', env_all.get(old_env, ''), env_all.get(int(env), '')])
 				if idc_id:		# 机房变更处理
 					idc = get_object(IDC, id=idc_id)
 					name_old = asset.idc.name if asset.idc else u''
@@ -309,14 +311,16 @@ def asset_edit_batch(request):
 						alert_info.append([u'机房名称', name_old, idc.name])
 				if port:		# 端口变更处理
 					if int(port) != asset.port:		# 增加类型转换, 提交的port为字符整型
+						old_port = asset.port
 						asset.port = port
-						alert_info.append([u'端口号', asset.port, port])
+						alert_info.append([u'端口号', old_port, port])
 				if use_default_auth:		# 使用默认管理账号变更处理
 					if use_default_auth == 'default':
 						asset.use_default_auth = 1
+						old_username = asset.username
 						asset.username = ''
 						asset.password = ''
-						alert_info.append([u'使用默认管理账号', asset.username, u'默认'])
+						alert_info.append([u'使用默认管理账号', old_username, u'默认'])
 					elif use_default_auth == 'user_passwd':
 						asset.use_default_auth = 0
 						asset.username = username
@@ -339,12 +343,14 @@ def asset_edit_batch(request):
 						alert_info.append([u'主机组', '|'.join(group_old_name), '|'.join(group_new_name)])
 				if cabinet:
 					if asset.cabinet != cabinet:
+						old_cabinet = asset.cabinet
 						asset.cabinet = cabinet
-						alert_info.append([u'机柜号', asset.cabinet, cabinet])
+						alert_info.append([u'机柜号', old_cabinet, cabinet])
 				if comment:
 					if asset.comment != comment:
+						old_comment = asset.comment
 						asset.comment = comment
-						alert_info.append([u'备注', asset.comment, comment])
+						alert_info.append([u'备注', old_comment, comment])
 				asset.save()
 			if alert_info:
 				recode_name = unicode(name) + ' - ' + u'批量'
