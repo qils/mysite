@@ -43,12 +43,12 @@ def perm_sudo_add(request):
 			if not name or not commands:
 				raise ServerError(u'sudo name 和 commands是必填项!!!')
 
-			deal_space_commands = list_drop_str(re.split(r'[\n,\r]', commands), u'')		# 处理为空的命令, 直接删除空
+			deal_space_commands = [sub_command.strip() for sub_command in list_drop_str(re.split(r'[\n,\r]', commands), u'')]		# 处理为空的命令, 直接删除空
 			deal_all_commands = map(trans_all, deal_space_commands)		# 处理字符为all的命令, 转换为大写
 			commands = ', '.join(deal_all_commands)
 			logger.debug(u'添加sudo %s: %s' % (name, commands))
 			if get_object(PermSudo, name=name):		# 别名重复判断
-				error = 'Sudo别名 %s 已经存在' % (name, )
+				error = u'Sudo别名 %s 已经存在' % (name, )
 			else:
 				sudo = PermSudo(name=name, comment=comment, commands=commands)
 				sudo.save()		# 存储到数据库
