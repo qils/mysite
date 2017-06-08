@@ -11,6 +11,7 @@ from django.shortcuts import render
 @require_role('admin')
 def perm_sudo_list(request):
 	'''
+	sudo 列表视图
 	'''
 	header_title, path1, path2 = 'Sudo命令', '别名管理', '查看别名'
 	sudos_list = PermSudo.objects.all()		# 获取所有sudo命令别名
@@ -24,8 +25,20 @@ def perm_sudo_list(request):
 	return my_render('jperm/perm_sudo_list.html', locals(), request)
 
 
+@require_role('admin')
 def perm_sudo_add(request):
-	pass
+	'''
+	添加sudo命令别名视图
+	'''
+	header_title, path1, path2 = 'Sudo命令', '别名管理', '添加别名'
+	try:
+		if request.method == 'POST':
+			pass
+	except ServerError, e:
+		error = e
+
+	return my_render('jperm/perm_sudo_add.html', locals(), request)
+
 
 
 def perm_sudo_edit(request):
