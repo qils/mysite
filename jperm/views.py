@@ -76,7 +76,7 @@ def perm_sudo_edit(request):
 
 		return my_render('jperm/perm_sudo_edit.html', locals(), request)
 	else:
-		return HttpResponseRedirect(reverse('perm_sudo_list'))
+		return HttpResponseRedirect(reverse('sudo_list'))
 
 
 def perm_sudo_delete(request):
