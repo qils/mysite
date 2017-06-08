@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+from __future__ import unicode_literals
 from jperm.perm_api import *
 from django.db.models import Q
-from __future__ import unicode_literals
 from django.shortcuts import render
 # Create your views here.
 
