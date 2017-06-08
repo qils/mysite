@@ -2,7 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 from mysite.api import *
-from jperm.models import PermRole, PermPush, PermRule
+from jperm.models import PermRole, PermPush, PermRule, PermSudo
 
 
 def get_group_user_perm(ob):

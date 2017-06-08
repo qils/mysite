@@ -18,7 +18,7 @@ class PermLog(models.Model):
 
 class PermSudo(models.Model):
 	name = models.CharField(max_length=100, unique=True)
-	date_added = models.DateTimeField(auto_now=True)
+	date_added = models.DateTimeField(auto_now=True)		# 添加时间, 每次修改该记录时会变动
 	commands = models.TextField()
 	comment = models.CharField(max_length=100, null=True, blank=True, default='')
 
