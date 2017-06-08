@@ -59,9 +59,24 @@ def perm_sudo_add(request):
 	return my_render('jperm/perm_sudo_add.html', locals(), request)
 
 
-
+@require_role('admin')
 def perm_sudo_edit(request):
-	pass
+	'''
+	sudo别名编辑视图
+	'''
+	header_title, path1, path2 = u'Sudo命令', u'别名管理', u'编辑别名'
+	sudo_id = request.GET.get('id', '')
+	sudo = PermSudo.objects.filter(id=sudo_id)
+	if sudo:
+		try:
+			if request.method == 'POST':
+				pass
+		except ServerError, e:
+			error = e
+
+		return my_render('jperm/perm_sudo_edit.html', locals(), request)
+	else:
+		return HttpResponseRedirect(reverse('perm_sudo_list'))
 
 
 def perm_sudo_delete(request):
