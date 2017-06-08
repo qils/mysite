@@ -23,6 +23,16 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 
+def list_drop_str(a_list, a_str):
+	'''
+	从alist中删除满足a_str的成员
+	'''
+	for i in a_list:
+		if i == a_str:
+			a_list.remove(a_str)
+	return a_list
+
+
 class ServerError(Exception):
 	'''
 	自定义异常
