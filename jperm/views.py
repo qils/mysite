@@ -98,8 +98,20 @@ def perm_sudo_edit(request):
 		return HttpResponseRedirect(reverse('sudo_list'))
 
 
+@require_role('admin')
 def perm_sudo_delete(request):
-	pass
+	'''
+	删除某个sudo视图
+	'''
+	if request.method == 'POST':
+		sudo_id = request.POST.get('id', '')
+		sudo = get_object(PermSudo, id=sudo_id)
+		if sudo:
+			sudo_name = sudo.name
+			sudo.delete()
+			return HttpResponse(u'删除 %s 成功' % (sudo_name, ))
+	else:
+		return HttpResponse(u'不支持该操作')
 
 
 def perm_role_list(request):
