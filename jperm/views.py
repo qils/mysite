@@ -66,7 +66,7 @@ def perm_sudo_edit(request):
 	'''
 	header_title, path1, path2 = u'Sudo命令', u'别名管理', u'编辑别名'
 	sudo_id = request.GET.get('id', '')
-	sudo = PermSudo.objects.filter(id=sudo_id)
+	sudo = PermSudo.objects.get(id=sudo_id)
 	if sudo:
 		try:
 			if request.method == 'POST':
