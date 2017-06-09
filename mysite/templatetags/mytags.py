@@ -176,3 +176,12 @@ def rule_member_count(instance, member):
 	member = getattr(instance, member)
 	counts = member.all().count()
 	return str(counts)
+
+
+@register.filter(name='role_contain_which_sudos')
+def role_contain_which_sudos(role):
+	'''
+	系统用户sudos名称
+	'''
+	sudo_names = [sudo.name for sudo in role.sodu.all()]
+	return '|'.join(sudo_names)
