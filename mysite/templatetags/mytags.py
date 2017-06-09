@@ -166,3 +166,13 @@ def str_to_code(char_str):
 		return char_str
 	else:
 		return u'空'
+
+
+@register.filter(name='rule_member_count')
+def rule_member_count(instance, member):
+	'''
+	获取授权规则关联某个属性的总数
+	'''
+	member = getattr(instance, member)
+	counts = member.all().count()
+	return str(counts)

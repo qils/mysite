@@ -15,4 +15,6 @@ urlpatterns = patterns(
 	url(r'^role/detail/$', perm_role_detail, name='role_detail'),
 	url(r'^rule/list/$', perm_rule_list, name='rule_list'),
 	url(r'^rule/detail/$', perm_rule_detail, name='rule_detail'),
+	url(r'^rule/add/$', perm_rule_add, name='rule_add'),
+	url(r'^rule/edit/$', perm_rule_edit, name='rule_edit'),
 )

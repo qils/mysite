@@ -126,10 +126,34 @@ def perm_role_detail(request):
 	pass
 
 
+@require_role('admin')
 def perm_rule_list(request):
-	pass
+	'''
+	授权规则列表视图
+	'''
+	header_title, path1, path2 = u'授权规则', u'规则管理', u'查看规则'
+	rules_list = PermRule.objects.all()		# 顾虑所有授权规则
+	rule_id = request.GET.get('id', '')
+	keyword = request.GET.get('search', '')
+
+	if rule_id:
+		rules_list = rules_list.filter(id=rule_id)		# 依据rule_id过滤满足条件的授权规则
+
+	if keyword:
+		rules_list = rules_list.filter(Q(name__icontains=keyword))		# 依据查询关键字keyword过滤授权规则
+
+	rules_list, p, rules, page_range, current_page, show_first, show_end = pages(rules_list, request)
+
+	return my_render('jperm/perm_rule_list.html', locals(), request)
 
 
 def perm_rule_detail(request):
 	pass
 
+
+def perm_rule_add(request):
+	pass
+
+
+def perm_rule_edit(request):
+	pass
