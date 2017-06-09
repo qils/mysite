@@ -151,8 +151,23 @@ def perm_rule_detail(request):
 	pass
 
 
+@require_role('admin')
 def perm_rule_add(request):
-	pass
+	'''
+	添加授权规则视图
+	'''
+	header_title, path1, path2 = u'授权规则', u'规则管理', u'添加规则'
+
+	users = User.objects.all()		# 获取所有用户, 用于添加授权规则
+	user_groups = UserGroup.objects.all()		# 获取所有用户组, 用于添加授权规则
+	assets = Asset.objects.all()		# 获取所有资产, 用于添加授权规则
+	asset_groups = AssetGroup.objects.all()		# 获取所有资产组, 用于添加授权规则
+	roles = PermRole.objects.all()		# 获取所有授权角色, 用于添加授权规则
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jperm/perm_rule_add.html', locals(), request)
 
 
 def perm_rule_edit(request):
