@@ -114,7 +114,41 @@ def perm_sudo_delete(request):
 		return HttpResponse(u'不支持该操作')
 
 
+@require_role('admin')
 def perm_role_list(request):
+	'''
+	系统用户列表视图
+	'''
+	header_title, path1, path2 = u'系统用户', u'系统用户管理', u'查看系统用户'
+
+	roles_list = PermRole.objects.all()		# 获取所有系统角色
+	role_id = request.GET.get('id', '')
+	keyword = request.GET.get('search', '')
+
+	if keyword:
+		roles_list = roles_list.filter(Q(name=keyword))
+
+	if role_id:
+		roles_list = roles_list.filter(id=role_id)
+
+	roles_list, p, roles, page_range, current_page, show_first, show_end = pages(roles_list, request)
+
+	return my_render('jperm/perm_role_list.html', locals(), request)
+
+
+def perm_role_add(request):
+	pass
+
+
+def perm_role_edit(request):
+	pass
+
+
+def perm_role_push(request):
+	pass
+
+
+def perm_role_delete(request):
 	pass
 
 
