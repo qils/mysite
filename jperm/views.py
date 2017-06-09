@@ -66,14 +66,33 @@ def perm_sudo_edit(request):
 	'''
 	header_title, path1, path2 = u'Sudo命令', u'别名管理', u'编辑别名'
 	sudo_id = request.GET.get('id', '')
-	sudo = PermSudo.objects.get(id=sudo_id)
+	sudo = PermSudo.objects.get(id=sudo_id)		# 获取当前sudo对象
 	if sudo:
 		try:
 			if request.method == 'POST':
-				pass
+				name = request.POST.get('sudo_name', '').strip().upper()
+				test_sudo = get_object(PermSudo, name=name)
+				if test_sudo and test_sudo.id != sudo.id:		# 源码中没有对编辑后的name是否重名做判断, 在模型中有指定name字段唯一, 在这里没有判断的话会触发模型中的异常
+					raise ServerError(u'别名重名')
+				comment = request.POST.get('sudo_comment', '')
+				commands = request.POST.get('sudo_commands', '')
+
+				if not name or not commands:
+					raise ServerError('sudo name 和 commands是必填项!!!')
+
+				deal_space_commands = [sub_command.strip() for sub_command in list_drop_str(re.split(r'[\n,\r]', commands), u'')]
+				deal_all_commands = map(trans_all, deal_space_commands)		# 处理字符为all的命令, 转换为大写
+				commands = ', '.join(deal_all_commands)
+				logger.debug(u'添加sudo %s: %s' % (name, commands))
+
+				sudo.name = name
+				sudo.commands = commands
+				sudo.comment = comment
+				sudo.save()
+
+				msg = u'更新命令别名 %s 成功' % (name, )
 		except ServerError, e:
 			error = e
-
 		return my_render('jperm/perm_sudo_edit.html', locals(), request)
 	else:
 		return HttpResponseRedirect(reverse('sudo_list'))
