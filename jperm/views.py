@@ -157,3 +157,7 @@ def perm_rule_add(request):
 
 def perm_rule_edit(request):
 	pass
+
+
+def perm_rule_del(request):
+	pass
