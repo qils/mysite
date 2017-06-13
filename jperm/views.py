@@ -136,8 +136,18 @@ def perm_role_list(request):
 	return my_render('jperm/perm_role_list.html', locals(), request)
 
 
+@require_role('admin')
 def perm_role_add(request):
-	pass
+	'''
+	增加系统角色视图
+	'''
+	header_title, path1, path2 = u'系统用户', u'系统用户管理', u'添加系统用户'
+	sudos = PermSudo.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jperm/perm_role_add.html', locals(), request)
 
 
 def perm_role_edit(request):
