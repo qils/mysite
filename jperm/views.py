@@ -6,7 +6,8 @@ from __future__ import unicode_literals
 import re
 from jperm.perm_api import *
 from django.db.models import Q
-from jperm.utils import trans_all
+from jperm.utils import trans_all, gen_keys
+from mysite.models import Setting
 from django.shortcuts import render
 # Create your views here.
 
@@ -145,7 +146,41 @@ def perm_role_add(request):
 	sudos = PermSudo.objects.all()
 
 	if request.method == 'POST':
-		pass
+		name = request.POST.get('role_name', '').strip()		# 获取系统用户名称
+		password = request.POST.get('role_password', '')		# 获取密码
+		key_content = request.POST.get('role_key', '')		# 获取提交的私钥
+		comment = request.POST.get('role_comment', '')
+		sudo_ids = request.POST.getlist('sudo_name', [])		# 获取关联的sudo
+
+		try:
+			if get_object(PermRole, name=name):
+				raise ServerError(u'该系统用户 %s 已经存在' % (name, ))		# 系统用户名重名检查
+			if name == 'root':
+				raise ServerError(u'禁止使用root用户作为系统用户')
+			default = get_object(Setting, name='default')		# 暂时没用到
+			if len(password) > 64:
+				raise ServerError(u'密码长度不能超过64位')
+
+			if password:
+				encrypt_pass = CRYPTOR.encrypt(password)
+			else:
+				encrypt_pass = CRYPTOR.encrypt(CRYPTOR.gen_rand_key(20))		# 如果不输入密码字符, 将随机生成一个密码
+			sudos_obj = [get_object(PermSudo, id=sudo_id) for sudo_id in sudo_ids]
+			if key_content:
+				try:
+					key_path = gen_keys(key=key_content)		# 生成秘钥文件
+				except SSHException, e:
+					raise ServerError(e)
+			else:
+				key_path = gen_keys()
+			role = PermRole(name=name, password=password, comment=comment, key_path=key_path)
+			role.save()
+			role.sudo = sudos_obj
+			role.save()		# 增加这行, 源码中不包括这行
+			msg = u'添加系统用户: %s ' % (name, )
+			return HttpResponseRedirect(reverse('role_list'))
+		except ServerError, e:
+			error = e
 
 	return my_render('jperm/perm_role_add.html', locals(), request)
 
