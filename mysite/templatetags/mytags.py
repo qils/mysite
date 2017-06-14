@@ -183,5 +183,5 @@ def role_contain_which_sudos(role):
 	'''
 	系统用户sudos名称
 	'''
-	sudo_names = [sudo.name for sudo in role.sodu.all()]
+	sudo_names = [sudo.name for sudo in role.sudo.all()]
 	return '|'.join(sudo_names)

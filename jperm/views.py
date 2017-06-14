@@ -173,7 +173,7 @@ def perm_role_add(request):
 					raise ServerError(e)
 			else:
 				key_path = gen_keys()
-			role = PermRole(name=name, password=password, comment=comment, key_path=key_path)
+			role = PermRole(name=name, password=encrypt_pass, comment=comment, key_path=key_path)
 			role.save()
 			role.sudo = sudos_obj
 			role.save()		# 增加这行, 源码中不包括这行
