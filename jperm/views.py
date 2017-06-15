@@ -198,6 +198,43 @@ def perm_role_edit(request):
 		role_pass = CRYPTOR.decrypt(role.password)		# 对称解密存储在数据库中加密的密码, 数据库中保存的密码都是对称加密后存储的
 		if request.method == 'GET':
 			return my_render('jperm/perm_role_edit.html', locals(), request)
+		elif request.method == 'POST':		# 获取post数据, 更新系统用户信息
+			role_name = request.POST.get('role_name', '')
+			role_password = request.POST.get('role_password', '')
+			role_comment = request.POST.get('comment', '')
+			key_content = request.POST.get('role_key', '')
+			sudo_name = request.POST.getlist('sudo_name', [])
+			role_sudos = [PermSudo.objects.get(id=sudo_id) for sudo_id in sudo_name]
+
+			try:
+				test_role = get_object(PermRole, name=role_name)		# 系统用户名称重名检查
+				if test_role and role_id != test_role.id:
+					raise ServerError(u'系统用户名称重名')
+
+				if len(role_password) > 64:
+					raise ServerError(u'密码长度过长')
+
+				if role_name == 'root':
+					raise ServerError(u'禁止使用root用户作为系统用户!!!')
+
+				if role_password and role_password != role_pass:		# 密码变更才会重新计算新的密码
+					encrypt_pass = CRYPTOR.encrypt(role_password)
+					role.password = encrypt_pass
+
+				if key_content:		# 私钥变更时, 才做更新
+					try:
+						key_path = gen_keys(key=key_content, key_path_dir=role.key_path)
+					except SSHException, e:
+						raise ServerError(u'输入的私钥不合法')
+
+				role.name = role_name
+				role_comment = role_comment
+				role.sudo = role_sudos		# 直接更新sudo
+				role.save()
+				msg = u'更新系统用户 %s 完成' % (role.name, )
+			except ServerError, e:
+				error = e
+			return my_render('jperm/perm_role_edit.html', locals(), request)
 
 	return HttpResponseRedirect(reverse('role_list'))
 	
