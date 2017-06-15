@@ -185,9 +185,22 @@ def perm_role_add(request):
 	return my_render('jperm/perm_role_add.html', locals(), request)
 
 
+@require_role('admin')
 def perm_role_edit(request):
-	pass
+	'''
+	系统用户编辑视图
+	'''
+	role_id = request.GET.get('id', '')
+	role = get_object(PermRole, id=role_id)		# 获取编辑的role对象
+	sudo_all = PermSudo.objects.all()		# 获取所有sudo对象
+	if role:
+		role_sudos = role.sudo.all()		# 获取当前role所关联的sudo
+		role_pass = CRYPTOR.decrypt(role.password)		# 对称解密存储在数据库中加密的密码, 数据库中保存的密码都是对称加密后存储的
+		if request.method == 'GET':
+			return my_render('jperm/perm_role_edit.html', locals(), request)
 
+	return HttpResponseRedirect(reverse('role_list'))
+	
 
 def perm_role_push(request):
 	pass
@@ -201,8 +214,12 @@ def perm_role_get(request):
 	pass
 
 
+@require_role('admin')
 def perm_role_detail(request):
-	pass
+	'''
+	系统用户详细信息视图
+	'''
+
 
 
 @require_role('admin')

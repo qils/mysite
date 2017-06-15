@@ -261,6 +261,18 @@ class PyCrypt(object):
 		cipher_text = cryptor.encrypt(passwd)		# 加密后字符
 		return b2a_hex(cipher_text)
 
+	def decrypt(self, text):
+		'''
+		对称加密解密函数, 相同的加密随机数
+		'''
+		cryptor = AES.new(self.key, self.mode, b'8122ca7d906ad5e1')
+		try:
+			plain_text = cryptor.decrypt(a2b_hex(text))
+		except TypeError:
+			raise ServerError(u'解密密码失败!')
+
+		return plain_text.rstrip('\0')
+
 
 def http_success(request, msg):
 	'''
