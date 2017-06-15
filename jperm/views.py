@@ -190,7 +190,7 @@ def perm_role_edit(request):
 	'''
 	系统用户编辑视图
 	'''
-	role_id = request.GET.get('id', '')
+	role_id = request.GET.get('id', '')		# 获取的id为字符对象
 	role = get_object(PermRole, id=role_id)		# 获取编辑的role对象
 	sudo_all = PermSudo.objects.all()		# 获取所有sudo对象
 	if role:
@@ -208,7 +208,7 @@ def perm_role_edit(request):
 
 			try:
 				test_role = get_object(PermRole, name=role_name)		# 系统用户名称重名检查
-				if test_role and role_id != test_role.id:
+				if test_role and role.id != test_role.id:
 					raise ServerError(u'系统用户名称重名')
 
 				if len(role_password) > 64:
