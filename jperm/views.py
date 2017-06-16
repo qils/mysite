@@ -239,8 +239,25 @@ def perm_role_edit(request):
 	return HttpResponseRedirect(reverse('role_list'))
 	
 
+@require_role('admin')
 def perm_role_push(request):
-	pass
+	'''
+	推送系统用户视图
+	'''
+	header_title, path1, path2 = u'系统用户', u'系统用户管理', u'系统用户推送'
+	role_id = request.GET.get('id', '')
+	asset_ids = request.GET.get('asset_id', '')
+	role = get_object(PermRole, id=role_id)
+	assets = Asset.objects.all()		# 所有主机资产
+	asset_groups = AssetGroup.objects.all()		# 所有资产组
+
+	if asset_ids:
+		need_push_asset = [get_object(Asset, id=asset_id) for asset_id in asset_ids.split(',')]
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jperm/perm_role_push.html', locals(), request)
 
 
 def perm_role_delete(request):
