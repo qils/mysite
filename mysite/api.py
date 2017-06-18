@@ -48,6 +48,8 @@ def get_asset_info(asset):
 	except ValueError:
 		info['port'] = int(default.field2)		# 添加主机端口
 
+	return info
+
 
 def list_drop_str(a_list, a_str):
 	'''
