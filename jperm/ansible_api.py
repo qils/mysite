@@ -42,7 +42,7 @@ class MyInventory(Inventory):
 			my_group.add_host(my_host)
 		self.inventory.add_group(my_group)
 
-	def get_inventory(self):
+	def gen_inventory(self):
 		if isinstance(self.resource, list):
 			self.my_add_group(self.resource, 'default_group')
 		elif isinstance(self.resource, dict):
