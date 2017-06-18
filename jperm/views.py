@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 import re
+import os
 from jperm.perm_api import *
 from django.db.models import Q
 from jperm.utils import trans_all, gen_keys
@@ -274,6 +275,12 @@ def perm_role_push(request):
 		key_push = True if request.POST.get('use_publicKey', '') else False		# 秘钥推送
 		task = MyTask(push_resource)
 		ret = {}
+
+		# 通过秘钥方式推送角色
+		if key_push:
+			ret['pass_push'] = task.add_user(role.name)
+			ret['key_push'] = task.push_key(role.name, os.path.join(role.key_path, 'id_rsa.pub'))
+
 	return my_render('jperm/perm_role_push.html', locals(), request)
 
 
