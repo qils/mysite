@@ -9,6 +9,7 @@ from django.db.models import Q
 from jperm.utils import trans_all, gen_keys
 from mysite.models import Setting
 from django.shortcuts import render
+from jperm.ansible_api import MyTask
 # Create your views here.
 
 
@@ -255,8 +256,24 @@ def perm_role_push(request):
 		need_push_asset = [get_object(Asset, id=asset_id) for asset_id in asset_ids.split(',')]
 
 	if request.method == 'POST':
-		pass
+		# 获取推送角色的名称列表
+		# 计算出需要推送的资产列表
+		assets_ids = request.POST.getlist('assets', [])		# 获取推送的资产id列表
+		asset_groups_ids = request.POST.getlist('asset_groups', [])		# 获取推送的资产组id列表
+		assets_obj = [Asset.objects.get(id=asset_id) for asset_id in assets_ids]		# 计算推送的资产
+		asset_groups_obj = [AssetGroup.objects.get(id=group_id) for group_id in asset_groups_ids]
+		group_assets_obj = []
+		for group_asset in asset_groups_obj:
+			group_assets_obj.extend(group_asset.asset_set.all())		# 计算所有组对象中的资产
+		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产
 
+		push_resource = gen_resource(calc_assets)
+
+		# 调用Ansible API进行推送
+		password_push = True if request.POST.get('use_password', '') else False		# 密码推送, 目前源码里不在支持密码推送
+		key_push = True if request.POST.get('use_publicKey', '') else False		# 秘钥推送
+		task = MyTask(push_resource)
+		ret = {}
 	return my_render('jperm/perm_role_push.html', locals(), request)
 
 

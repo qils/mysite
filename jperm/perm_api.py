@@ -2,6 +2,8 @@
 # --*-- coding: utf-8 --*--
 
 from mysite.api import *
+from mysite.models import Setting
+from django.db.models.query import QuerySet
 from jperm.models import PermRole, PermPush, PermRule, PermSudo
 
 
@@ -120,3 +122,20 @@ def get_group_asset_perm(ob):
 					perm_user[user] = {'role': perm_user_group[user_group].get('role', set()), 'rule': perm_user_group[user_group].get('rule', set())}
 
 	return perm
+
+
+def gen_resource(ob, perm=None):
+	'''
+	ob为用户或资产列表或Queryset, 如果同时输入用户和{'role': role1, 'asset': []}，则获取用户在这些资产上的信息,生成MyInventory需要的resource文件
+	'''
+	res = []
+	if isinstance(ob, dict):
+		pass
+	elif isinstance(ob, User):
+		pass
+	elif isinstance(ob, (list, QuerySet)):
+		for asset in ob:
+			info = get_asset_info(asset)		# 获取每个资产的信息, 将信息保存在字典对象中
+			res.append(info)		# res 为每个资产信息字典组成的列表
+
+	return res

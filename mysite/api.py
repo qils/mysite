@@ -14,6 +14,7 @@ from Crypto.Cipher import AES		# 调用AES加密字符
 from binascii import b2a_hex, a2b_hex
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from mysite.models import Setting
 from juser.models import User, UserGroup
 from jasset.models import Asset, AssetGroup, AssetRecord, IDC
 from jlog.models import Log
@@ -21,6 +22,31 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
+
+def get_asset_info(asset):
+	'''
+	获取资产相关的管理账号, 端口, ip, 主机名等信息
+	'''
+	default = Setting.objects.get(name='default')
+	info = {'hostname': asset.hostname, 'ip': asset.ip}		# 添加主机名称, 主机IP信息
+	if asset.use_default_auth:
+		if default:
+			info['username'] = default.field1		# 添加主机账号
+			try:
+				info['password'] = CRYPTOR.decrypt(default.field3)		# 添加主机密码
+			except ServerError, e:
+				pass
+			if os.path.isfile(default.field4):
+				info['ssh_key'] = default.field4		# 添加秘钥目录
+	else:
+		info['username'] = asset.username
+		info['password'] = CRYPTOR.decrypt(asset.password)
+
+	try:
+		info['port'] = int(asset.port)
+	except ValueError:
+		info['port'] = int(default.field2)		# 添加主机端口
 
 
 def list_drop_str(a_list, a_str):
