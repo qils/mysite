@@ -7,6 +7,8 @@ from ansible.inventory.host import Host
 from ansible.runner import Runner
 from ansible.inventory import Inventory
 from passlib.hash import sha512_crypt
+from django.template.loader import get_template
+from django.template import Context
 
 
 class MyInventory(Inventory):
@@ -52,7 +54,7 @@ class MyInventory(Inventory):
 class MyRunner(MyInventory):
 	def __init__(self, *args, **kwargs):
 		super(MyRunner, self).__init__(*args, **kwargs)
-		self.results_raw = {}
+		self.results_raw = {}		# 保存运行结果
 
 	def run(self, module_name='shell', module_args='', timeout=10, forks=10, pattern='*',
 			become=False, become_method='sudo', become_user='root', become_pass='', transport='paramiko'):
@@ -69,7 +71,7 @@ class MyRunner(MyInventory):
 			become_pass=become_pass,
 			transport=transport
 		)
-		self.results_raw = hoc.run()
+		self.results_raw = hoc.run()		# 返回结果为一个字典
 		logger.debug(self.results_raw)
 		return self.results_raw
 
@@ -102,6 +104,16 @@ class MyTask(MyRunner):
 	def __init__(self, *args, **kwargs):
 		super(MyTask, self).__init__(*args, **kwargs)
 
+	@staticmethod
+	def gen_sudo_script(role_list, sudo_list):
+		sudo_alias = {}
+		sudo_user = {}
+		for sudo in sudo_list:
+			sudo_alias[sudo.name] = sudo.commands
+
+		for role in role_list:
+			sudo_user[role.name] = ','.join(sudo_alias.keys())
+
 	def add_user(self, username, password=''):
 		if password:
 			encrypt_pass = sha512_crypt.encrypt(password)
@@ -110,10 +122,16 @@ class MyTask(MyRunner):
 			module_args = 'name=%s shell=/bin/bash' % (username, )
 
 		self.run('user', module_args, become=True)
+
 		return self.results
 
 	def push_key(self, user, key_path):
 		module_args = 'user="%s" key="{{ lookup("file", "%s") }}" state=present' % (user, key_path)
 		self.run('authorized_key', module_args, become=True)
 
+		return self.results
+
+	def push_sudo_file(self, role_list, sudo_list):
+		module_args = self.gen_sudo_script(role_list, sudo_list)
+		self.run('script', module_args, become=True)
 		return self.results

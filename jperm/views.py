@@ -271,15 +271,23 @@ def perm_role_push(request):
 		push_resource = gen_resource(calc_assets)
 
 		# 调用Ansible API进行推送
-		password_push = True if request.POST.get('use_password', '') else False		# 密码推送, 目前源码里不在支持密码推送
-		key_push = True if request.POST.get('use_publicKey', '') else False		# 秘钥推送
-		task = MyTask(push_resource)
+		password_push = True if request.POST.get('use_password', '') else False		# 密码推送, 目前源码里不在支持推送密码
+		key_push = True if request.POST.get('use_publicKey', '') else False		# 推送公钥
+		task = MyTask(push_resource)		# 推送资源列表, 每个资源信息保存在字典对象中
 		ret = {}
 
 		# 通过秘钥方式推送角色
 		if key_push:
-			ret['pass_push'] = task.add_user(role.name)
-			ret['key_push'] = task.push_key(role.name, os.path.join(role.key_path, 'id_rsa.pub'))
+			ret['pass_push'] = task.add_user(role.name)		# 推送系统用户名, 没有密码, 系统用户统一使用秘钥通信
+			ret['key_push'] = task.push_key(role.name, os.path.join(role.key_path, 'id_rsa.pub'))		# 推送系统用户公钥
+
+		# 推送sudo配置文件
+		if key_push:
+			sudo_list = set([sudo for sudo in role.sudo.all()])
+			if sudo_list:
+				ret['sudo'] = task.push_sudo_file([role], sudo_list)
+			else:
+				ret['sudo'] = task.recyle_cmd_alias(role.name)
 
 	return my_render('jperm/perm_role_push.html', locals(), request)
 

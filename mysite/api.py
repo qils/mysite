@@ -41,7 +41,7 @@ def get_asset_info(asset):
 				info['ssh_key'] = default.field4		# 添加秘钥目录
 	else:
 		info['username'] = asset.username
-		info['password'] = CRYPTOR.decrypt(asset.password)
+		info['password'] = CRYPTOR.decrypt(asset.password)		# 保存解密后的密码
 
 	try:
 		info['port'] = int(asset.port)
