@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 from mysite.api import *
+from tempfile import NamedTemporaryFile
 from ansible.inventory.group import Group
 from ansible.inventory.host import Host
 from ansible.runner import Runner
@@ -82,11 +83,11 @@ class MyRunner(MyInventory):
 		contacted = self.results_raw.get('contacted')
 
 		if dark:
-			for host, info in dark.items():
+			for host, info in dark.iteritems():
 				result['failed'][host] = info.get('msg')
 
 		if contacted:
-			for host, info in contacted.items():
+			for host, info in contacted.iteritems():
 				if info.get('invocation').get('module_name') in ['raw', 'shell', 'command', 'script']:
 					if info.get('rc') == 0:
 						result['ok'][host] = info.get('stdout') + info.get('stderr')
@@ -113,6 +114,13 @@ class MyTask(MyRunner):
 
 		for role in role_list:
 			sudo_user[role.name] = ','.join(sudo_alias.keys())
+
+		sudo_j2 = get_template('jperm/role_sudo.j2')		# 加载模板,生成模板对象, role_sudo.j2是一个shell脚本, 用来修改/etc/sudoers内容
+		sudo_content = sudo_j2.render(Context({'sudo_alias': sudo_alias, 'sudo_user': sudo_user}))		# 渲染模板
+		sudo_file = NamedTemporaryFile(delete=False)		# 创建一个临时文件对象, delete=False指定文件保存时不删除文件
+		sudo_file.write(sudo_content)
+		sudo_file.close()
+		return sudo_file.name		# 返回文件名
 
 	def add_user(self, username, password=''):
 		if password:

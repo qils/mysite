@@ -4,8 +4,7 @@ real_file=/etc/sudoers
 tmp_file=$(mktemp /tmp/XXXXXXX)
 
 # fixed sudoers file path in bsd
-isbsd=$(uname -a | grep -i 'freebsd' &> /dev/null && echo "yes" || echo "no")
-if [ $isbsd == "yes" ]; then
+isbsd=$(uname -a | grep -i 'freebsd' &> /dev/null && echo "yes" || echo "no")if [ $isbsd == "yes" ]; then
     real_file=/usr/local/etc/sudoers
 fi
 
