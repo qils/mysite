@@ -307,6 +307,8 @@ def perm_role_push(request):
 						continue		# 不能同时出现在failed和ok这两种结果中, 只有一种结果
 					if hostname in success_asset.keys():
 						if str(info) in success_asset.get('hostname', ''):
+							pass
+						else:
 							success_asset[hostname] += str(info)
 					else:
 						success_asset[hostname] = str(info)
