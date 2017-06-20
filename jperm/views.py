@@ -293,6 +293,28 @@ def perm_role_push(request):
 		success_asset = {}
 		failed_asset = {}
 
+		for push_type, result in ret.items():
+			if result.get('failed'):
+				for hostname, info in result.get('failed').items():
+					if hostname in failed_asset.keys():
+						failed_asset[hostname] += info
+					else:
+						failed_asset[hostname] = info
+			# 这里写的与源代码不同
+			if result.get('ok'):
+				for hostname, info in result.get('ok').items():
+					if hostname in failed_asset.keys():
+						continue		# 不能同时出现在failed和ok这两种结果中, 只有一种结果
+					if hostname in success_asset.keys():
+						if str(info) in success_asset.get('hostname', ''):
+							continue
+						else:
+							success_asset[hostname] += str(info)
+					else:
+						success_asset[hostname] = str(info)
+		logger.debug(success_asset)
+		logger.debug(failed_asset)
+
 	return my_render('jperm/perm_role_push.html', locals(), request)
 
 
