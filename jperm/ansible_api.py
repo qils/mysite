@@ -143,3 +143,10 @@ class MyTask(MyRunner):
 		module_args = self.gen_sudo_script(role_list, sudo_list)
 		self.run('script', module_args, become=True)
 		return self.results
+
+	def recyle_cmd_alias(self, role_name):
+		if role_name == 'root':
+			return {'status': 'failed', 'msg': u'不能回收root权限'}
+		module_args = "sed -i 's/^%s.*//' /etc/sudoers" % (role_name, )
+		self.run('command', module_args, become=True)
+		return self.results
