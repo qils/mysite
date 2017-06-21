@@ -46,7 +46,7 @@ class PermRule(models.Model):
 	asset_group = models.ManyToManyField(AssetGroup, related_name='perm_rule')		# 多对对关联到资产组表
 	user = models.ManyToManyField(User, related_name='perm_rule')			# 多对多关联到用户表
 	user_group = models.ManyToManyField(UserGroup, related_name='perm_rule')		# 多对多关联到用户组表
-	role = models.ManyToManyField(PermSudo, related_name='perm_rule')		# 多对多关联到PermRole表
+	role = models.ManyToManyField(PermRole, related_name='perm_rule')		# 多对多关联到PermRole表
 
 	def __unicode__(self):
 		return self.name
