@@ -4,7 +4,7 @@
 from mysite.api import *
 from mysite.models import Setting
 from django.db.models.query import QuerySet
-from jperm.models import PermRole, PermPush, PermRule, PermSudo
+from jperm.models import PermRole, PermPush, PermRule, PermSudo, PermLog
 
 
 def get_group_user_perm(ob):

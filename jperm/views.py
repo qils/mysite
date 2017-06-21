@@ -259,19 +259,19 @@ def perm_role_push(request):
 	if request.method == 'POST':
 		# 获取推送角色的名称列表
 		# 计算出需要推送的资产列表
-		assets_ids = request.POST.getlist('assets', [])		# 获取推送的资产id列表
+		asset_ids = request.POST.getlist('assets', [])		# 获取推送的资产id列表
 		asset_groups_ids = request.POST.getlist('asset_groups', [])		# 获取推送的资产组id列表
-		assets_obj = [Asset.objects.get(id=asset_id) for asset_id in assets_ids]		# 计算推送的资产
+		assets_obj = [Asset.objects.get(id=asset_id) for asset_id in asset_ids]		# 计算推送的资产
 		asset_groups_obj = [AssetGroup.objects.get(id=group_id) for group_id in asset_groups_ids]
 		group_assets_obj = []
 		for group_asset in asset_groups_obj:
 			group_assets_obj.extend(group_asset.asset_set.all())		# 计算所有组对象中的资产
-		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产
+		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产, cals_assets为需要推送的资产
 
 		push_resource = gen_resource(calc_assets)
 
 		# 调用Ansible API进行推送
-		password_push = True if request.POST.get('use_password', '') else False		# 密码推送, 目前源码里不在支持推送密码
+		password_push = True if request.POST.get('use_password', '') else False		# 推送密码, 目前源码里不在支持推送密码
 		key_push = True if request.POST.get('use_publicKey', '') else False		# 推送公钥
 		task = MyTask(push_resource)		# 推送资源列表, 每个资源信息保存在字典对象中
 		ret = {}
@@ -290,8 +290,8 @@ def perm_role_push(request):
 				ret['sudo'] = task.recyle_cmd_alias(role.name)		# sudo_list为空,回收sudo命令
 
 		logger.debug(u'推送role结果: %s' % (ret, ))
-		success_asset = {}
-		failed_asset = {}
+		success_asset = {}		# 推送成功的资产
+		failed_asset = {}		# 推送失败的资产
 
 		for push_type, result in ret.items():
 			if result.get('failed'):
@@ -304,7 +304,7 @@ def perm_role_push(request):
 			if result.get('ok'):
 				for hostname, info in result.get('ok').items():
 					if hostname in failed_asset.keys():
-						continue		# 不能同时出现在failed和ok这两种结果中, 只有一种结果
+						continue		# 一个资产有一个推送类型失败, 都不会记录到推送成功资产字典中, 只有所有的类型推送成功才会记录到成功资产字典中
 					if hostname in success_asset.keys():
 						if str(info) in success_asset.get(hostname, ''):
 							pass
@@ -312,8 +312,24 @@ def perm_role_push(request):
 							success_asset[hostname] += str(info)
 					else:
 						success_asset[hostname] = str(info)
-		logger.debug(success_asset)
-		logger.debug(failed_asset)
+
+		# 将推送信息记录到PermPush 表
+		for asset in calc_assets:
+			if PermPush.objects.filter(role=role, asset=asset):
+				func = PermPush.objects.filter(role=role, asset=asset).update
+			else:
+				def func(**kwargs):
+					PermPush(**kwargs).save()
+
+			if failed_asset.get(asset.hostname):		# 记录推送主机失败信息
+				func(role=role, asset=asset, is_public_key=key_push, is_password=password_push, success=False, result=failed_asset.get(asset.hostname))
+			else:		# 源码里面没有将推送成功信息记录到result
+				func(role=role, asset=asset, is_public_key=key_push, is_password=password_push, success=True, result=success_asset.get(asset.hostname))
+
+		if not failed_asset:
+			msg = u'系统用户 %s 推送成功 [ %s ]' % (role.name, '|'.join(success_asset.keys()))
+		else:
+			error = u'系统用户 %s 推送失败 [ %s ], 推送成功 [ %s ]' % (role.name, '|'.join(failed_asset.keys()), '|'.join(success_asset.keys()))
 
 	return my_render('jperm/perm_role_push.html', locals(), request)
 

@@ -78,7 +78,7 @@ class MyRunner(MyInventory):
 
 	@property
 	def results(self):
-		result = {'failed': {}, 'ok': {}}
+		result = {'failed': {}, 'ok': {}}		# 统计推送失败的资产信息, 保存信息的方式为key: 资产名称, value: 失败信息
 		dark = self.results_raw.get('dark')
 		contacted = self.results_raw.get('contacted')
 
@@ -89,7 +89,7 @@ class MyRunner(MyInventory):
 		if contacted:
 			for host, info in contacted.iteritems():
 				if info.get('invocation').get('module_name') in ['raw', 'shell', 'command', 'script']:
-					if info.get('rc') == 0:
+					if info.get('rc') == 0:		# 值为0表示成功
 						result['ok'][host] = info.get('stdout') + info.get('stderr')
 					else:
 						result['failed'][host] = info.get('stdout') + info.get('stderr')

@@ -53,6 +53,9 @@ class PermRule(models.Model):
 
 
 class PermPush(models.Model):
+	'''
+	记录每台设备推送日志, 不追加相同记录, 只有变更
+	'''
 	asset = models.ForeignKey(Asset, related_name='perm_push')
 	role = models.ForeignKey(PermRole, related_name='perm_push')
 	is_public_key = models.BooleanField(default=False)

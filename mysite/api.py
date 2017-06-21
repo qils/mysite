@@ -32,9 +32,9 @@ def get_asset_info(asset):
 	info = {'hostname': asset.hostname, 'ip': asset.ip}		# 添加主机名称, 主机IP信息
 	if asset.use_default_auth:
 		if default:
-			info['username'] = default.field1		# 添加主机账号
+			info['username'] = default.field1		# 添加主机管理账号
 			try:
-				info['password'] = CRYPTOR.decrypt(default.field3)		# 添加主机密码
+				info['password'] = CRYPTOR.decrypt(default.field3)		# 添加主机登录密码
 			except ServerError, e:
 				pass
 			if os.path.isfile(default.field4):
