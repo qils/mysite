@@ -139,3 +139,63 @@ def gen_resource(ob, perm=None):
 			res.append(info)		# res 为每个资产信息字典组成的列表
 
 	return res
+
+
+def get_role_info(role_id, type='all'):
+	'''
+	返回一个授权系统用户关联信息
+	'''
+	role_obj = PermRole.objects.get(id=role_id)		# 获取授权用户对象
+	perm_rule_obj = role_obj.perm_rule.all()		# PermRule模型中定义related_name参数为perm_rule,在关联的多对多模型中可以使用
+	users_obj = []
+	user_groups_obj = []
+	assets_obj = []
+	asset_groups_obj = []
+	for perm_rule in perm_rule_obj:
+		for user in perm_rule.user.all():
+			users_obj.append(user)
+		for user_group in perm_rule.user_group.all():
+			user_groups_obj.append(user_group)
+		for asset in perm_rule.asset.all():
+			assets_obj.append(asset)
+		for asset_group in perm_rule.asset_group.all():
+			asset_groups_obj.append(asset_group)
+
+	if type == 'all':
+		return {
+			'rules': set(perm_rule_obj),
+			'users': set(users_obj),
+			'user_groups': set(user_groups_obj),
+			'assets': set(assets_obj),
+			'asset_groups': set(asset_groups_obj)
+		}
+	elif type == 'rule':
+		return {'rules': set(perm_rule_obj)}
+	elif type == 'user':
+		return {'users': set(users_obj)}
+	elif type == 'user_group':
+		return {'user_groups': set(user_groups_obj)}
+	elif type == 'asset':
+		return {'assets': set(assets_obj)}
+	elif type == 'asset_group':
+		return {'asset_groups': set(asset_groups_obj)}
+	else:
+		return u'不支持的查询'
+
+
+def get_role_push_host(role):
+	'''
+	获取系统用户推送信息
+	'''
+	pushs = PermPush.objects.filter(role=role)		# 获取某个系统用户所有的推送记录
+	all_assets = Asset.objects.all()
+	asset_pushed = {}		# 用来保存所有推送的资产
+	for push in pushs:
+		asset_pushed[push.asset] = {
+			'success': push.success,
+			'key': push.is_public_key,
+			'password': push.is_password,
+			'result': push.result
+		}
+	no_push_assets = set(all_assets) - set(asset_pushed.keys())
+	return asset_pushed, no_push_assets

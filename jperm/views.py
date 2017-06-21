@@ -348,6 +348,25 @@ def perm_role_detail(request):
 	系统用户详细信息视图
 	'''
 
+	header_title1, path1, path2 = u'系统用户', u'系统用户管理', u'系统用户详情'
+
+	try:
+		role_id = request.GET.get('id', '')
+		role = get_object(PermRole, id=role_id)
+		if not role:
+			raise ServerError(u'系统用户不存在')
+		role_info = get_role_info(role_id)
+
+		rules = role_info.get('rules', '')		# 获取关联的授权规则
+		users = role_info.get('users', '')		# 获取关联的User
+		user_groups = role_info.get('user_groups', '')		# 获取关联的UserGroup
+		assets = role_info.get('assets', '')		# 获取关联的资产
+		asset_groups = role_info.get('asset_groups', '')		# 获取关联的资产组
+		pushed_asaset, need_push_asset = get_role_push_host(role)		# 获取系统用户推送到资产的推送信息
+	except ServerError, e:
+		logger.warn(e)
+
+	return my_render('jperm/perm_role_detail.html', locals(), request)
 
 
 @require_role('admin')
