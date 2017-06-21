@@ -146,7 +146,7 @@ def get_role_info(role_id, type='all'):
 	返回一个授权系统用户关联信息
 	'''
 	role_obj = PermRole.objects.get(id=role_id)		# 获取授权用户对象
-	perm_rule_obj = role_obj.perm_rule.all()		# PermRule模型中定义related_name参数为perm_rule,在关联的多对多模型中可以使用
+	perm_rule_obj = role_obj.permrule_set.all()		# PermRule模型中定义related_name参数为perm_rule,在关联的多对多模型中可以使用
 	users_obj = []
 	user_groups_obj = []
 	assets_obj = []
