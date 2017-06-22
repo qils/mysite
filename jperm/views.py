@@ -370,6 +370,11 @@ def perm_role_detail(request):
 
 
 @require_role('admin')
+def perm_role_recycle(request):
+	pass
+
+
+@require_role('admin')
 def perm_rule_list(request):
 	'''
 	授权规则列表视图
