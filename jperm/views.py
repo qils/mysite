@@ -362,7 +362,7 @@ def perm_role_detail(request):
 		user_groups = role_info.get('user_groups', '')		# 获取关联的UserGroup
 		assets = role_info.get('assets', '')		# 获取关联的资产
 		asset_groups = role_info.get('asset_groups', '')		# 获取关联的资产组
-		pushed_asaset, need_push_asset = get_role_push_host(role)		# 获取系统用户推送到资产的推送信息
+		pushed_asset, need_push_asset = get_role_push_host(role)		# 获取系统用户推送到资产的推送信息
 	except ServerError, e:
 		logger.warn(e)
 
