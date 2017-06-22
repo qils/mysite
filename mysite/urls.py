@@ -19,6 +19,7 @@ urlpatterns = patterns(
     'mysite.views',
     # Examples:
     url(r'^$', 'index', name='index'),
+    url(r'^skin_config/$', 'skin_config', name='skin_config'),
     url(r'^login/$', 'Login', name='login'),
     url(r'^logout/$', 'Logout', name='logout'),
     url(r'^file/upload/$', 'upload', name='file_upload'),

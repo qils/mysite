@@ -247,4 +247,8 @@ def Logout(request):
 	return HttpResponseRedirect(reverse('index'))
 
 
+def skin_config(request):
+	return render_to_response('skin_config.html')
+
+
 
