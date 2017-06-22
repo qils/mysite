@@ -123,6 +123,9 @@ class MyTask(MyRunner):
 		return sudo_file.name		# 返回文件名
 
 	def add_user(self, username, password=''):
+		'''
+		推送系统用户到目标资产, 不包括系统用户密码, 源码里面解释的是因为安全问题不在推送密码
+		'''
 		if password:
 			encrypt_pass = sha512_crypt.encrypt(password)
 			module_args = 'name=%s shell=/bin/bash password=%s' % (username, encrypt_pass)
@@ -134,12 +137,18 @@ class MyTask(MyRunner):
 		return self.results
 
 	def push_key(self, user, key_path):
+		'''
+		推送公钥到目标资产
+		'''
 		module_args = 'user="%s" key="{{ lookup("file", "%s") }}" state=present' % (user, key_path)
 		self.run('authorized_key', module_args, become=True)
 
 		return self.results
 
 	def push_sudo_file(self, role_list, sudo_list):
+		'''
+		推送脚本, 修改系统用户权限
+		'''
 		module_args = self.gen_sudo_script(role_list, sudo_list)
 		self.run('script', module_args, become=True)
 		return self.results

@@ -248,6 +248,9 @@ def Logout(request):
 
 
 def skin_config(request):
+	'''
+	更换页面皮肤视图
+	'''
 	return render_to_response('skin_config.html')
 
 

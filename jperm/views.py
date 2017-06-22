@@ -413,8 +413,58 @@ def perm_rule_add(request):
 	roles = PermRole.objects.all()		# 获取所有授权角色, 用于添加授权规则
 
 	if request.method == 'POST':
-		pass
+		users_select = request.POST.getlist('user', [])		# 获取选中的User
+		user_groups_select = request.POST.getlist('user_group', [])		# 获取选中的UserGroup
+		assets_select = request.POST.getlist('asset', [])		# 获取选中的Asset
+		asset_groups_select = request.POST.getlist('asset_group', [])		# 获取选中的AssetGroup
+		roles_select = request.POST.getlist('role', [])		# 获取选中的系统用户
+		rule_name = request.POST.get('name', '')		# 授权规则名
+		rule_comment = request.POST.get('comment', '')		# 授权备注
 
+		try:
+			rule = get_object(PermRule, name=rule_name)
+			if rule:		# 检验授权规则名是否相同
+				raise ServerError(u'授权规则 %s 已存在' % (rule_name, ))
+
+			if not rule_name or not roles_select:
+				raise ServerError(u'系统用户名称和授权规则名称不能为空')
+
+			# 获取需要授权的主机列表
+			assets_obj = [Asset.objects.get(id=asset_id) for asset_id in assets_select]
+			asset_groups_obj = [AssetGroup.objects.get(id=asset_group_id) for asset_group_id in asset_groups_select]
+			group_assets_obj = []
+			for asset_group in asset_groups_obj:
+				group_assets_obj.extend(asset_group.asset_set.all())
+			calc_assets = set(assets_obj) | set(group_assets_obj)		# 合并资产组中的资产
+
+			# 获取需要授权的用户, 用户组
+			users_obj = [User.objects.get(id=user_id) for user_id in users_select]
+			user_groups_obj = [UserGroup.objects.get(id=user_group_id) for user_group_id in user_groups_select]
+
+			# 获取需要授权的系统用户
+			roles_obj = [PermRole.objects.get(id=role_id) for role_id in roles_select]
+			need_push_asset = set()
+
+			for role in roles_obj:
+				asset_no_push = get_role_push_host(role)[1]
+				need_push_asset.update(set(calc_assets) & set(asset_no_push))
+				if need_push_asset:
+					raise ServerError(u'没有推送系统用户 %s 的主机 [ %s ]' % (role.name, '|'.join([asset.hostname for asset in need_push_asset])))
+
+			# 授权成功, 写回数据库
+			rule = PermRule(name=rule_name, comment=rule_comment)
+			rule.save()
+			rule.user = users_obj
+			rule.user_group = user_groups_obj
+			rule.asset = assets_obj
+			rule.asset_group = asset_groups_obj
+			rule.role = roles_obj
+			rule.save()
+
+			msg = u'添加授权规则: %s 成功' % (rule_name, )
+			return HttpResponseRedirect(reverse('rule_list'))
+		except ServerError,e:
+			error = e
 	return my_render('jperm/perm_rule_add.html', locals(), request)
 
 
