@@ -508,11 +508,11 @@ def perm_rule_edit(request):
 		return HttpResponseRedirect(reverse('perm_rule_list'))
 
 	# 获取授权规则关联的User, UserGroup, Asset, AssetGroup, PermRole
-	users = rule.user.all()
-	user_groups = rule.user_group.all()
-	assets = rule.asset.all()
-	asset_groups = rule.asset_group.all()
-	roles = rule.role.all()
+	users = User.objects.all()
+	user_groups = UserGroup.objects.all()
+	assets = Asset.objects.all()
+	asset_groups = AssetGroup.objects.all()
+	roles = PermRule.objects.all()
 
 	if request.method == 'POST':
 		pass
