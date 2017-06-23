@@ -11,6 +11,7 @@ from jperm.utils import trans_all, gen_keys
 from mysite.models import Setting
 from django.shortcuts import render
 from jperm.ansible_api import MyTask
+from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 # Create your views here.
 
 
@@ -496,5 +497,17 @@ def perm_rule_edit(request):
 	pass
 
 
+@require_role('admin')
 def perm_rule_delete(request):
-	pass
+	'''
+	删除授权规则视图
+	'''
+
+	if request.method == 'POST':
+		rule_id = request.POST.get('id', '')
+		rule = get_object(PermRule, id=rule_id)
+		if rule:
+			rule.delete()
+			return HttpResponse(u'删除授权规则: %s 成功' % (rule.name, ))
+
+	return HttpResponseNotAllowed(u'操作不被容许!!!')
