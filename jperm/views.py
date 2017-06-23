@@ -364,7 +364,7 @@ def perm_role_detail(request):
 		asset_groups = role_info.get('asset_groups', '')		# 获取关联的资产组
 		pushed_asset, need_push_asset = get_role_push_host(role)		# 获取系统用户推送到资产的推送信息
 	except ServerError, e:
-		logger.warn(e)
+		logger.warning(e)
 
 	return my_render('jperm/perm_role_detail.html', locals(), request)
 
@@ -395,8 +395,31 @@ def perm_rule_list(request):
 	return my_render('jperm/perm_rule_list.html', locals(), request)
 
 
+@require_role('admin')
 def perm_rule_detail(request):
-	pass
+	'''
+	授权规则详细信息视图
+	'''
+	header_title, path1, path2 = u'授权规则', u'规则管理', u'规则详情'
+	try:
+		if request.method == 'GET':
+			rule_id = request.GET.get('id', '')
+			rule = get_object(PermRule, id=rule_id)
+			if not rule:
+				raise ServerError(u'查询的授权规则不存在')
+
+			users = rule.user.all()		# 获取授权规则关联的所有User
+			user_groups = rule.user_group.all()		# 获取授权规则关联的所有UserGroup
+			assets = rule.asset.all()		# 获取授权规则关联的所有Asset
+			asset_groups = rule.asset_group.all()		# 获取授权规则关联的所有AssetGroup
+			roles_name = [role.name for role in rule.role.all()]		# 获取授权规则关联的所有PermRole
+
+			# 渲染模板数据
+			roles_name = '|'.join(roles_name)
+	except ServerError, e:
+		logger.warning(e)
+
+	return my_render('jperm/perm_rule_detail.html', locals(), request)
 
 
 @require_role('admin')
@@ -445,6 +468,7 @@ def perm_rule_add(request):
 			roles_obj = [PermRole.objects.get(id=role_id) for role_id in roles_select]
 			need_push_asset = set()
 
+			# 授权系统用户必须已经推送到授权的资产上, 否则下面验证不通过
 			for role in roles_obj:
 				asset_no_push = get_role_push_host(role)[1]
 				need_push_asset.update(set(calc_assets) & set(asset_no_push))
@@ -463,7 +487,7 @@ def perm_rule_add(request):
 
 			msg = u'添加授权规则: %s 成功' % (rule_name, )
 			return HttpResponseRedirect(reverse('rule_list'))
-		except ServerError,e:
+		except ServerError, e:
 			error = e
 	return my_render('jperm/perm_rule_add.html', locals(), request)
 
