@@ -512,7 +512,7 @@ def perm_rule_edit(request):
 	user_groups = UserGroup.objects.all()
 	assets = Asset.objects.all()
 	asset_groups = AssetGroup.objects.all()
-	roles = PermRule.objects.all()
+	roles = PermRole.objects.all()
 
 	if request.method == 'POST':
 		pass
