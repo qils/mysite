@@ -493,8 +493,31 @@ def perm_rule_add(request):
 	return my_render('jperm/perm_rule_add.html', locals(), request)
 
 
+@require_role('admin')
 def perm_rule_edit(request):
-	pass
+	'''
+	授权规则编辑视图
+	'''
+	header_title, path1, path2 = u'授权规则', u'规则管理', u'编辑规则'
+	rule_id = request.GET.get('id', '')
+	try:
+		rule = get_object(PermRule, id=rule_id)
+		if not rule:
+			raise ServerError(u'授权规则不存在')
+	except ServerError, e:
+		return HttpResponseRedirect(reverse('perm_rule_list'))
+
+	# 获取授权规则关联的User, UserGroup, Asset, AssetGroup, PermRole
+	users = rule.objects.all()
+	user_groups = rule.objects.all()
+	assets = rule.objects.all()
+	asset_groups = rule.objects.all()
+	roles = rule.objects.all()
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('jperm/perm_rule_edit.html', locals(), request)
 
 
 @require_role('admin')
