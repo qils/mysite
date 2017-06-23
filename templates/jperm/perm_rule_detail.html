@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
 {% load mytags %}
 
-
 {% block content %}
     {% include 'nav_cat_bar.html' %}
     <div class="wrapper wrapper-content animated fadeInRight">
-
         <div class="row">
             <div class="col-sm-4">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <span class="label label-primary"><b>{{ rule.name }}</b></span>
+                        <span class="label label-primary"><b>授权名称/{{ rule.name }}</b></span>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -46,13 +44,12 @@
                                         <td>{{ rule.date_added | date:"Y-m-d H:i:s"}}</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-navy">关联用户</td>
-                                        <td>{{ roles_name }}</td>
-
-                                    </tr>
-                                    <tr>
                                         <td class="text-navy">激活</td>
                                         <td>是</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-navy">关联系统用户</td>
+                                        <td>{{ roles_name }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -115,7 +112,7 @@
             <div class="col-sm-4">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <span class="label label-primary"><b>授权主机组/主机组</b></span>
+                        <span class="label label-primary"><b>授权主机/主机组</b></span>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -158,13 +155,12 @@
                                             {% endfor %}
                                             </table>
                                         </td>
-
                                     </tr>
                                 </table>
                             </div>
                     </div>
-                    </div>
-                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -176,6 +172,5 @@
         })
     })
 </script>
-
-
+    
 {% endblock %}
