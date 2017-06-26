@@ -551,7 +551,7 @@ def perm_rule_edit(request):
 				no_push_assets = get_role_push_host(role)[1]
 				need_push_asset.update(set(calc_assets) & no_push_assets)
 				if need_push_asset:
-					raise ServerError(u'没有推送系统用户 %s 的主机 [ %s ]' % (role.name, '|'.join([asset.hostname for asset in neet_push_asset])))
+					raise ServerError(u'没有推送系统用户 %s 的主机 [ %s ]' % (role.name, '|'.join([asset.hostname for asset in need_push_asset])))
 
 			# 授权成功, 修改PermRule表数据
 			rule.user = users_obj
