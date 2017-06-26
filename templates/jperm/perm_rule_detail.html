@@ -150,7 +150,7 @@
                                             <table class="table progress-striped text-right">
                                             {% for group in asset_groups %}
                                                 <tr class="gradeX-">
-                                                    <td> <a href="{% url 'asset_list' %}?group_id={{ group.id }}">{{ group.name }}</a> </td>
+                                                    <td> <a href="{% url 'asset_list' %}?id={{ group.id }}">{{ group.name }}</a> </td>
                                                 </tr>
                                             {% endfor %}
                                             </table>
