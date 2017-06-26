@@ -505,7 +505,7 @@ def perm_rule_edit(request):
 		if not rule:
 			raise ServerError(u'授权规则不存在')
 	except ServerError, e:
-		return HttpResponseRedirect(reverse('perm_rule_list'))
+		return HttpResponseRedirect(reverse('rule_list'))
 
 	# 获取授权规则关联的User, UserGroup, Asset, AssetGroup, PermRole
 	users = User.objects.all()
