@@ -514,8 +514,57 @@ def perm_rule_edit(request):
 	asset_groups = AssetGroup.objects.all()
 	roles = PermRole.objects.all()
 
-	if request.method == 'POST':
-		pass
+	if request.method == 'POST':		# 获取编辑后的User, UserGroup, Asset, AssetGroup, PermRole
+		rule_name = request.POST.get('name', '')
+		rule_comment = request.POST.get('comment', '')
+		users_select = request.POST.getlist('user', [])
+		user_groups_select = request.POST.getlist('user_group', [])
+		assets_select = request.POST.getlist('asset', [])
+		asset_groups_select = request.POST.getlist('asset_group', [])
+		roles_select = request.POST.getlist('role', [])
+
+		try:
+			if not rule_name or not roles_select:
+				raise ServerError(u'系统用户名称和授权规则名称不能为空')
+
+			test_rule = get_object(PermRule, name=rule_name)
+			if test_rule and test_rule.id != rule.id:
+				raise ServerError(u'修改后的规则名称[ %s ]有重名' % (rule_name, ))
+
+			# 获取授权规则的资产
+			assets_obj = [Asset.objects.get(id=asset_id) for asset_id in assets_select]
+			asset_groups_obj = [AssetGroup.objects.get(id=asset_group_id) for asset_group_id in asset_groups_select]
+			group_assets_obj = []
+			for asset_group in asset_groups_obj:
+				group_assets_obj.extend(asset_group.asset_set.all())
+			calc_assets = list(set(assets_obj) | set(group_assets_obj))
+
+			# 获取授权规则的User, UserGroup
+			users_obj = [User.objects.get(id=user_id) for user_id in users_select]
+			user_groups_obj = [UserGroup.objects.get(id=user_group_id) for user_group_id in user_groups_select]
+
+			# 获取授权规则的系统用户
+			roles_obj = [PermRole.objects.get(id=rule_id) for rule_id in roles_select]
+			neet_push_asset = set()
+
+			for role in roles_obj:
+				no_push_assets = get_role_push_host(role)[1]
+				need_push_asset.update(set(calc_assets) & no_push_assets)
+				if need_push_asset:
+					raise ServerError(u'没有推送系统用户 %s 的主机 [ %s ]' % (role.name, '|'.join([asset.hostname for asset in neet_push_asset])))
+
+			# 授权成功, 修改PermRule表数据
+			rule.user = users_obj
+			rule.user_group = user_groups_obj
+			rule.asset = assets_obj
+			rule.asset_group = asset_groups_obj
+			rule.role = roles_obj
+			rule.name = rule_name
+			rule.comment = rule_comment
+			rule.save()
+			msg = u'编辑授权规则: %s, 成功' % (rule.name, )
+		except ServerError, e:
+			error = e
 
 	return my_render('jperm/perm_rule_edit.html', locals(), request)
 
