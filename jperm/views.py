@@ -545,7 +545,7 @@ def perm_rule_edit(request):
 
 			# 获取授权规则的系统用户
 			roles_obj = [PermRole.objects.get(id=rule_id) for rule_id in roles_select]
-			neet_push_asset = set()
+			need_push_asset = set()
 
 			for role in roles_obj:
 				no_push_assets = get_role_push_host(role)[1]
