@@ -408,7 +408,7 @@ def asset_list(request):
 	export = request.GET.get('export', False)
 	group_id = request.GET.get('group_id', '')		# 在资产组中, 每一个资产组所关联的资产, 由group_id查询参数连接
 	idc_id = request.GET.get('idc_id', '')		# 在IDC中, 每一个IDC所关联的资产, 由idc_id查询参数连接
-	asset_id_all = request.GET.getlist('id', '')		# 获取所提交的所有资产
+	asset_id_all = request.GET.getlist('id', [])		# 获取所提交的所有资产
 
 	if group_id:		# 从资产组过来的连接
 		group = get_object(AssetGroup, id=group_id)
@@ -458,6 +458,7 @@ def asset_list(request):
 	if export:
 		pass
 
+	asset_find = set(asset_find)
 	assets_list, p, assets, page_range, current_page, show_first, show_end = pages(asset_find, request)
 	if user_perm != 0:
 		return my_render('jasset/asset_list.html', locals(), request)
@@ -552,4 +553,5 @@ def idc_del(request):
 			IDC.objects.filter(id=idc_id).delete()
 
 	return HttpResponseRedirect(reverse('idc_list'))
+
 
