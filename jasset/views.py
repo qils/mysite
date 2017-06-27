@@ -458,7 +458,6 @@ def asset_list(request):
 	if export:
 		pass
 
-	asset_find = set(asset_find)
 	assets_list, p, assets, page_range, current_page, show_first, show_end = pages(asset_find, request)
 	if user_perm != 0:
 		return my_render('jasset/asset_list.html', locals(), request)
