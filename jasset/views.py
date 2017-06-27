@@ -444,7 +444,7 @@ def asset_list(request):
 			Q(remote_ip__contains=keyword) |
 			Q(comment__contains=keyword) |
 			Q(username__contains=keyword) |
-			Q(group__name__contains=keyword) |
+			# Q(group__name__contains=keyword) |		# 这个过滤条件会导致过滤结果重复
 			Q(cpu__contains=keyword) |
 			Q(memory__contains=keyword) |
 			Q(disk__contains=keyword) |
