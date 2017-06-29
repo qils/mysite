@@ -73,8 +73,8 @@ def get_group_user_perm(ob):
 						'role': perm_asset_group[asset_group].get('role', set()),
 						'rule': perm_asset_group[asset_group].get('rule', set())
 					}
-	return perm
 	logger.debug(perm)
+	return perm
 
 
 def get_group_asset_perm(ob):
