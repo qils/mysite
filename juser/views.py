@@ -105,6 +105,9 @@ def user_list(request):
 
 @require_role(role='user')
 def user_detail(request):
+	'''
+	后台用户详细信息视图
+	'''
 	header_title, path1, path2 = u'用户详情', u'用户管理', u'用户详情'
 	if request.session.get('role_id') == 0:
 		user_id = request.user.id		# 普通用户只能获取自己的id

@@ -50,7 +50,7 @@
                                     <tr>
                                         <td class="text-navy">SSH Key</td>
                                         {% if user.username|key_exist %}        {% comment %}这里需要修改为uuid, 否则超级管理员查看用户详细信息无效{% endcomment %}
-                                        <td><a  href="{% url 'key_down' %}?uuid={{ user.uuid }}" >下载</a></td>
+                                        <td><a href="{% url 'key_down' %}?uuid={{ user.uuid }}" >下载</a></td>
                                         {% else %}
                                         <td><span style="color: #586b7d">没有ssh key</span></td>
                                         {% endif %}
@@ -97,7 +97,7 @@
                                              <table class="table">
                                                  {% for group in  user_perm_info.asset_group.keys %}
                                                     <tr>
-                                                        <td><a href="{% url 'user_group_list' %}?id={{ group.id }}">{{ group.name }}</a></td>
+                                                        <td><a href="{% url 'asset_group_list' %}?id={{ group.id }}">{{ group.name }}</a></td>
                                                     </tr>
                                                  {% endfor %}
                                              </table>
@@ -109,7 +109,7 @@
                                              <table class="table">
                                                  {% for rule in  user_perm_info.rule%}
                                                     <tr>
-                                                        <td><a href="{% url 'role_list' %}?id={{ rule.id }}">{{ rule.name }}</a></td>
+                                                        <td><a href="{% url 'rule_list' %}?id={{ rule.id }}">{{ rule.name }}</a></td>
                                                     </tr>
                                                  {% endfor %}
                                              </table>
