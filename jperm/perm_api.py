@@ -34,31 +34,33 @@ def get_group_user_perm(ob):
 		for asset_group in asset_groups:
 			group_assets.extend(asset_group.asset_set.all())		# 过滤一个资产组所关联的所有资产
 
+		calc_asset = set(assets).union(set(group_assets))		# 合并一个授权规则关联的所有资产
+
 		# 获取一个规则授权的系统用户所对应的资产, 资产组
 		for role in perm_roles:
 			if perm_role.get(role):
-				perm_role[role]['asset'] = perm_role[role].get('asset', set()).union(set(assets).union(set(group_assets)))
+				perm_role[role]['asset'] = perm_role[role].get('asset', set()).union(calc_asset)
 				perm_role[role]['asset_group'] = perm_role[role].get('asset_group', set()).union(set(asset_groups))
 			else:
-				perm_role[role] = {'asset': set(assets).union(set(group_assets)), 'asset_group': set(asset_groups)}
+				perm_role[role] = {'asset': calc_asset, 'asset_group': set(asset_groups)}
 
 		# 获取一个规则用户授权的资产
 		for asset in assets:
 			if perm_asset.get(asset):
-				perm_asset[asset].get('role', set()).update(set(rule.role.all()))
+				perm_asset[asset].get('role', set()).update(set(perm_roles))
 				perm_asset[asset].get('rule', set()).add(rule)
 			else:
-				perm_asset[asset] = {'role': set(rule.role.all()), 'rule': set([rule])}
+				perm_asset[asset] = {'role': set(perm_roles), 'rule': set([rule])}
 
 		# 获取一个规则用户授权的资产组
 		for asset_group in asset_groups:
 			asset_group_assets = asset_group.asset_set.all()		# 获取一个资产组所有关联的资产
 			if perm_asset_group.get(asset_group):
-				perm_asset_group[asset_group].get('role', set()).update(set(rule.role.all()))
+				perm_asset_group[asset_group].get('role', set()).update(perm_roles)
 				perm_asset_group[asset_group].get('rule', set()).add(rule)
 			else:
 				perm_asset_group[asset_group] = {
-					'role': set(rule.role.all()),
+					'role': set(perm_roles),
 					'rule': set([rule]),
 					'asset': asset_group_assets
 				}
