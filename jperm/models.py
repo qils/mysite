@@ -17,6 +17,9 @@ class PermLog(models.Model):
 
 
 class PermSudo(models.Model):
+	'''
+	系统用户添加sudo 模型
+	'''
 	name = models.CharField(max_length=100, unique=True)
 	date_added = models.DateTimeField(auto_now=True)		# 添加时间, 每次修改该记录时会变动
 	commands = models.TextField()
@@ -27,6 +30,9 @@ class PermSudo(models.Model):
 
 
 class PermRole(models.Model):
+	'''
+	系统用户模型
+	'''
 	name = models.CharField(max_length=100, unique=True)
 	comment = models.CharField(max_length=100, null=True, blank=True, default='')
 	password = models.CharField(max_length=512)
@@ -39,6 +45,9 @@ class PermRole(models.Model):
 
 
 class PermRule(models.Model):
+	'''
+	授权规则模型
+	'''
 	date_added = models.DateTimeField(auto_now=True)
 	name = models.CharField(max_length=100, unique=True)
 	comment = models.CharField(max_length=100)

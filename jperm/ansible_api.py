@@ -30,7 +30,7 @@ class MyInventory(Inventory):
 			hostport = host.get('port')		# 每个资产的连接端口号
 			username = host.get('username', '')		# 每个资产的系统管理账号
 			password = host.get('password', '')		# 每个资产的系统管理账号密码
-			ssh_key = host.get('ssh_key', '')		# 每个资产的私钥
+			ssh_key = host.get('ssh_key', '')		# 每个资产的私钥目录
 			my_host = Host(name=hostname, port=hostport)
 			my_host.set_variable('ansible_ssh_host', hostip)
 			my_host.set_variable('ansible_ssh_port', hostport)
@@ -138,7 +138,7 @@ class MyTask(MyRunner):
 
 	def push_key(self, user, key_path):
 		'''
-		推送公钥到目标资产
+		推送公钥到目标资产, key_path为系统用户公钥所在路径
 		'''
 		module_args = 'user="%s" key="{{ lookup("file", "%s") }}" state=present' % (user, key_path)
 		self.run('authorized_key', module_args, become=True)

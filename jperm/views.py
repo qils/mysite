@@ -115,7 +115,7 @@ def perm_sudo_delete(request):
 			sudo.delete()
 			return HttpResponse(u'删除 %s 成功' % (sudo_name, ))
 	else:
-		return HttpResponse(u'不支持该操作')
+		return HttpResponseNotAllowed(u'不支持该操作')
 
 
 @require_role('admin')
@@ -176,9 +176,9 @@ def perm_role_add(request):
 					raise ServerError(e)
 			else:
 				key_path = gen_keys()
-			role = PermRole(name=name, password=encrypt_pass, comment=comment, key_path=key_path)
+			role = PermRole(name=name, password=encrypt_pass, comment=comment, key_path=key_path)		# 保存到数据库
 			role.save()
-			role.sudo = sudos_obj
+			role.sudo = sudos_obj		# 关联所有sudo
 			role.save()		# 增加这行, 源码中不包括这行
 			msg = u'添加系统用户: %s ' % (name, )
 			return HttpResponseRedirect(reverse('role_list'))
@@ -245,12 +245,12 @@ def perm_role_edit(request):
 @require_role('admin')
 def perm_role_push(request):
 	'''
-	推送系统用户视图
+	推送系统用户视图, 主要实现将系统用户推送至主机
 	'''
 	header_title, path1, path2 = u'系统用户', u'系统用户管理', u'系统用户推送'
 	role_id = request.GET.get('id', '')
-	asset_ids = request.GET.get('asset_id', '')
 	role = get_object(PermRole, id=role_id)
+	asset_ids = request.GET.get('asset_id', '')
 	assets = Asset.objects.all()		# 所有主机资产
 	asset_groups = AssetGroup.objects.all()		# 所有资产组
 
@@ -267,7 +267,7 @@ def perm_role_push(request):
 		group_assets_obj = []
 		for group_asset in asset_groups_obj:
 			group_assets_obj.extend(group_asset.asset_set.all())		# 计算所有组对象中的资产
-		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产, cals_assets为需要推送的资产
+		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产, cals_assets为需要推送的资产列表
 
 		push_resource = gen_resource(calc_assets)
 
@@ -294,22 +294,23 @@ def perm_role_push(request):
 		success_asset = {}		# 推送成功的资产
 		failed_asset = {}		# 推送失败的资产
 
-		for push_type, result in ret.items():
-			if result.get('failed'):
-				for hostname, info in result.get('failed').items():
+		for push_type, result in ret.iteritems():
+			if result.get('failed'):		# 先对推送失败的资产进行统计, 只有用户名, 公钥, sudo三者全部推送成功才算推送成功
+				for hostname, info in result.get('failed').iteritems():
 					if hostname in failed_asset.keys():
-						failed_asset[hostname] += info
+						if info not in failed_asset.get(hostname):		# 失败的原因不同, 将失败原因追加
+							failed_asset[hostname] += info
 					else:
 						failed_asset[hostname] = info
-			# 这里写的与源代码不同
+
+		for push_type, result in ret.iteritems():
 			if result.get('ok'):
-				for hostname, info in result.get('ok').items():
-					if hostname in failed_asset.keys():
-						continue		# 一个资产有一个推送类型失败, 都不会记录到推送成功资产字典中, 只有所有的类型推送成功才会记录到成功资产字典中
+				for hostname, info in result.get('ok').iteritems():
+					if hostname in failed_asset.keys():		# 有推送失败的记录, 不记录在推送成功的字典中
+						continue
+
 					if hostname in success_asset.keys():
-						if str(info) in success_asset.get(hostname, ''):
-							pass
-						else:
+						if str(info) not in success_asset.get(hostname):
 							success_asset[hostname] += str(info)
 					else:
 						success_asset[hostname] = str(info)

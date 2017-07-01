@@ -48,6 +48,3 @@ def gen_keys(key='', key_path_dir=''):
 			content_file.write(data)		# key.get_name() 返回字符'ssh-rsa', key.get_base64()返回公钥字符
 
 	return key_path_dir
-
-
-
