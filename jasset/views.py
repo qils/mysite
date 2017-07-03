@@ -409,6 +409,7 @@ def asset_list(request):
 	group_id = request.GET.get('group_id', '')		# 在资产组中, 每一个资产组所关联的资产, 由group_id查询参数连接
 	idc_id = request.GET.get('idc_id', '')		# 在IDC中, 每一个IDC所关联的资产, 由idc_id查询参数连接
 	asset_id_all = request.GET.getlist('id', [])		# 获取所提交的所有资产
+	asset_id = request.GET.get('id', '')		# 从用户授权的资产记录连接过来的资产
 
 	if group_id:		# 从资产组过来的连接
 		group = get_object(AssetGroup, id=group_id)
@@ -418,6 +419,8 @@ def asset_list(request):
 		idc = get_object(IDC, id=idc_id)
 		if idc_id:
 			asset_find = Asset.objects.filter(idc=idc)
+	elif asset_id:
+		asset_find = Asset.objects.filter(id=asset_id)
 	else:
 		if user_perm != 0:		# 非普通用户
 			asset_find = Asset.objects.all()		# 过滤所有资产信息
