@@ -119,7 +119,7 @@ def user_detail(request):
 		return HttpResponseRedirect(reverse('user_list'))
 
 	user_perm_info = get_group_user_perm(user)
-	role_assets = user_perm_info.get('role')
+	role_assets = user_perm_info.get('role')		# 系统用户关联的资产
 	user_log_ten = Log.objects.filter(user=user.username).order_by('id')[0:10]
 	user_log_last = Log.objects.filter(user=user.username).order_by('id')[0:50]
 	user_log_last_num = len(user_log_last)

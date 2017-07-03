@@ -56,7 +56,7 @@ def get_group_user_perm(ob):
 		for asset_group in asset_groups:
 			asset_group_assets = asset_group.asset_set.all()		# 获取一个资产组所有关联的资产
 			if perm_asset_group.get(asset_group):
-				perm_asset_group[asset_group].get('role', set()).update(perm_roles)
+				perm_asset_group[asset_group].get('role', set()).update(set(perm_roles))
 				perm_asset_group[asset_group].get('rule', set()).add(rule)
 			else:
 				perm_asset_group[asset_group] = {
@@ -186,7 +186,7 @@ def get_role_push_host(role):
 	获取系统用户推送信息
 	'''
 	pushs = PermPush.objects.filter(role=role)		# 获取某个系统用户所有的推送记录
-	all_assets = Asset.objects.all()
+	all_assets = Asset.objects.all()		# 过滤所有的资产信息
 	asset_pushed = {}		# 用来保存某个系统用户推送的资产
 	for push in pushs:
 		asset_pushed[push.asset] = {

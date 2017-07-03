@@ -382,7 +382,7 @@ def perm_rule_list(request):
 	授权规则列表视图
 	'''
 	header_title, path1, path2 = u'授权规则', u'规则管理', u'查看规则'
-	rules_list = PermRule.objects.all()		# 顾虑所有授权规则
+	rules_list = PermRule.objects.all()		# 过滤所有授权规则
 	rule_id = request.GET.get('id', '')
 	keyword = request.GET.get('search', '')
 
