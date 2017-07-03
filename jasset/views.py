@@ -148,7 +148,7 @@ def asset_add(request):
 		else:
 			if af_post.is_valid():
 				asset_save = af_post.save(commit=False)		# commit=False, 避免Model实列立即存储到数据库
-				if not use_default_auth:
+				if not use_default_auth:		# 不使用默认管理账号
 					password = request.POST.get('password', '')
 					password_encode = CRYPTOR.encrypt(password)		# 对称加密提交的密码
 					asset_save.password = password_encode
@@ -419,7 +419,7 @@ def asset_list(request):
 		idc = get_object(IDC, id=idc_id)
 		if idc_id:
 			asset_find = Asset.objects.filter(idc=idc)
-	elif asset_id:
+	elif asset_id:		# 源码没有加入这个条件
 		asset_find = Asset.objects.filter(id=asset_id)
 	else:
 		if user_perm != 0:		# 非普通用户
