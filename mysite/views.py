@@ -233,8 +233,18 @@ def setting(request):
 	return my_render('setting.html', locals(), request)
 
 
+@require_role('user')
 def web_terminal(request):
-	pass
+	'''
+	web_terminal web界面登录资产视图
+	'''
+	asset_id = request.GET.get('id', '')
+	role_name = request.GET.get('role', '')
+	asset = get_object(Asset, id=asset_id)
+	if asset:
+		hostname = asset.hostname
+
+	return my_render('jlog/web_terminal.html', locals(), request)
 
 
 def exec_cmd(request):

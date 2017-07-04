@@ -203,7 +203,7 @@ def user_have_perm(user, asset):
 	user_perm_all = get_group_user_perm(user)		# 获取授权用户所有的授权信息
 	user_perm_assets = user_perm_all.get('asset').keys()
 	if asset in user_perm_assets:		# 如果需要连接的资产属于授权用户的授权资产, 返回资产授权的系统用户
-		return user_perm_all.get('asset').get(asset).get('role')
+		return user_perm_all.get('asset').get(asset).get('role')		# 返回资产关联的系统用户
 	else:
 		return []
 
