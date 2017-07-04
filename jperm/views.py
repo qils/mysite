@@ -343,7 +343,7 @@ def perm_role_get(request):
 	'''
 	asset_id = request.GET.get('id', '')
 	if asset_id:
-		asset = Asset.objects.get(id=asset_id)		# 获取ID对应的资产对象
+		asset = get_object(Asset, id=asset_id)		# 获取ID对应的资产对象
 		if asset:
 			roles = user_have_perm(request.user, asset)		# 获取授权的系统用户
 			return HttpResponse(','.join([role.name for role in roles]))
