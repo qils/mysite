@@ -337,7 +337,7 @@ def perm_role_push(request):
 
 
 @require_role('user')
-def perm_role_delete(request):
+def perm_role_get(request):
 	'''
 	获取授权用户视图
 	'''
@@ -354,7 +354,7 @@ def perm_role_delete(request):
 	return HttpResponse('error')
 
 
-def perm_role_get(request):
+def perm_role_delete(request):
 	pass
 
 
