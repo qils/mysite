@@ -244,7 +244,7 @@ def web_terminal(request):
 	if asset:
 		hostname = asset.hostname
 
-	return my_render('jlog/web_terminal.html', locals(), request)
+	return render_to_response('jlog/web_terminal.html', locals())
 
 
 def exec_cmd(request):
