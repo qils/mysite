@@ -224,7 +224,7 @@
             var url='{% url "role_get" %}?id=' + $(this).attr('value'); // 获取用户有权限的角色
             var href = $(this).attr('href');
             var new_url = '{% url "terminal" %}?id=' + $(this).attr('value') + '&role='; // webterminal socket url
-            var hostname = $(this).closest('tr').find('.hostname a')[0].innerHTML;
+            var hostname = $(this).closest('tr').find('.hostname a')[0].innerHTML;      // 获取主机名
             $.ajax({
                 type: 'GET',
                 url: url,

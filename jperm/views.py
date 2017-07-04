@@ -336,8 +336,22 @@ def perm_role_push(request):
 	return my_render('jperm/perm_role_push.html', locals(), request)
 
 
+@require_role('user')
 def perm_role_delete(request):
-	pass
+	'''
+	获取授权用户视图
+	'''
+	asset_id = request.GET.get('id', '')
+	if asset_id:
+		asset = Asset.objects.get(id=asset_id)		# 获取ID对应的资产对象
+		if asset:
+			roles = user_have_perm(request.user, asset)		# 获取授权的系统用户
+			return HttpResponse(','.join([role.name for role in roles]))
+	else:
+		roles = get_group_user_perm(request.user).get('role').keys()
+		return HttpResponse(','.join([role.name for role in roles]))
+
+	return HttpResponse('error')
 
 
 def perm_role_get(request):
