@@ -57,7 +57,7 @@ def main():
 
 	http_server = tornado.httpserver.HTTPServer(tornado_app)		# 创建http_server
 	http_server.listen(options.port, address=options.host)		# 监听IP, PORT
-	tornado.ioloopIOLoop.instance().start()
+	tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == '__main__':
 	color_print('Run server on %s:%s' % (options.host, options.port), color='green')
