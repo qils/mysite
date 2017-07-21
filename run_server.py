@@ -2,25 +2,75 @@
 # --*-- coding: utf-8 --*--
 
 import os.path
+import functools.wraps
 import tornado.options
 import tornado.web
 import tornado.ioloop
 import tornado.httpserver
+import tornado.websocket
+
+from connect import logger
 from mysite.settings import IP, PORT
 from install.setup import color_print
 from tornado.options import options, define
+from django.core.signals import request_finished, request_started
 
 # type=int表示参数类型是整型
 define('port', default=PORT, help='run on the given port', type=int)		# 定义port参数, 通过options.port调用
 define('host', default=IP, help='run port on given host', type=str)			# 定义host参数, 通过options.host调用
 
 
+def django_request_support(func):
+	@functools.wraps(func)		# 该装饰器作用是将原函数指定属性复制给包装函数
+	def _deco(*args, **kwargs):
+		result = request_started.send_robust(func)
+		logger.debug(result)
+		response = func(*args, **kwargs)
+		request_finished.send_robust(func)
+		return response
+
+	return _deco
+
+
+def require_auth(role='user'):
+	def _deco(func):
+		def _deco2(request, *args, **kwargs):
+			if request.get_cookie('sessionid'):		# request等同于tornado实列self
+				session_key = request.get_cookie('sessionid')		# 获取cookie
+			else:
+				session_key = request.get_argument('sessionid', '')		# tornado方法获取提交的参数值
+			logger.debug('WebSocket: session_key: [ %s ]' % (session_key, ))
+			return True
+		return _deco2
+	return _deco
+
+
 class MonitorHandler(tornado.web.RequestHandler):
 	pass
 
 
-class WebTerminalHandler(tornado.web.RequestHandler):
-	pass
+class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websocket实现http长轮询
+	clients = []
+	tasks = []
+
+	def __init__(self, *args, **kwargs):
+		self.term = None
+		self.log_file_f = None
+		self.log_time_f = None
+		self.log = None
+		self.id = 0
+		self.user = None
+		self.ssh = None
+		self.channel = None
+		super(WebTerminalHandler, self).__init__(*args, **kwargs)
+
+	def check_origin(self, origin):
+		return True
+
+	@django_request_support
+	@require_auth('user')
+	def open(self):		# 连接打开时该方法被调用
+		pass
 
 
 class WebTerminalKillHandler(tornado.web.RequestHandler):
