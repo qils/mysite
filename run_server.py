@@ -2,7 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import os.path
-import functools.wraps
+import functools
 import tornado.options
 import tornado.web
 import tornado.ioloop
