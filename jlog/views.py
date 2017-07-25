@@ -16,7 +16,7 @@ def log_list(request, offset):
 class TermLogRecorder(object):
 	loglist = dict()
 
-	def __int__(self, user=None, uid=None):
+	def __init__(self, user=None, uid=None):
 		self.log = {}
 		self.id = 0
 		if isinstance(user, User):
