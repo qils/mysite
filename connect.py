@@ -80,7 +80,7 @@ class Tty(object):
 						port=connect_info.get('port'),
 						username=connect_info.get('role_name'),
 						password=connect_info.get('role_pass'),
-						key_filename=roke_key,
+						key_filename=role_key,
 						look_for_keys=False
 					)
 					return ssh
