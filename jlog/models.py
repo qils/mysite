@@ -13,9 +13,9 @@ class Log(models.Model):
 	'''
 	user = models.CharField(max_length=20, null=True)		# 登录用户
 	host = models.CharField(max_length=200, null=True)		# 登录主机名
-	remote_ip = models.CharField(max_length=100)
-	login_type = models.CharField(max_length=100)
-	log_path = models.CharField(max_length=100)
+	remote_ip = models.CharField(max_length=100)		# 客户端IP
+	login_type = models.CharField(max_length=100)		# 登录类型, Websocket, 或者ssh登录
+	log_path = models.CharField(max_length=100)		# 日志路径
 	start_time = models.DateTimeField(null=True)		# 登录设备时间
 	pid = models.IntegerField()
 	is_finished = models.BooleanField(default=False)		# 是否退出设备

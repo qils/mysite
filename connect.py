@@ -4,6 +4,7 @@
 import os
 import re
 import pyte
+import datetime
 import socket
 import paramiko
 
@@ -28,7 +29,7 @@ class Tty(object):
 		self.user = user
 		self.role = role		# 系统用户对象
 		self.remote_ip = ''
-		self.login_type = login_type
+		self.login_type = login_type		# 登录类型, 通过web登录, 或者ssh登录
 		self.vim_flag = False
 		self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
 		self.vim_data = ''
@@ -43,6 +44,53 @@ class Tty(object):
 		self.stream = pyte.ByteStream()
 		self.screen = pyte.Screen(80, 24)
 		self.stream.attach(self.screen)
+
+	def get_log(self):
+		'''
+		记录用户日志
+		'''
+		tty_log_dir = os.path.join(settings.LOG_DIR, 'tty')		# 定义tty日志目录
+		date_today = datetime.datetime.now()
+		date_start = date_today.strftime('%Y%m%d')
+		time_start = date_today.strftime('%H%M%S')
+		today_connect_log_dir = os.path.join(tty_log_dir, date_start)
+		log_file_path = os.path.join(today_connect_log_dir, '%s_%s_%s' % (self.username, self.asset_name, time_start))
+
+		try:
+			mkdir(tty_log_dir, mode=777)
+			mkdir(today_connect_log_dir, mode=777)
+		except OSError:
+			logger.debug(u'创建目录 %s 失败, 请修改 %s 目录权限' % (today_connect_log_dir, tty_log_dir))
+			raise ServerError(u'创建目录 %s 失败, 请修改 %s 目录权限' % (today_connect_log_dir, tty_log_dir))
+
+		try:
+			log_file_f = open(log_file_path + '.log', 'a')
+			log_time_f = open(log_file_path + '.time', 'a')
+		except IOError:
+			logger.debug(u'创建tty日志文件失败, 请修改目录 %s 权限' % (today_connect_log_dir, ))
+			raise ServerError(u'创建tty日志文件失败, 请修改目录 %s 权限' % (today_connect_log_dir, ))
+
+		if self.login_type == 'ssh':		# ssh 连接过来, 记录为connect.py的pid, web terminal终端连接记录为日志的id
+			pid = os.getpid()
+			# self.remote_ip = remote_ip
+		else:
+			pid = 0
+
+		log = Log(
+			user=self.username,
+			host=self.asset_name,
+			remote_ip=self.remote_ip,
+			login_type=self.login_type,
+			log_path=log_file_path,
+			start_time=date_today,
+			pid=pid
+		)
+		log.save()		# 将数据写入到jlog.models.Log 模型中
+		if self.login_type == 'web':
+			log.pid = log.id
+			log.save()
+		log_file_f.write('Start at %s \r\n' % (datetime.datetime.now()))
+		return log_file_f, log_time_f, log
 
 	def get_connect_info(self):
 		'''
@@ -60,7 +108,7 @@ class Tty(object):
 			'role_pass': role_pass,		# 系统用户映射的密码
 			'role_key': role_key		# 系统用户映射的私钥路径
 		}
-		logger.debug(connect_info)
+		logger.debug(connect_info)		# 记录连接信息
 		return connect_info
 
 	def get_connection(self):
@@ -70,7 +118,7 @@ class Tty(object):
 		connect_info = self.get_connect_info()
 
 		ssh = paramiko.SSHClient()		# 发起ssh连接请求
-		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())		# 允许连接不在know_hosts文件中的主机
 		try:
 			role_key = connect_info.get('role_key')
 			if role_key and os.path.isfile(role_key):
@@ -80,12 +128,12 @@ class Tty(object):
 						port=connect_info.get('port'),
 						username=connect_info.get('role_name'),
 						password=connect_info.get('role_pass'),
-						key_filename=role_key,
+						key_filename=role_key,		# 通过密钥验证连接目标主机
 						look_for_keys=False
 					)
 					return ssh
 				except (paramiko.ssh_exception.AuthenticationException, paramiko.ssh_exception.SSHException):
-					logger.warning(u'使用ssh key %s 失败, 尝试只使用密码' % (roke_key, ))
+					logger.warning(u'使用ssh key %s 失败, 尝试只使用密码' % (role_key, ))
 					pass
 
 			ssh.connect(

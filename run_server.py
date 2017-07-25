@@ -100,10 +100,10 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 	tasks = []		# 保存所有线程对象
 
 	def __init__(self, *args, **kwargs):
-		self.term = None
+		self.term = None		# 虚拟终端对象, 是WebTty的一个实列
 		self.log_file_f = None
 		self.log_time_f = None
-		self.log = None
+		self.log = None		# Log日志记录对象
 		self.id = 0
 		self.user = None		# 保存请求的User对象
 		self.ssh = None		# 连接后的ssh对象
@@ -145,7 +145,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		if not self.term.remote_ip:
 			self.term.remote_ip = self.request.remote_ip		# 获取客户端IP
 		self.ssh = self.term.get_connection()
-		self.channel = self.ssh.invoke_shell(term='xterm')
+		self.channel = self.ssh.invoke_shell(term='xterm')		# 建立交互式shell连接
 		WebTerminalHandler.tasks.append(MyThread(target=self.forward_outbound))		# 创建Thread对象
 		WebTerminalHandler.clients.append(self)
 
@@ -159,7 +159,9 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 				pass
 
 	def forward_outbound(self):
-		pass
+		self.log_file_f, self.log_time_f, self.log = self.term.get_log()
+		self.id = self.log.id
+		self.termlog.setid(self.id)
 
 
 class WebTerminalKillHandler(tornado.web.RequestHandler):
