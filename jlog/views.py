@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import re
+import time
 import pyte
 from mysite.api import *
 from django.shortcuts import render
@@ -45,3 +46,15 @@ class TermLogRecorder(object):
 		self._stream = pyte.ByteStream()
 		self._screen = pyte.Screen(100, 35)
 		self._stream.attach(self._screen)
+
+	def setid(self, id):
+		self.id = id
+		TermLogRecorder.loglist[str(id)] = [self]
+
+	def write(self, msg):
+		try:
+			self.write_message(msg)
+		except:
+			pass
+
+		self.log[str(time.time() - self.recoderStartTime)] = msg.decode('utf-8', 'replace')

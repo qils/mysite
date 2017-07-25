@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import time
+import select
 import datetime
 import os.path
 import functools
@@ -162,6 +164,34 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		self.log_file_f, self.log_time_f, self.log = self.term.get_log()
 		self.id = self.log.id
 		self.termlog.setid(self.id)
+		try:
+			data = ''
+			pre_timestamp = time.time()
+			while True:
+				r, w, e = select.select([self.channel], [], [])
+				if self.channel in r:
+					recv = self.channel.recv(1024)
+					if not len(recv):
+						return
+					data += recv
+					self.term.vim_data += recv
+					try:
+						self.write_message(data.decode('utf-8', 'replace'))		# 回写给客户端
+						self.termlog.write(data)
+						self.termlog.recoder = False
+						now_timestamp = time.time()
+						self.log_time_f.write('%s %s\n' % (round(now_timestamp - pre_timestamp, 4), len(data)))
+						self.log_file_f.write(data)
+						pre_timestamp = now_timestamp
+						self.log_file_f.flush()
+						self.log_time_f.flush()
+						if self.term.input_mode:
+							self.term.data += data
+						data = ''
+					except UnicodeDecodeError:
+						pass
+		except IndexError:
+			pass
 
 
 class WebTerminalKillHandler(tornado.web.RequestHandler):
