@@ -146,7 +146,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 			self.term.remote_ip = self.request.remote_ip		# 获取客户端IP
 		self.ssh = self.term.get_connection()
 		self.channel = self.ssh.invoke_shell(term='xterm')
-		WebTerminalHandler.tasks.append(Mythread(target=self.forward_outbound))		# 创建Thread对象
+		WebTerminalHandler.tasks.append(MyThread(target=self.forward_outbound))		# 创建Thread对象
 		WebTerminalHandler.clients.append(self)
 
 		for t in WebTerminalHandler.tasks:
