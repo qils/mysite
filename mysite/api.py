@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
-import os
+import os, time
 import uuid
 import pwd
 import logging
@@ -24,6 +24,23 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 
+def get_role_key(user, role):
+	'''
+	先将系统用户的私钥复制到一个特定的目录, 然后将私钥文件权限修改为0600
+	'''
+	user_role_key_dir = os.path.join(settings.KEY_DIR, 'user')
+	user_role_key_path = os.path.join(user_role_key_dir, '%s_%s.pem' % (user.username, role.name))
+	mkdir(user_role_key_dir, mode=777)
+	if not os.path.isfile(user_role_key_path):
+		with open(os.path.join(role.key_path, 'id_rsa')) as fk:
+			with open(user_role_key_path, 'w') as fu:
+				fu.write(fk.read())
+		logger.debug(u'创建新的系统用户key %s, Ower: %s' % (user_role_key_path, user.username))
+		chown(user_role_key_path, user.username)
+		os.chmod(user_role_key_path, 0600)
+	return user_role_key_path
+
+
 def get_asset_info(asset):
 	'''
 	获取资产相关的管理账号, 端口, ip, 主机名等信息
@@ -38,7 +55,7 @@ def get_asset_info(asset):
 			except ServerError, e:
 				pass
 			if os.path.isfile(default.field4):
-				info['ssh_key'] = default.field4		# 添加秘钥目录
+				info['ssh_key'] = default.field4		# 添加秘钥文件路径
 	else:
 		info['username'] = asset.username
 		info['password'] = CRYPTOR.decrypt(asset.password)		# 保存解密后的密码

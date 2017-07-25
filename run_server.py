@@ -7,15 +7,18 @@ import functools
 import tornado.options
 import tornado.web
 import tornado.ioloop
+import threading
 import tornado.httpserver
 import tornado.websocket
 
-from connect import logger, get_object, User
-from connect import Session
+from tornado.websocket import WebSocketClosedError
+from connect import logger, get_object, User, Asset, Tty
+from connect import Session, user_have_perm
 from mysite.settings import IP, PORT
 from install.setup import color_print
 from tornado.options import options, define
 from django.core.signals import request_finished, request_started
+from jlog.views import TermLogRecorder
 
 # type=int表示参数类型是整型
 define('port', default=PORT, help='run on the given port', type=int)		# 定义port参数, 通过options.port调用
@@ -46,11 +49,11 @@ def require_auth(role='user'):
 				logger.debug('Websocket: session: [ %s ]' % (session, ))
 				if session and datetime.datetime.now() < session.expire_date:		# 判断会话记录是否存在, 并且会话没有过期
 					user_id = session.get_decoded().get('_auth_user_id')		# 获取User id
-					request.user_id = user_id
+					request.user_id = user_id		# 保存User id
 					user = get_object(User, id=user_id)		# 获取请求的用户身份
 					if user:
 						logger.debug('Websocket: user [ %s ] request websocket' % (user.username, ))		# 记录请求的用户名
-						request.user = user
+						request.user = user		# 保存User对象
 						if role == 'admin':
 							if user.role in ['SU', 'GA']:
 								return func(request, *args, **kwargs)		# 等价于执行 open(self)
@@ -69,13 +72,32 @@ def require_auth(role='user'):
 	return _deco
 
 
+class MyThread(threading.Thread):
+	def __init__(self, *args, **kwargs):
+		super(MyThread, self).__init__(*args, **kwargs)
+
+	def run(self):
+		try:
+			super(MyThread, self).run()
+		except WebSocketClosedError:
+			pass
+
+
+class WebTty(Tty):
+	def __init__(self, *args, **kwargs):
+		super(WebTty, self).__init__(*args, **kwargs)
+		self.ws = None
+		self.data = ''
+		self.input_mode = False
+
+
 class MonitorHandler(tornado.web.RequestHandler):
 	pass
 
 
 class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websocket实现http长轮询
-	clients = []
-	tasks = []
+	clients = []		# 保存所有请求客户端
+	tasks = []		# 保存所有线程对象
 
 	def __init__(self, *args, **kwargs):
 		self.term = None
@@ -83,8 +105,8 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		self.log_time_f = None
 		self.log = None
 		self.id = 0
-		self.user = None
-		self.ssh = None
+		self.user = None		# 保存请求的User对象
+		self.ssh = None		# 连接后的ssh对象
 		self.channel = None
 		super(WebTerminalHandler, self).__init__(*args, **kwargs)
 
@@ -94,6 +116,49 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 	@django_request_support
 	@require_auth('user')
 	def open(self):		# 连接打开时该方法被调用, self.open = django_request_support(require_auth('user')(open))(self)
+		logger.debug('WebSocket: Open request')
+		role_name = self.get_argument('role', 'sb')		# 获取提交的系统用户role参数值, 默认为sb, ^_^!
+		asset_id = self.get_argument('id', 9999)		# 获取提交的资产id参数值
+		asset = get_object(Asset, id=asset_id)		# 获取对应的资产对象
+		self.termlog = TermLogRecorder(User.objects.get(id=self.user_id))
+		if asset:
+			roles = user_have_perm(self.user, asset)		# 获取授权用户授权资产所授权的系统用户
+			logger.debug(roles)
+			logger.debug(u'系统用户: %s' % (role_name, ))
+			login_role = ''		# 定义登录设备的系统用户
+			for role in roles:
+				if role.name == role_name:
+					login_role = role
+					break
+			if not login_role:		# 没有与参数中role_name相同的系统用户则服务器端主动关闭连接
+				logger.warning('Websocket: Not that Role %s for host: %s User: %s' % (role_name, asset.hostname, self.user.username))
+				self.close()
+				return
+		else:
+			logger.warning('Websocket: No that Host: %s User: %s' % (asset_id, self.user.username))
+			self.close()
+			return
+		logger.debug('Websocket: request web terminal Host: %s User: %s Role: %s' % (asset.hostname, self.user.username, login_role.name))
+
+		self.term = WebTty(self.user, asset, login_role, login_type='web')
+		self.term.remote_ip = self.request.headers.get('X-Real_IP')
+		if not self.term.remote_ip:
+			self.term.remote_ip = self.request.remote_ip		# 获取客户端IP
+		self.ssh = self.term.get_connection()
+		self.channel = self.ssh.invoke_shell(term='xterm')
+		WebTerminalHandler.tasks.append(Mythread(target=self.forward_outbound))		# 创建Thread对象
+		WebTerminalHandler.clients.append(self)
+
+		for t in WebTerminalHandler.tasks:
+			if t.is_alive():
+				continue
+			try:
+				t.setDaemon(True)		# 将线程放到后台执行
+				t.start()		# 启动线程
+			except RuntimeError:
+				pass
+
+	def forward_outbound(self):
 		pass
 
 
