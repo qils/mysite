@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # --*-- coding: utf-8 --*--
 
+import re
 import time
 import select
 import datetime
@@ -200,7 +201,35 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 
 	def on_message(self, message):
 		jsondata = json.loads(message)
-		logger.debug(jsondata)
+		if not jsondata:
+			return
+
+		if 'resize' in jsondata.get('data'):		# 记录登录时发送的信息
+			self.termlog.write(message)
+			self.channel.resize_pyt(
+				width=int(jsondata.get('data').get('resize').get('cols', 100)),
+				heigth=int(jsondata.get('data').get('resize').get('rows', 35))
+			)
+		elif jsondata.get('data'):		# web 浏览器与后台交互数据
+			self.termlog.recoder = True
+			self.term.input_mode = True
+			if str(jsondata['data']) in ['\r', '\n', '\r\n']:
+				match = re.compile(r'\x1b\[\?1049', re.X).findall(self.term.vim_data)
+				if match:
+					if self.term.vim_flag or len(match) == 2:
+						self.term.vim_flag = False
+					else:
+						self.term.vim_flag = True
+				elif not self.term.vim_flag:
+					result = self.term.deal_command(self.term.data)[0:200]
+					if len(result) > 0:
+						pass
+				self.term.vim_data = ''
+				self.term.data = ''
+				self.term.input_mode = False
+			self.channel.send(jsondata['data'])
+		else:
+			pass
 
 
 class WebTerminalKillHandler(tornado.web.RequestHandler):

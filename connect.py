@@ -7,6 +7,7 @@ import pyte
 import datetime
 import socket
 import paramiko
+import operator
 
 from mysite.api import *
 from django.contrib.sessions.models import Session
@@ -44,6 +45,40 @@ class Tty(object):
 		self.stream = pyte.ByteStream()
 		self.screen = pyte.Screen(80, 24)
 		self.stream.attach(self.screen)
+
+	@staticmethod
+	def command_parser(command):
+		result = None
+		match = re.compile('\[?.*@.*\]?[\$#]\s').split(command)
+		if match:
+			result = match[-1].strip()
+		else:
+			match = re.split('mysql>\s', command)
+			if match:
+				result = match[-1].strip()
+		return result
+
+	def deal_command(self, data):
+		'''
+		处理截获的命令
+		'''
+		command = ''
+		try:
+			self.stream.feed(data)
+			for line in reversed(self.screen.buffer):
+				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()
+				if len(line_data) > 0:
+					parser_result = self.command_parser(line_data)
+					if parser_result is not None:
+						if len(parser_result) > 0:
+							command = parser_result
+					else:
+						command = line_data
+					break
+		except Exception:
+			pass
+		self.screen.reset()
+		return command
 
 	def get_log(self):
 		'''
