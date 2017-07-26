@@ -206,7 +206,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 
 		if 'resize' in jsondata.get('data'):		# 记录登录时发送的信息
 			self.termlog.write(message)
-			self.channel.resize_pyt(
+			self.channel.resize_pty(
 				width=int(jsondata.get('data').get('resize').get('cols', 100)),
 				heigth=int(jsondata.get('data').get('resize').get('rows', 35))
 			)
