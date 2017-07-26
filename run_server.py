@@ -22,6 +22,11 @@ from tornado.options import options, define
 from django.core.signals import request_finished, request_started
 from jlog.views import TermLogRecorder
 
+try:
+	import simplejson as json
+except ImportError:
+	import json
+
 # type=int表示参数类型是整型
 define('port', default=PORT, help='run on the given port', type=int)		# 定义port参数, 通过options.port调用
 define('host', default=IP, help='run port on given host', type=str)			# 定义host参数, 通过options.host调用
@@ -102,7 +107,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 	tasks = []		# 保存所有线程对象
 
 	def __init__(self, *args, **kwargs):
-		self.term = None		# 虚拟终端对象, 是WebTty的一个实列
+		self.term = None		# 虚拟终端对象, WebTty的一个实列
 		self.log_file_f = None
 		self.log_time_f = None
 		self.log = None		# Log日志记录对象
@@ -192,6 +197,10 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 						pass
 		except IndexError:
 			pass
+
+	def on_message(self, message):
+		jsondata = json.loads(message)
+		logger.debug(jsondata)
 
 
 class WebTerminalKillHandler(tornado.web.RequestHandler):

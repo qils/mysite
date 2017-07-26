@@ -28,7 +28,7 @@ class Tty(object):
 		self.asset = asset		# 资产对象
 		self.user = user
 		self.role = role		# 系统用户对象
-		self.remote_ip = ''
+		self.remote_ip = ''		# 获取客户端IP
 		self.login_type = login_type		# 登录类型, 通过web登录, 或者ssh登录
 		self.vim_flag = False
 		self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
@@ -53,7 +53,7 @@ class Tty(object):
 		date_today = datetime.datetime.now()
 		date_start = date_today.strftime('%Y%m%d')
 		time_start = date_today.strftime('%H%M%S')
-		today_connect_log_dir = os.path.join(tty_log_dir, date_start)
+		today_connect_log_dir = os.path.join(tty_log_dir, date_start)		# 定义当天连接请求的日志目录
 		log_file_path = os.path.join(today_connect_log_dir, '%s_%s_%s' % (self.username, self.asset_name, time_start))
 
 		try:
