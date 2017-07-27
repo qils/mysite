@@ -82,7 +82,7 @@ class Tty(object):
 
 	def get_log(self):
 		'''
-		记录用户日志
+		记录用户日志到 jlog.models.Log 模型
 		'''
 		tty_log_dir = os.path.join(settings.LOG_DIR, 'tty')		# 定义tty日志目录
 		date_today = datetime.datetime.now()

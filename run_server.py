@@ -156,6 +156,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 			self.ssh = self.term.get_connection()
 		except ServerError:
 			self.close()		# 捕获连接失败, 服务器端主动关闭连接
+			return
 		self.channel = self.ssh.invoke_shell(term='xterm')		# 建立交互式shell连接
 		WebTerminalHandler.tasks.append(MyThread(target=self.forward_outbound))		# 创建Thread对象
 		WebTerminalHandler.clients.append(self)
@@ -184,6 +185,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 						return
 					data += recv
 					self.term.vim_data += recv
+					logger.debug(self.term.vim_data)
 					try:
 						self.write_message(data.decode('utf-8', 'replace'))		# 回写给客户端
 						self.termlog.write(data)
