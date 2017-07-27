@@ -184,10 +184,10 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 					if not len(recv):
 						return
 					data += recv
-					self.term.vim_data += recv
-					logger.debug(self.term.vim_data)
+					self.term.vim_data += recv		# 保存连接的目标主机回显的所有字符, 包括执行命令的结果, 虚拟终端提示符
+					logger.debug(term.vim_data)
 					try:
-						self.write_message(data.decode('utf-8', 'replace'))		# 回写给客户端
+						self.write_message(data.decode('utf-8', 'replace'))		# 回显给web客户端
 						self.termlog.write(data)
 						self.termlog.recoder = False
 						now_timestamp = time.time()
@@ -197,7 +197,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 						self.log_file_f.flush()
 						self.log_time_f.flush()
 						if self.term.input_mode:
-							self.term.data += data
+							self.term.data += data		# 保存输入的命令
 						data = ''
 					except UnicodeDecodeError:
 						pass
@@ -206,6 +206,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 
 	def on_message(self, message):
 		jsondata = json.loads(message)
+		logger.debug(jsondata)
 		if not jsondata:
 			return
 
@@ -218,7 +219,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		elif jsondata.get('data'):		# web 浏览器与后台交互数据
 			self.termlog.recoder = True
 			self.term.input_mode = True
-			if str(jsondata['data']) in ['\r', '\n', '\r\n']:
+			if str(jsondata['data']) in ['\r', '\n', '\r\n']:		# 客户端输入回车后, 对输入的命令进行处理
 				match = re.compile(r'\x1b\[\?1049', re.X).findall(self.term.vim_data)
 				if match:
 					if self.term.vim_flag or len(match) == 2:
@@ -232,7 +233,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 				self.term.vim_data = ''
 				self.term.data = ''
 				self.term.input_mode = False
-			self.channel.send(jsondata['data'])
+			self.channel.send(jsondata['data'])		# 将字符命令发送到远程连接的目标主机
 		else:
 			pass
 
