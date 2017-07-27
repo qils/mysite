@@ -185,7 +185,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 						return
 					data += recv
 					self.term.vim_data += recv		# 保存连接的目标主机回显的所有字符, 包括执行命令的结果, 虚拟终端提示符
-					logger.debug(term.vim_data)
+					logger.debug(self.term.vim_data)
 					try:
 						self.write_message(data.decode('utf-8', 'replace'))		# 回显给web客户端
 						self.termlog.write(data)
