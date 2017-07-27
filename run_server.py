@@ -15,7 +15,7 @@ import tornado.httpserver
 import tornado.websocket
 
 from tornado.websocket import WebSocketClosedError
-from connect import logger, get_object, User, Asset, Tty
+from connect import logger, get_object, User, Asset, Tty, ServerError
 from connect import Session, user_have_perm
 from mysite.settings import IP, PORT
 from install.setup import color_print
@@ -133,7 +133,7 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 			roles = user_have_perm(self.user, asset)		# 获取授权用户授权资产所授权的系统用户
 			logger.debug(roles)
 			logger.debug(u'系统用户: %s' % (role_name, ))
-			login_role = ''		# 定义登录设备的系统用户
+			login_role = ''		# 定义登录设备的系统用户对象
 			for role in roles:
 				if role.name == role_name:
 					login_role = role
@@ -152,7 +152,10 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		self.term.remote_ip = self.request.headers.get('X-Real_IP')
 		if not self.term.remote_ip:
 			self.term.remote_ip = self.request.remote_ip		# 获取客户端IP
-		self.ssh = self.term.get_connection()
+		try:
+			self.ssh = self.term.get_connection()
+		except ServerError:
+			self.close()		# 捕获连接失败, 服务器端主动关闭连接
 		self.channel = self.ssh.invoke_shell(term='xterm')		# 建立交互式shell连接
 		WebTerminalHandler.tasks.append(MyThread(target=self.forward_outbound))		# 创建Thread对象
 		WebTerminalHandler.clients.append(self)

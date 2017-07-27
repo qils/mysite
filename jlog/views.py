@@ -27,7 +27,7 @@ class TermLogRecorder(object):
 		else:
 			self.user = None
 
-		self.recoderStartTime = time.time()		# 开始记录时间戳
+		self.recoderStartTime = time.time()		# 开始时间戳
 		self.__init_screen_stream()
 		self.recoder = False
 		self.commands = []
@@ -35,7 +35,7 @@ class TermLogRecorder(object):
 		self.file = None
 		self.filename = None
 		self._data = None
-		self.vim_pattern = re.compile(r'\W?vi[m]?\s.* | \W?fg\s.*', re.X)
+		self.vim_pattern = re.compile(r'\W?vi[m]?\s.* | \W?fg\s.*', re.X)		# re.X 模式能忽略一些空格, 以及注释后面的所有字符
 		self._in_vim = False
 		self.CMD = {}
 
