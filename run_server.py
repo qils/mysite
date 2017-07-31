@@ -185,7 +185,6 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 						return
 					data += recv
 					self.term.vim_data += recv		# 保存连接的目标主机回显的所有字符, 包括执行命令的结果, 虚拟终端提示符
-					logger.debug(self.term.vim_data)
 					try:
 						self.write_message(data.decode('utf-8', 'replace'))		# 回显给web客户端
 						self.termlog.write(data)
@@ -204,9 +203,8 @@ class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websock
 		except IndexError:
 			pass
 
-	def on_message(self, message):
+	def on_message(self, message):		# 客户端传输数据后开始调用该方法
 		jsondata = json.loads(message)
-		logger.debug(jsondata)
 		if not jsondata:
 			return
 
