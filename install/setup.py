@@ -16,7 +16,7 @@ import smtplib
 import MySQLdb
 import ConfigParser
 
-jms_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))		# jumpserver 配置文件所在目录
+jms_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))		# jumpserver 根目录
 sys.path.append(jms_dir)		# 项目家目录增加至python模块查找目录
 
 
@@ -78,7 +78,7 @@ class PreSetup(object):
 		self.mail_port = 25		# 默认邮箱端口号
 		self.mail_addr = 'hello@jumpserver.org'		# 默认邮件地址
 		self.mail_pass = 'test'		# 默认邮箱密码
-		self.ip = ''		# 服务监听IP地址
+		self.ip = ''		# 服务器监听IP地址
 		self.key = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(16))		# 随机生成16位数, 当做加密的KEY
 		self.dist = platform.linux_distribution()[0].lower()		# 获取操作系统类型
 		self.version = platform.linux_distribution()[1]		# 获取操作系统版本号
@@ -162,6 +162,9 @@ class PreSetup(object):
 			bash('mysql -e "grant all on %s.* to \'%s\'@\'%s\' identified by \'%s\'"' % (self.db, self.db_user, self.db_host, self.db_pass))
 
 	def _test_db_conn(self):
+		'''
+		测试数据库是否能连接
+		'''
 		try:
 			MySQLdb.connect(host=self.db_host, port=int(self.db_port), user=self.db_user, passwd=self.db_pass, db=self.db)
 			color_print('数据库连接成功', color='green')
@@ -179,8 +182,8 @@ class PreSetup(object):
 				smtp = smtplib.SMTP_SSL(self.mail_host, port=self.mail_port, timeout=2)
 			else:
 				smtp = smtplib.SMTP(self.mail_host, port=self.mail_port, timeout=2)
-			smtp.login(self.mail_addr, self.mail_pass)
-			smtp.sendmail(self.mail_addr, (self.mail_addr,), '''From:%s\r\nTo:%s\r\nSubject: Jumpserver Mail Test!\r\n\r\n Mail test passed!\r\n''' % (self.mail_addr, self.mail_addr))
+			smtp.login(self.mail_addr, self.mail_pass)		# 登录邮箱
+			smtp.sendmail(self.mail_addr, (self.mail_addr, ), '''From:%s\r\nTo:%s\r\nSubject: Jumpserver Mail Test!\r\n\r\n Mail test passed!\r\n''' % (self.mail_addr, self.mail_addr))
 			smtp.quit()
 			return True
 		except Exception, e:
@@ -200,7 +203,7 @@ class PreSetup(object):
 
 	def _rpm_repo(self):
 		'''
-		安装epel源
+		安装epel源, 如果是redhat平台, 需要安装epel-release
 		'''
 		if self._is_redhat:
 			color_print('开始安装epel源', color='green')
@@ -286,7 +289,7 @@ class PreSetup(object):
 				if db:
 					self.db = db
 
-			if self._test_db_conn():
+			if self._test_db_conn():		# 测试数据库是否能够连接
 				break
 		color_print('mysql连接测试完成', color='green')
 
@@ -304,7 +307,7 @@ class PreSetup(object):
 
 			if self._test_mail():
 				color_print('请登陆邮箱查收邮件, 然后确认是否继续安装\n', color='green')
-				smtp = raw_input('是否继续? [y/n]: ').lower()
+				smtp = raw_input('是否继续下面操作? [y/n]: ').lower()
 				if smtp == 'n':
 					continue
 				else:

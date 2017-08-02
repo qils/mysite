@@ -34,7 +34,7 @@ def db_add_group(**kwargs):
 
 def db_add_user(**kwargs):
 	'''
-	给数据库中添加数据
+	给数据库中添加User数据记录
 	'''
 
 	groups_post = kwargs.pop('groups')		# 返回所属用户组
@@ -52,12 +52,12 @@ def db_add_user(**kwargs):
 		user.group = group_list		# 增加用户组, 多对多字段能在记录创建后在调整
 		user.save()
 
-	if admin_groups and role == 'GA':		# 如果是组管理员, 需要添加组管理员和组到管理组中
+	if admin_groups and role == 'GA':		# 如果是组管理员, 需要添加组管理员和组到管理组中, 一个组管理员能关联到多个用户组
 		for group_id in admin_groups:
 			group_object = get_object(UserGroup, id=group_id)
 			if group_object:
 				AdminGroup(user=user, group=group_object).save()
-	return user
+	return user		# 返回添加的user对象
 
 
 def gen_ssh_key(username, password='', key_dir=os.path.join(settings.KEY_DIR, 'user'), authorized_keys=True, home='/home', length=2048):

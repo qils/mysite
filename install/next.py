@@ -19,8 +19,8 @@ socket.setdefaulttimeout(2)
 
 class SetUp(object):
 	def __init__(self):
-		self.admin_user = 'admin'		# 默认admin管理后台, 管理员账户
-		self.admin_pass = '5Lov@wife'		# 默认admin 管理后台, 管理员登录密码
+		self.admin_user = 'admin'		# web系统初始管理员账户
+		self.admin_pass = '5Lov@wife'		# web系统初始管理员登录密码
 
 	@staticmethod
 	def _pull():
@@ -37,7 +37,7 @@ class SetUp(object):
 	@staticmethod
 	def _sync_db():
 		'''
-		创建所有jumpserver使用到的数据库表
+		创建所有jumpserver使用到的数据库表, 同步数据库
 		'''
 		os.chdir(jms_dir)
 		execute_from_command_line(['manage.py', 'syncdb', '--noinput'])		# --noinput 参数, django不会出现输入提示
@@ -83,8 +83,8 @@ class SetUp(object):
 		os.chmod('manage.py', 0755)
 		os.chmod('run_server.py', 0755)
 		os.chmod('service.sh', 0755)
-		os.chmod('logs', 0777)
-		os.chmod('keys', 0777)
+		os.chmod('logs', 0777)		# 日志目录
+		os.chmod('keys', 0777)		# 密钥目录
 
 	@staticmethod
 	def _run_service():
