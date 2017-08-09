@@ -79,7 +79,7 @@ def gen_ssh_key(username, password='', key_dir=os.path.join(settings.KEY_DIR, 'u
 			with open(authorized_key_file, 'w') as auth_f:
 				auth_f.write(pub_f.read())
 		os.chmod(authorized_key_file, 0600)
-		chown(authorized_key_file, username)
+		chown(authorized_key_file, username)		# 设置文件的所属用户, 用户组
 
 
 def server_add_user(username, ssh_key_pwd=''):

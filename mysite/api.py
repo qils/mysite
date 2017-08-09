@@ -133,7 +133,7 @@ def chown(path, user, group=''):
 
 	try:
 		uid = pwd.getpwnam(user).pw_uid
-		gid = pwd.getpwnam(user).pw_gid
+		gid = pwd.getpwnam(group).pw_gid
 		os.chown(path, uid, gid)
 	except KeyError:
 		pass

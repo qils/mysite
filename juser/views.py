@@ -153,7 +153,7 @@ def change_info(request):
 
 	if request.method == 'POST':
 		name = request.POST.get('name', '')
-		password = request.POST.get('password', '')
+		password = request.POST.get('password', '')		# 登录web密码, 没有输入依然是原密码
 		email = request.POST.get('email', '')
 
 		if '' in [name, email]:
@@ -175,7 +175,7 @@ def regen_ssh_key(request):
 	'''
 	生成SSH Key秘钥对视图
 	'''
-	uuid_r = request.GET.get('uuid', '')
+	uuid_r = request.GET.get('uuid', '')		# 获取URL中的UUID值
 	user = get_object(User, uuid=uuid_r)		# 依据uuid来判断是否有该用户
 	if not user:
 		return HttpResponse('用户不存在')
@@ -183,6 +183,8 @@ def regen_ssh_key(request):
 	username = user.username
 	ssh_key_pass = PyCrypt.gen_rand_key(16)		# 随机生成的16位字符的密码
 	gen_ssh_key(username, ssh_key_pass)		# 生成秘钥对
+	user.ssh_key_pwd = ssh_key_pass		# 重新生成秘钥对后, 将私钥密码保存到数据库
+	user.save()
 	return HttpResponse('ssh密钥已生成，密码为 %s, 请到下载页面下载' % (ssh_key_pass, ))
 
 
