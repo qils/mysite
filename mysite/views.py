@@ -17,7 +17,7 @@ from mysite.models import Setting
 
 def getDaysByNum(num):
 	'''
-	返回所给出的num参数之前的日期
+	返回所给出的num参数之前的日期, 不包含当前日期
 	'''
 	today = datetime.date.today()
 	oneday = datetime.timedelta(days=1)
@@ -59,11 +59,14 @@ def get_count_by_day(date_li, item):
 
 
 def get_count_by_date(date, item):
+	'''
+	一个月内登录的用户, 或者是登录的资产记录
+	'''
 	logs = Log.objects.filter(start_time__gt=date)
 	if item == 'user':
-		return len(set([log.user for log in logs]))
+		return logs.values('user').distinct().count()
 	elif item == 'asset':
-		return len(set([log.host for log in logs]))
+		return logs.values('host').distinct().count()
 	else:
 		pass
 
@@ -95,13 +98,13 @@ def index(request):
 		date_li, date_str = getDaysByNum(30)
 		days_before_30 = timezone.now() + timezone.timedelta(days=-30)
 		date_month = repr(date_str)		# 前一个月的日期, 格式为, 年, 月, 日
-		active_user_per_month = str(get_count_by_day(date_li, 'user'))
-		active_asset_per_month = str(get_count_by_day(date_li, 'asset'))
-		active_login_per_month = str(get_count_by_day(date_li, 'login'))
+		active_user_per_month = str(get_count_by_day(date_li, 'user'))		# 一个月内每天登陆的用户数量(去重后)
+		active_asset_per_month = str(get_count_by_day(date_li, 'asset'))		# 一个月内每天登陆的设备数量(去重后)
+		active_login_per_month = str(get_count_by_day(date_li, 'login'))		# 一个月内每天的登录日志
 
-		# 活跃用户资产图
+		# 一个月内活跃用户,资产图
 		active_user_month = get_count_by_date(days_before_30, 'user')
-		disabled_user_count = len(users.filter(is_active=False))		# 未激活用户数量
+		disabled_user_count = len(users.filter(is_active=False)) if users.filter(is_active=False) else 0		# 未激活用户数量
 		inactive_user_month = len(users) - active_user_month		# 一个月内的非活跃用户数量
 		active_asset_month = get_count_by_date(days_before_30, 'asset')
 		disabled_asset_count = len(hosts.filter(is_active=False)) if hosts.filter(is_active=False) else 0		# 未激活的主机数
@@ -119,7 +122,7 @@ def index(request):
 
 		for host_info in host_top_ten:
 			host = host_info.get('host')
-			last = Log.objects.filter(host=host).latest('start_time')		# 取最近一次登录设备的记录
+			last = Log.objects.filter(host=host).latest('start_time')		# 取最后一次登录设备的记录
 			host_info['last'] = last
 
 		# 一周top5
@@ -146,8 +149,8 @@ def Login(request):
 	if request.method == 'GET':
 		return render_to_response('login.html')
 	else:
-		username = request.POST.get('username')
-		password = request.POST.get('password')
+		username = request.POST.get('username')		# 获取登录的账号
+		password = request.POST.get('password')		# 获取登录的账号密码
 		if username and password:
 			user = authenticate(username=username, password=password)		# 验证用户名, 密码是否正确,正确返回user对象
 			if user is not None:

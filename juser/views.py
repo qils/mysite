@@ -16,7 +16,7 @@ MAIL_FROM = settings.EMAIL_HOST_USER
 @defend_attack
 def forget_password(request):
 	'''
-	用户密码重置视图, 用户输入的username, name, email作为user过滤条件
+	用户密码重置视图, 用户输入的username, name, email作为User过滤条件
 	'''
 	if request.method == 'POST':
 		defend_attack(request)		# 暂时没找到这个函数调用的作用
@@ -25,7 +25,7 @@ def forget_password(request):
 		email = request.POST.get('email', '')
 		user = get_object(User, username=username, email=email, name=name)		# 过滤是否有符合条件的User
 		if user:
-			timestamp = int(time.time())
+			timestamp = int(time.time())		# 时间戳取整
 			hash_encode = PyCrypt.md5_crypt(str(user.uuid) + str(timestamp) + settings.KEY)		# 通过uuid, 时间戳, settings配置文件中的KEY算一个md5
 			msg = u'''
 				Hi %s, 请点击下面的连接重设密码

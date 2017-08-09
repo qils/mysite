@@ -16,7 +16,7 @@ def name_proc(request):
 	user_active_num = User.objects.filter(is_active=True).count()		# 所有激活用户数
 	host_total_num = Asset.objects.all().count()		# 所有资产数
 	host_active_num = Asset.objects.filter(is_active=True).count()		# 所有激活资产数
-	request.session.set_expiry(3600)
+	request.session.set_expiry(3600)		# 重新设置会话过期时间为1小时
 
 	info_dic = {
 		'session_user_id': user_id,

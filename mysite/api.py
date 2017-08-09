@@ -205,7 +205,7 @@ def require_role(role='user'):
 			request.session['pre_url'] = request.path		# 根据session中间件处理流程, 有会话修改时,会给客户端发送一个cookie session
 			if not request.user.is_authenticated():
 				return HttpResponseRedirect(reverse('login'))
-			if role == 'admin':
+			if role == 'admin':		# 增加role判断, 能够防止普通用户访问高级别权限的视图
 				if request.user.role == 'CU':
 					return HttpResponseRedirect(reverse('index'))
 			elif role == 'super':
