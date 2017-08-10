@@ -79,54 +79,6 @@ def reset_password(request):
 	return http_error(request, '请求错误')		# 这个不会被调用到
 
 
-@require_role(role='super')
-def user_list(request):
-	'''
-	查看所有用户视图
-	'''
-	user_role = {'SU': '超级管理员', 'GA': '组管理员', 'CU': '普通用户'}
-	header_title, path1, path2 = '查看用户', '用户管理', '用户列表'
-	keyword = request.GET.get('keyword', '')
-	gid = request.GET.get('gid', '')		# 从用户组连接过来的带gid参数
-	users_list = User.objects.all().order_by('username')
-
-	if gid:
-		user_group = UserGroup.objects.filter(id=gid)
-		if user_group:
-			user_group = user_group[0]
-			users_list = user_group.user_set.all()		# 反查询一个用户组所关联的所有用户
-
-	if keyword:
-		users_list = users_list.filter(Q(username__icontains=keyword) | Q(name__icontains=keyword))		# 组合查询
-
-	users_list, p, users, page_range, current_page, show_first, show_end = pages(users_list, request)
-	return my_render('juser/user_list.html', locals(), request)
-
-
-@require_role(role='user')
-def user_detail(request):
-	'''
-	后台用户详细信息视图
-	'''
-	header_title, path1, path2 = u'用户详情', u'用户管理', u'用户详情'
-	if request.session.get('role_id') == 0:
-		user_id = request.user.id		# 普通用户只能获取自己的id
-	else:
-		user_id = request.GET.get('id', '')
-
-	user = get_object(User, id=user_id)
-	if not user:
-		return HttpResponseRedirect(reverse('user_list'))
-
-	user_perm_info = get_group_user_perm(user)
-	role_assets = user_perm_info.get('role')		# 系统用户关联的资产
-	user_log_ten = Log.objects.filter(user=user.username).order_by('id')[0:10]
-	user_log_last = Log.objects.filter(user=user.username).order_by('id')[0:50]
-	user_log_last_num = len(user_log_last)
-
-	return my_render('juser/user_detail.html', locals(), request)
-
-
 @require_role(role='user')
 def profile(request):
 	'''
@@ -189,6 +141,54 @@ def regen_ssh_key(request):
 
 
 @require_role(role='super')
+def user_list(request):
+	'''
+	查看所有用户视图
+	'''
+	user_role = {'SU': '超级管理员', 'GA': '组管理员', 'CU': '普通用户'}
+	header_title, path1, path2 = '查看用户', '用户管理', '用户列表'
+	keyword = request.GET.get('keyword', '')
+	gid = request.GET.get('gid', '')		# 从用户组连接过来的带gid参数
+	users_list = User.objects.all().order_by('username')
+
+	if gid:
+		user_group = UserGroup.objects.filter(id=gid)
+		if user_group:
+			user_group = user_group[0]
+			users_list = user_group.user_set.all()		# 反查询一个用户组所关联的所有用户
+
+	if keyword:
+		users_list = users_list.filter(Q(username__icontains=keyword) | Q(name__icontains=keyword))		# 组合查询
+
+	users_list, p, users, page_range, current_page, show_first, show_end = pages(users_list, request)
+	return my_render('juser/user_list.html', locals(), request)
+
+
+@require_role(role='user')
+def user_detail(request):
+	'''
+	后台用户详细信息视图
+	'''
+	header_title, path1, path2 = u'用户详情', u'用户管理', u'用户详情'
+	if request.session.get('role_id') == 0:
+		user_id = request.user.id		# 普通用户只能获取自己的id
+	else:
+		user_id = request.GET.get('id', '')
+
+	user = get_object(User, id=user_id)
+	if not user:
+		return HttpResponseRedirect(reverse('user_list'))
+
+	user_perm_info = get_group_user_perm(user)
+	role_assets = user_perm_info.get('role')		# 系统用户关联的资产
+	user_log_ten = Log.objects.filter(user=user.username).order_by('id')[0:10]
+	user_log_last = Log.objects.filter(user=user.username).order_by('id')[0:50]
+	user_log_last_num = len(user_log_last)
+
+	return my_render('juser/user_detail.html', locals(), request)
+
+
+@require_role(role='super')
 def user_add(request):
 	'''
 	添加用户视图
@@ -196,7 +196,7 @@ def user_add(request):
 	error = ''
 	msg = ''
 	header_title, path1, path2 = u'添加用户', u'用户管理', u'添加用户'
-	user_role = {'SU': u'超级管理员', 'CU': u'普通用户'}
+	user_role = {'SU': u'超级管理员', 'CU': u'普通用户'}		# 只定义了两种角色
 	group_all = UserGroup.objects.all()
 
 	if request.method == 'POST':
@@ -214,7 +214,7 @@ def user_add(request):
 		send_mail_need = True if '1' in extra else False		# 是否发送邮件
 
 		try:
-			if '' in [username, password, ssh_key_pwd, name, role]:		# 比填项,不能为空
+			if '' in [username, password, ssh_key_pwd, name, role]:		# 必填项,不能为空
 				error = u'带*内容不能为空'
 				raise ServerError(error)
 
@@ -244,7 +244,7 @@ def user_add(request):
 					admin_groups=admin_groups,
 					ssh_key_pwd=ssh_key_pwd,
 					is_active=is_active,
-					date_joined=datetime.datetime.now()
+					date_joined=datetime.datetime.now()		# 添加用户时间
 				)
 				server_add_user(username=username, ssh_key_pwd=ssh_key_pwd)		# 每个后台系统用户必须在服务器主机上创建一个主机用户
 				user = get_object(User, username=username)
@@ -255,8 +255,8 @@ def user_add(request):
 			except (ServerError, IndexError), e:
 				error = u'添加用户: %s 失败 %s' % (username, e)		# e必须要用unicode表示,否则报编码错误
 				try:
-					db_del_user(username)
-					server_del_user(username)
+					db_del_user(username)		# 添加用户异常时, 从User表中删除对应的用户记录
+					server_del_user(username)		# 从设备上删除系统用户
 				except Exception:
 					pass
 			else:

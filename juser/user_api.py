@@ -101,7 +101,7 @@ def db_del_user(username):
 
 def server_del_user(username):
 	'''
-	从服务器上删除一个主机用户
+	从服务器上删除一个跳板机服务器上的系统用户
 	'''
 	bash('userdel -f -r %s' % (username, ))		# 删除主机用户命令
 	logger.debug('rm -f %s/%s_*.pem' % (os.path.join(settings.KEY_DIR, 'user'), username))		# 记录删除日志
