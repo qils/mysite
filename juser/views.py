@@ -494,8 +494,8 @@ def group_edit(request):
 			user_group = get_object_or_404(UserGroup, id=group_id)		# 获取UserGroup表中的组记录, 如果有返回记录值, 没有触发异常
 			user_group.user_set.clear()		# 清除用户组中所有的用户
 
-			for user in User.objects.filter(id__in=users_selected):
-				user.group.add(UserGroup.objects.get(id=group_id))		# 将所选择的用户添加到一个用户组
+			for user_id in users_selected:
+				group_add_user(user_group, user_id)		# 将所选择的用户添加到一个用户组
 
 			user_group.name = group_name
 			user_group.comment = comment

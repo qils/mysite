@@ -105,7 +105,8 @@ def pages(post_objects, request):
 	except ValueError:
 		current_page = 1
 
-	page_range = page_list_return(len(paginator.page_range), current_page)		# 返回分页起始页及结束页
+	page_range = page_list_return(len(paginator.page_range), current_page)		# 返回分页起始页及结束页, paginator.page_range 返回页码列表
+
 	try:
 		page_objects = paginator.page(current_page)		# 获取当前页数据
 	except (EmptyPage, InvalidPage):
