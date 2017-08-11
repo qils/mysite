@@ -10,13 +10,13 @@ from jperm.models import PermRole, PermPush, PermRule, PermSudo, PermLog
 def get_group_user_perm(ob):
 	'''
 	ob是用户或者用户组对象,
-	获取用户, 用户组授权的资产, 资产组
+	获取用户, 用户组授权的资产, 资产组信息
 	'''
 	perm = {}
 	if isinstance(ob, User):
-		rule_all = set(PermRule.objects.filter(user=ob))		# 过滤某个用户对象关联的授权规则
+		rule_all = set(PermRule.objects.filter(user=ob))		# 过滤用户对象关联的授权规则
 		for user_group in ob.group.all():			# 获取该用户对象所加入的用户组
-			rule_all = rule_all.union(set(PermRule.objects.filter(user_group=user_group)))		# 过滤某个用户组对象的授权规则
+			rule_all = rule_all.union(set(PermRule.objects.filter(user_group=user_group)))		# 过滤用户组对象的授权规则
 	elif isinstance(ob, UserGroup):
 		rule_all = PermRule.objects.filter(user_group=ob)
 	else:
@@ -35,14 +35,15 @@ def get_group_user_perm(ob):
 			group_assets.extend(asset_group.asset_set.all())		# 过滤一个资产组所关联的所有资产
 
 		calc_asset = set(assets).union(set(group_assets))		# 合并一个授权规则关联的所有资产
+		asset_groups = set(asset_groups)
 
 		# 获取一个规则授权的系统用户所对应的资产, 资产组
 		for role in perm_roles:
 			if perm_role.get(role):
 				perm_role[role]['asset'] = perm_role[role].get('asset', set()).union(calc_asset)
-				perm_role[role]['asset_group'] = perm_role[role].get('asset_group', set()).union(set(asset_groups))
+				perm_role[role]['asset_group'] = perm_role[role].get('asset_group', set()).union(asset_groups)
 			else:
-				perm_role[role] = {'asset': calc_asset, 'asset_group': set(asset_groups)}
+				perm_role[role] = {'asset': calc_asset, 'asset_group': asset_groups}
 
 		# 获取一个规则用户授权的资产
 		for asset in assets:

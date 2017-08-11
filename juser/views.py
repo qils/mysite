@@ -269,6 +269,9 @@ def user_add(request):
 
 @require_role(role='user')
 def down_key(request):
+	'''
+	下载用户私钥视图
+	'''
 	if is_role_request(request, 'super'):
 		uuid_r = request.GET.get('uuid', '')		# 管理员直接从GET请求参数里面获取uuid
 	else:

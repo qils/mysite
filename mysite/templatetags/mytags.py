@@ -79,7 +79,7 @@ def groups2str(group_list):
 @register.filter(name='user_perm_asset_num')
 def user_perm_asset_num(user_id):
 	'''
-	后台用户授权的资产数量统计
+	用户授权的资产数量
 	'''
 	user = get_object(User, id=user_id)
 	if user:

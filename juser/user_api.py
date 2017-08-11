@@ -103,7 +103,7 @@ def server_del_user(username):
 	'''
 	从服务器上删除一个跳板机服务器上的系统用户
 	'''
-	bash('userdel -f -r %s' % (username, ))		# 删除主机用户命令
+	bash('userdel -f -r %s' % (username, ))		# 删除系统用户命令
 	logger.debug('rm -f %s/%s_*.pem' % (os.path.join(settings.KEY_DIR, 'user'), username))		# 记录删除日志
 	private_key_file = os.path.join(settings.KEY_DIR, 'user', username + '.pem')
 	if os.path.isfile(private_key_file):
@@ -150,7 +150,7 @@ def db_update_user(**kwargs):
 	'''
 	用户信息数据库更新
 	'''
-	groups_post = kwargs.pop('groups')
+	groups_post = kwargs.pop('groups')		# 新提交的用户组ID
 	admin_groups_post = kwargs.pop('admin_groups')
 	user_id = kwargs.pop('user_id')
 	user = User.objects.filter(id=user_id)
@@ -169,7 +169,7 @@ def db_update_user(**kwargs):
 		for group_id in groups_post:
 			group = UserGroup.objects.filter(id=group_id)
 			group_select.extend(group)
-	user_get.group = group_select		# 更新用户所添加的组信息
+	user_get.group = group_select		# 更新用户添加的组信息
 
 	if admin_groups_post:
 		user_get.admingroup_set.all().delete()
