@@ -65,7 +65,7 @@
                                     <input name="id" value="{{ post.id }}" type="checkbox" class="i-checks">
                                 </td>
                                 <td class="text-center"> <a href="{% url 'asset_list' %}?idc_id={{ post.id }}">{{ post.name }}</a> </td>
-                                <td class="text-center"> <a href="{% url 'asset_list' %}?idc_id={{ post.id }}">{{ post.asset_set.count }}</a> </td>
+                                <td class="text-center"> <a href="{% url 'asset_list' %}?idc_id={{ post.id }}">{{ post.asset_set.count }}</a></td>
                                 <td class="text-center"> {{ post.bandwidth }} </td>
                                 <td class="text-center"> {{ post.available_bandwidth }} </td>
                                 <td class="text-center"> {{ post.linkman }} </td>

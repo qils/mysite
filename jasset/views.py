@@ -527,7 +527,7 @@ def idc_edit(request):
 				idc_form = IdcForm(instance=idc)
 				return my_render('jasset/idc_edit.html', locals(), request)
 
-		idc_form = IdcForm(request.POST, instance=idc)		# 指定IDC instance, 后续修改都作用于改instance
+		idc_form = IdcForm(request.POST, instance=idc)		# 指定IDC instance, 后续修改都作用于该instance
 		if idc_form.is_valid():
 			idc_form.save()
 			return HttpResponseRedirect(reverse('idc_list'))
@@ -551,8 +551,9 @@ def idc_del(request):
 	idc_id_list = idc_ids.split(',')
 
 	for idc_id in idc_id_list:
-		if idc_id:
-			IDC.objects.filter(id=idc_id).delete()
+		idc = IDC.objects.filter(id=idc_id)
+		if idc:
+			idc.delete()
 
 	return HttpResponseRedirect(reverse('idc_list'))
 
