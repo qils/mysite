@@ -68,14 +68,11 @@ def db_add_group(**kwargs):
 	往数据库中添加资产组记录
 	'''
 	name = kwargs.get('name', '')
-	asset_group = get_object(AssetGroup, name=name)
 	asset_id_list = kwargs.pop('asset_select')
-
-	if not asset_group:
-		asset_group = AssetGroup(**kwargs)
-		asset_group.save()
-		for asset_id in asset_id_list:
-			group_add_asset(asset_group, asset_id)		# 往资产组中添加资产
+	asset_group = AssetGroup(**kwargs)
+	asset_group.save()
+	for asset_id in asset_id_list:
+		group_add_asset(asset_group, asset_id)		# 往资产组中添加资产
 
 
 def db_update_group(**kwargs):

@@ -37,7 +37,7 @@ def group_add(request):
 	添加主机组视图
 	'''
 	header_title, path1, path2 = u'添加资产组', u'资产管理', u'添加资产组'
-	asset_all = Asset.objects.all()
+	asset_all = Asset.objects.all()		# 过滤所有资产
 
 	if request.method == 'POST':
 		name = request.POST.get('name', '')		# 获取主机组名称
