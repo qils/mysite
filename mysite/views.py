@@ -213,7 +213,7 @@ def setting(request):
 					if password:		# 表示密码重新修改过
 						password_encode = CRYPTOR.encrypt(password)		# 重新加密密码后存储到setting表
 					else:
-						password_encode = password		# 表示密码没有重新修改
+						password_encode = setting_default.field3		# 表示密码没有重新修改
 					Setting.objects.filter(name='default').update(
 						field1=username,
 						field2=port,
