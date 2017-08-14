@@ -188,3 +188,14 @@ def role_contain_which_sudos(role):
 	'''
 	sudo_names = [sudo.name for sudo in role.sudo.all()]
 	return '|'.join(sudo_names)
+
+
+@register.filter(name='asset_status')
+def asset_status(status_name):
+	all_asset_status = {
+						u'已上线': '<b class="btn btn-xs btn-success">%s</b>' % (status_name, ),
+						u'已下架': '<b class="btn btn-xs btn-danger">%s</b>' % (status_name, ),
+						u'未上线': '<b class="btn btn-xs btn-warning">%s</b>' % (status_name, )
+	}
+
+	return all_asset_status.get(status_name)

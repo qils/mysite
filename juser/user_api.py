@@ -156,7 +156,7 @@ def db_update_user(**kwargs):
 	user = User.objects.filter(id=user_id)
 	if user:
 		user_get = user[0]
-		password = kwargs.pop('password')		# 去掉密码
+		password = kwargs.pop('password')		# 取出密码
 		user.update(**kwargs)		# 更新数据
 		if password.strip():		# 密码不为空时, 才更新密码
 			user_get.set_password(password)

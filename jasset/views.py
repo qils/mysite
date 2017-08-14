@@ -396,19 +396,22 @@ def asset_list(request):
 	header_title, path1, path2 = u'查看资产', u'资产管理', u'查看资产'
 	username = request.user.username
 	user_perm = request.session['role_id']		# 用户权限, 2: SU, 1: GA, 0: CU
+
 	idc_all = IDC.objects.filter().order_by('name')		# 过滤所有的IDC信息
 	asset_group_all = AssetGroup.objects.all()		# 过滤所有的资产组信息
 	asset_types = ASSET_TYPE		# 资产类型, 定义7种资产类型
 	asset_status = ASSET_STATUS		# 资产状态, 三种状态: 已上线, 未上线, 已下架
+
 	idc_name = request.GET.get('idc', '')		# 从表单里面提交
 	group_name = request.GET.get('group', '')		# 从表单里面提交
 	asset_type = request.GET.get('asset_type', '')		# 从表单提交
 	status = request.GET.get('status', '')		# 从表单提交
 	keyword = request.GET.get('keyword', '')		# 从表单提交
-	export = request.GET.get('export', False)
+	export = request.GET.get('export', False)		# 从表单提交
+	asset_id_all = request.GET.getlist('id', [])		# 获取所提交的所有资产
+
 	group_id = request.GET.get('group_id', '')		# 在资产组中, 每一个资产组所关联的资产, 由group_id查询参数连接
 	idc_id = request.GET.get('idc_id', '')		# 在IDC中, 每一个IDC所关联的资产, 由idc_id查询参数连接
-	asset_id_all = request.GET.getlist('id', [])		# 获取所提交的所有资产
 	asset_id = request.GET.get('id', '')		# 从用户授权的资产记录连接过来的资产
 
 	if group_id:		# 从资产组过来的连接
@@ -417,7 +420,7 @@ def asset_list(request):
 			asset_find = Asset.objects.filter(group=group)
 	elif idc_id:		# 从IDC过来的连接
 		idc = get_object(IDC, id=idc_id)
-		if idc_id:
+		if idc:
 			asset_find = Asset.objects.filter(idc=idc)
 	elif asset_id:		# 源码没有加入这个条件
 		asset_find = Asset.objects.filter(id=asset_id)
