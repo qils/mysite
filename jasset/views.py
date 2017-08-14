@@ -128,11 +128,12 @@ def asset_add(request):
 	asset_group_all = AssetGroup.objects.all()		# 过滤所有资产组
 	af = AssetForm()		# 资产表单域
 	default_setting = get_object(Setting, name='default')
-	default_port = default_setting.field2 if default_setting else ''
+	default_port = default_setting.field2 if default_setting else ''		# 默认登录端口
+
 	if request.method == 'POST':
 		af_post = AssetForm(request.POST)		# 创建一个AssetForm 实列
-		hostname = request.POST.get('hostname', '')
-		ip = request.POST.get('ip', '')
+		hostname = request.POST.get('hostname', '')		# 资产名称
+		ip = request.POST.get('ip', '')		# 资产IP地址
 		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
 
@@ -146,7 +147,7 @@ def asset_add(request):
 		except ServerError:
 			pass
 		else:
-			if af_post.is_valid():
+			if af_post.is_valid():		# 验证提交的数据是否有效
 				asset_save = af_post.save(commit=False)		# commit=False, 避免Model实列立即存储到数据库
 				if not use_default_auth:		# 不使用默认管理账号
 					password = request.POST.get('password', '')
