@@ -136,6 +136,7 @@ def asset_add(request):
 		ip = request.POST.get('ip', '')		# 资产IP地址
 		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
+		logger.debug(use_default_auth)
 
 		try:
 			if Asset.objects.filter(hostname=unicode(hostname)):		# 检验是否有重名的hostname
