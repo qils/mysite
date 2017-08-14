@@ -136,7 +136,6 @@ def asset_add(request):
 		ip = request.POST.get('ip', '')		# 资产IP地址
 		is_active = True if request.POST.get('is_active') == '1' else False
 		use_default_auth = request.POST.get('use_default_auth', '')
-		logger.debug(use_default_auth)
 
 		try:
 			if Asset.objects.filter(hostname=unicode(hostname)):		# 检验是否有重名的hostname
@@ -205,8 +204,8 @@ def asset_edit(request):
 	username = request.user.username
 	asset = get_object(Asset, id=asset_id)
 	if asset:
-		password_old = asset.password		# 保留旧password
-		username_old = asset.username		# 保留旧的设备用户名, 资产变更时, 记录变更到使用默认管理用户时的用户名
+		password_old = asset.password		# 保留设备管理用户名password
+		username_old = asset.username		# 保留设备管理用户名, 资产变更时, 记录变更到使用默认管理用户时的用户名
 	af = AssetForm(instance=asset)		# 校验表单数据,指定了instance实列, 后续所有修改都做用在这个实列(asset)上
 	if request.method == 'POST':
 		af_post = AssetForm(request.POST, instance=asset)		# 加载数据优先级request.POST > instance
