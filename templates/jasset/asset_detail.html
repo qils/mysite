@@ -227,7 +227,7 @@
                                             <td class="text-navy">组详情</td>
                                             {% for user_group in user_group_perm %}
                                                 <tr>
-                                                    <td class="text-navy">{{ user_group }}</td>
+                                                    <td class="text-navy"><a href="{% url 'user_group_list' %}?id={{ user_group.id }}">{{ user_group }}</a></td>
                                                     <td class="text-navy"><a href="{% url 'user_group_list' %}?id={{ user_group.id }}">详情</a></td>
                                                 </tr>
                                             {% endfor %}
@@ -241,7 +241,7 @@
                                             <td class="text-navy">详情</td>
                                             {% for rule in user_rule_perm %}
                                                 <tr>
-                                                    <td class="text-navy">{{ rule }}</td>
+                                                    <td class="text-navy"><a href="{% url 'rule_detail' %}?id={{ rule.id }}">{{ rule }}</a></td>
                                                     <td class="text-navy"><a href="{% url 'rule_detail' %}?id={{ rule.id }}">详情</a></td>
                                                 </tr>
                                             {% endfor %}
