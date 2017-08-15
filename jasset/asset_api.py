@@ -95,8 +95,6 @@ def asset_diff(before, after):
 	'''
 	alter_dic = {}
 	before_dic, after_dic = before, dict(after.iterlists())		# before为更新前资产信息字段字典, after_dic是通过request.POST提交的更新后的列表组成的字典
-	logger.debug(before_dic)
-	logger.debug(after_dic)
 
 	for k, v in before_dic.items():
 		after_dic_values = after_dic.get(k, [])
@@ -106,6 +104,7 @@ def asset_diff(before, after):
 		else:		# 其他字段比较
 			after_dic_value = after_dic_values[0] if len(after_dic_values) > 0 else u''
 			uv = unicode(v) if v is not None else u''
+
 		if uv != after_dic_value:
 			alter_dic.update({k: [uv, after_dic_value]})		# 保留前后的信息
 

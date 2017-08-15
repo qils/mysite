@@ -175,7 +175,7 @@ def asset_detail(request):
 	asset_id = request.GET.get('id', '')
 	asset = get_object(Asset, id=asset_id)
 	perm_info = get_group_asset_perm(asset)
-	log = Log.objects.filter(host=asset.hostname)
+	log = Log.objects.filter(host=asset.hostname).order_by('-start_time')		# 过滤主机登录日志
 	if perm_info:
 		user_perm = []
 		for perm, value in perm_info.items():
@@ -268,7 +268,8 @@ def asset_del(request):
 			asset_id_all = asset_id_all.split(',')
 			for asset_id in asset_id_all:
 				asset = get_object(Asset, id=asset_id)
-				asset.delete()
+				if asset:
+					asset.delete()
 
 	return HttpResponse('删除成功')
 
