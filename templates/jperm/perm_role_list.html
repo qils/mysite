@@ -53,7 +53,7 @@
                             </tr>
                         </thead>
                         <tbody id="edittbody">
-                        {% for role in roles %}
+                        {% for role in roles.object_list %}
                             <tr class="gradeX" id={{ role.id }}>
                                 <td class="text-center"><a href="{% url 'role_detail' %}?id={{ role.id }}">{{ role.name }} </a></td>
                                 <td class="text-center"> {{ role | role_contain_which_sudos }} </td>
@@ -70,7 +70,7 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
-                                显示 {{ roles.start_index }} 到 {{ roles.end_index }} 共 {{ p.count }} 页
+                                显示 {{ roles.start_index }} 到 {{ roles.end_index }} 共 {{ p.count }} 条目
                             </div>
                         </div>
                         {% include 'paginator.html' %}

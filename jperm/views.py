@@ -40,7 +40,7 @@ def perm_sudo_add(request):
 	header_title, path1, path2 = u'Sudo命令', u'别名管理', u'添加别名'
 	try:
 		if request.method == 'POST':
-			name = request.POST.get('sudo_name', '').strip().upper()
+			name = request.POST.get('sudo_name', '').strip().upper()		# 将别名转换为大写
 			comment = request.POST.get('sudo_comment', '').strip()
 			commands = request.POST.get('sudo_commands', '').strip()
 

@@ -32,7 +32,7 @@
 
                 <div class="ibox-content">
                     <div class="">
-                    <a  href="{% url 'sudo_add' %}" class="btn btn-sm btn-primary "> 添加别名 </a>
+                    <a href="{% url 'sudo_add' %}" class="btn btn-sm btn-primary "> 添加别名 </a>
                     <form id="search_form" method="get" action="" class="pull-right mail-search">
                         <div class="input-group">
                             <input type="text" class="form-control input-sm" id="search_input" name="search" placeholder="搜索关键字">
@@ -55,7 +55,7 @@
                             </tr>
                         </thead>
                         <tbody id="edittbody">
-                        {% for sudo in sudos %}
+                        {% for sudo in sudos.object_list %}
                             <tr class="gradeX" id={{ sudo.id }}>
                                 <td class="text-center"> {{ sudo.name }} </td>
                                 <td class="text-center"> {{ sudo.commands }} </td>
@@ -83,7 +83,6 @@
     </div>
 </div>
 
-
 <script>
 function remove_sudo(sudo_id){
     if (confirm("确认删除")) {
@@ -101,10 +100,8 @@ function remove_sudo(sudo_id){
            }
         });
     }
-
 }
 </script>
-
 
 {% endblock %}
 
