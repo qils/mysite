@@ -184,7 +184,7 @@ def asset_detail(request):
 					user_perm.append([user, role_dic.get('role', '')])
 			elif perm == 'user_group':
 				user_group_perm = value
-			elif perm == 'rule':
+			elif perm == 'rule':		# 源码中没有这个判断
 				user_rule_perm = value
 
 	asset_record = AssetRecord.objects.filter(asset=asset).order_by('-alert_time')		# 资产变更记录
@@ -295,10 +295,10 @@ def asset_edit_batch(request):
 		group = request.POST.getlist('group', [])
 		cabinet = request.POST.get('cabinet', '')
 		comment = request.POST.get('comment', '')
-		asset_id_all = unicode(request.GET.get('asset_id_all', ''))
+		asset_id_all = unicode(request.GET.get('asset_id_all', ''))		# 从URL参数中获取需要变更的资产ID
 		asset_id_all = asset_id_all.split(',')
 		for asset_id in asset_id_all:		# 循环对需要修改的资产进行更改
-			alert_info = []
+			alert_info = []		# 保存变更前后信息
 			asset = get_object(Asset, id=asset_id)
 			if asset:
 				if env:		# 运行环境变更处理
@@ -331,7 +331,7 @@ def asset_edit_batch(request):
 						password_encode = CRYPTOR.encrypt(password)
 						asset.password = password_encode
 						alert_info.append([u'使用默认管理账号', u'默认', username])
-				if group:
+				if group:		# 资产组变更
 					group_new, group_old, group_new_name, group_old_name = [], asset.group.all(), [], []
 					for group_id in group:
 						asset_group = get_object(AssetGroup, id=group_id)
