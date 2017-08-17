@@ -29,7 +29,7 @@ def gen_keys(key='', key_path_dir=''):
 	public_key = os.path.join(key_path_dir, 'id_rsa.pub')		# 指定公钥文件
 	mkdir(key_path_dir, mode=755)		# 创建私钥和公钥的存放目录
 
-	if not key:
+	if not key:		# 不输入私钥, 创建一个密钥
 		key = RSAKey.generate(2048)		# 创建key对象
 		key.write_private_key_file(private_key)		# 将私钥写入私钥文件
 	else:
@@ -47,4 +47,4 @@ def gen_keys(key='', key_path_dir=''):
 		for data in [key.get_name(), ' ', key.get_base64(), ' %s@%s' % ('root', os.uname()[1])]:
 			content_file.write(data)		# key.get_name() 返回字符'ssh-rsa', key.get_base64()返回公钥字符
 
-	return key_path_dir
+	return key_path_dir		# 创建完密钥后, 返回密钥存储路径

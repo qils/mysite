@@ -14,7 +14,7 @@ from django.template import Context
 
 class MyInventory(Inventory):
 	def __init__(self, resource):
-		self.resource = resource
+		self.resource = resource		# 保存所有资产信息
 		self.inventory = Inventory(host_list=[])
 		self.gen_inventory()
 
@@ -30,7 +30,7 @@ class MyInventory(Inventory):
 			hostport = host.get('port')		# 每个资产的连接端口号
 			username = host.get('username', '')		# 每个资产的系统管理账号
 			password = host.get('password', '')		# 每个资产的系统管理账号密码
-			ssh_key = host.get('ssh_key', '')		# 每个资产的私钥目录
+			ssh_key = host.get('ssh_key', '')		# 每个资产的私钥文件
 			my_host = Host(name=hostname, port=hostport)
 			my_host.set_variable('ansible_ssh_host', hostip)
 			my_host.set_variable('ansible_ssh_port', hostport)
@@ -76,11 +76,11 @@ class MyRunner(MyInventory):
 		logger.debug(self.results_raw)
 		return self.results_raw
 
-	@property
+	@property		# 将results变成一个属性, 通过self.results调用
 	def results(self):
 		result = {'failed': {}, 'ok': {}}		# 统计推送失败的资产信息, 保存信息的方式为key: 资产名称, value: 失败信息
-		dark = self.results_raw.get('dark')
-		contacted = self.results_raw.get('contacted')
+		dark = self.results_raw.get('dark')		# 推送失败信息
+		contacted = self.results_raw.get('contacted')		# 推送成功信息
 
 		if dark:
 			for host, info in dark.iteritems():
@@ -90,7 +90,7 @@ class MyRunner(MyInventory):
 			for host, info in contacted.iteritems():
 				if info.get('invocation').get('module_name') in ['raw', 'shell', 'command', 'script']:
 					if info.get('rc') == 0:		# 值为0表示成功
-						result['ok'][host] = info.get('stdout') + info.get('stderr')
+						result['ok'][host] = info.get('stdout') + info.get('stderr')		# 保存标准错误输出, 标准输出
 					else:
 						result['failed'][host] = info.get('stdout') + info.get('stderr')
 				else:
@@ -110,10 +110,10 @@ class MyTask(MyRunner):
 		sudo_alias = {}
 		sudo_user = {}
 		for sudo in sudo_list:
-			sudo_alias[sudo.name] = sudo.commands
+			sudo_alias[sudo.name] = sudo.commands		# sudo别名关联的系统命令	{'MM': '/bin/cp, ALL, /bin/rm'}
 
 		for role in role_list:
-			sudo_user[role.name] = ','.join(sudo_alias.keys())
+			sudo_user[role.name] = ','.join(sudo_alias.keys())		# 系统用户关联的sudo别名 {'mm3': 'MM, SS'}
 
 		sudo_j2 = get_template('jperm/role_sudo.j2')		# 加载模板,生成模板对象, role_sudo.j2是一个shell脚本, 用来修改/etc/sudoers内容
 		sudo_content = sudo_j2.render(Context({'sudo_alias': sudo_alias, 'sudo_user': sudo_user}))		# 渲染模板
@@ -151,6 +151,26 @@ class MyTask(MyRunner):
 		'''
 		module_args = self.gen_sudo_script(role_list, sudo_list)
 		self.run('script', module_args, become=True)
+		return self.results
+
+	def del_user(self, username):
+		'''
+		删除资产上的系统用户
+		'''
+		if username == 'root':
+			return {'status': 'failed', 'msg': 'root can not be delete'}
+		module_args = 'name=%s state=absent remove=yes move_home=yes force=yes' % (username, )
+		self.run('user', module_args, become=True)
+		return self.results
+
+	def del_user_sudo(self, username):
+		'''
+		删除系统用户sudo
+		'''
+		if username	== 'root':
+			return {'status': 'failed', 'msg': 'root can not be delete'}
+		module_args = "sed -i 's/^%s//' /etc/sudoers" % (username, )
+		self.run('command', module_args, become=True)
 		return self.results
 
 	def recyle_cmd_alias(self, role_name):

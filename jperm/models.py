@@ -38,7 +38,7 @@ class PermRole(models.Model):
 	password = models.CharField(max_length=512)
 	key_path = models.CharField(max_length=100)
 	date_added = models.DateTimeField(auto_now=True)
-	sudo = models.ManyToManyField(PermSudo, related_name='perm_role')
+	sudo = models.ManyToManyField(PermSudo, related_name='perm_role')		# 多对多, 一个系统用户有多个sudo
 
 	def __unicode__(self):
 		return self.name

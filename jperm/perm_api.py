@@ -188,7 +188,7 @@ def get_role_push_host(role):
 	'''
 	pushs = PermPush.objects.filter(role=role)		# 获取某个系统用户所有的推送记录
 	all_assets = Asset.objects.all()		# 过滤所有的资产信息
-	asset_pushed = {}		# 用来保存某个系统用户推送的资产
+	asset_pushed = {}		# 保存某个系统用户推送的资产
 	for push in pushs:
 		asset_pushed[push.asset] = {
 			'success': push.success,

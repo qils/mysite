@@ -150,7 +150,7 @@ def perm_role_add(request):
 
 	if request.method == 'POST':
 		name = request.POST.get('role_name', '').strip()		# 获取系统用户名称
-		password = request.POST.get('role_password', '')		# 获取密码
+		password = request.POST.get('role_password', '')		# 获取系统用户密码
 		key_content = request.POST.get('role_key', '')		# 获取提交的私钥
 		comment = request.POST.get('role_comment', '')
 		sudo_ids = request.POST.getlist('sudo_name', [])		# 获取关联的sudo
@@ -158,17 +158,18 @@ def perm_role_add(request):
 		try:
 			if get_object(PermRole, name=name):
 				raise ServerError(u'该系统用户 %s 已经存在' % (name, ))		# 系统用户名重名检查
-			if name == 'root':
+			if name == 'root':		# 这里禁止root用户作为系统用户
 				raise ServerError(u'禁止使用root用户作为系统用户')
 			default = get_object(Setting, name='default')		# 暂时没用到
+
 			if len(password) > 64:
 				raise ServerError(u'密码长度不能超过64位')
-
 			if password:
 				encrypt_pass = CRYPTOR.encrypt(password)
 			else:
 				encrypt_pass = CRYPTOR.encrypt(CRYPTOR.gen_rand_key(20))		# 如果不输入密码字符, 将随机生成一个密码
 			sudos_obj = [get_object(PermSudo, id=sudo_id) for sudo_id in sudo_ids]
+
 			if key_content:
 				try:
 					key_path = gen_keys(key=key_content)		# 生成秘钥文件
@@ -176,6 +177,7 @@ def perm_role_add(request):
 					raise ServerError(e)
 			else:
 				key_path = gen_keys()
+
 			role = PermRole(name=name, password=encrypt_pass, comment=comment, key_path=key_path)		# 保存到数据库
 			role.save()
 			role.sudo = sudos_obj		# 关联所有sudo
@@ -226,7 +228,7 @@ def perm_role_edit(request):
 
 				if key_content:		# 私钥变更时, 才做更新
 					try:
-						key_path = gen_keys(key=key_content, key_path_dir=role.key_path)
+						key_path = gen_keys(key=key_content, key_path_dir=role.key_path)		# 指定密钥存放目录
 					except SSHException, e:
 						raise ServerError(u'输入的私钥不合法')
 
@@ -250,6 +252,7 @@ def perm_role_push(request):
 	header_title, path1, path2 = u'系统用户', u'系统用户管理', u'系统用户推送'
 	role_id = request.GET.get('id', '')
 	role = get_object(PermRole, id=role_id)
+
 	asset_ids = request.GET.get('asset_id', '')
 	assets = Asset.objects.all()		# 所有主机资产
 	asset_groups = AssetGroup.objects.all()		# 所有资产组
@@ -269,17 +272,17 @@ def perm_role_push(request):
 			group_assets_obj.extend(group_asset.asset_set.all())		# 计算所有组对象中的资产
 		calc_assets = list(set(assets_obj) | set(group_assets_obj))		# 去重合并所有资产, cals_assets为需要推送的资产列表
 
-		push_resource = gen_resource(calc_assets)
+		push_resource = gen_resource(calc_assets)		# 生成每个资产的{hostname, ip, username, password, port, ssh_key}
 
 		# 调用Ansible API进行推送
 		password_push = True if request.POST.get('use_password', '') else False		# 推送密码, 目前源码里不在支持推送密码
 		key_push = True if request.POST.get('use_publicKey', '') else False		# 推送公钥
 		task = MyTask(push_resource)		# 推送资源列表, 每个资源信息保存在字典对象中
-		ret = {}
+		ret = {}		# 保存所有推送信息结果
 
 		# 通过秘钥方式推送角色
 		if key_push:
-			ret['pass_push'] = task.add_user(role.name)		# 推送系统用户名, 没有密码, 系统用户统一使用秘钥通信
+			ret['pass_push'] = task.add_user(role.name)		# 推送系统用户名, 没有密码, 系统用户统一使用密钥通信
 			ret['key_push'] = task.push_key(role.name, os.path.join(role.key_path, 'id_rsa.pub'))		# 推送系统用户公钥
 
 		# 推送sudo配置文件
@@ -288,7 +291,7 @@ def perm_role_push(request):
 			if sudo_list:
 				ret['sudo'] = task.push_sudo_file([role], sudo_list)		# 推送脚本, 修改目标主机/etc/sudoers
 			else:
-				ret['sudo'] = task.recyle_cmd_alias(role.name)		# sudo_list为空,回收sudo命令
+				ret['sudo'] = task.recyle_cmd_alias(role.name)		# sudo_list为空,回收对应系统用户sudo命令
 
 		logger.debug(u'推送role结果: %s' % (ret, ))
 		success_asset = {}		# 推送成功的资产
@@ -317,7 +320,7 @@ def perm_role_push(request):
 
 		# 将推送信息记录到PermPush 表
 		for asset in calc_assets:
-			if PermPush.objects.filter(role=role, asset=asset):
+			if PermPush.objects.filter(role=role, asset=asset):		# 相同的系统用户, 资产已经存在时只对信息更改, 不创建新推送记录
 				func = PermPush.objects.filter(role=role, asset=asset).update
 			else:
 				def func(**kwargs):
@@ -387,7 +390,39 @@ def perm_role_detail(request):
 
 @require_role('admin')
 def perm_role_recycle(request):
-	pass
+	'''
+	将系统用户从选择的资产中回收
+	'''
+	role_id = request.GET.get('role_id', '')
+	asset_ids = request.GET.get('asset_id', '').split(',')
+	role = get_object(PermRole, id=role_id)
+
+	if role:		# 仅对推送的资产进行回收
+		assets = [get_object(Asset, id=asset_id) for asset_id in asset_ids]
+		recycle_asset = []
+		for asset in assets:
+			if PermPush.objects.filter(role=role, asset=asset):		# 判断系统用户是否有推送到资产
+				recycle_asset.append(asset)
+
+		if recycle_asset:
+			recycle_resource = gen_resource(recycle_asset)
+			task = MyTask(recycle_resource)
+
+			try:
+				msg_del_user = task.del_user(role.name)
+				msg_del_sudo = task.del_user_sudo(role.name)
+				logger.info('recycle user msg: %s' % (msg_del_user, ))
+				logger.info('recycle sudo msg: %s' % (msg_del_sudo, ))
+			except Exception, e:
+				logger.warning('Recycle Role failed: %s' % (e, ))
+				raise ServerError(u'回收已推送的系统用户失败: %s' % (e, ))
+
+			for asset in recycle_asset:
+				PermPush.objects.filter(role=role, asset=asset).delete()		# 删除推送记录
+
+			return HttpResponse(u'删除成功')
+
+	return HttpResponse(u'删除失败')
 
 
 @require_role('admin')
