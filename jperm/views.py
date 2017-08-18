@@ -521,7 +521,7 @@ def perm_rule_add(request):
 
 			# 授权系统用户必须已经推送到授权的资产上, 否则下面验证不通过
 			for role in roles_obj:
-				asset_no_push = get_role_push_host(role)[1]
+				asset_no_push = get_role_push_host(role)[1]		# 获取系统用户没用推送到的资产记录
 				need_push_asset.update(set(calc_assets) & set(asset_no_push))
 				if need_push_asset:
 					raise ServerError(u'没有推送系统用户 %s 的主机 [ %s ]' % (role.name, '|'.join([asset.hostname for asset in need_push_asset])))

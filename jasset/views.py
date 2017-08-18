@@ -192,8 +192,20 @@ def asset_detail(request):
 	return my_render('jasset/asset_detail.html', locals(), request)
 
 
+@require_role(role='admin')
 def asset_update(request):
-	pass
+	'''
+	更新资产视图
+	'''
+	asset_id = request.GET.get('id', '')
+	asset = get_object(Asset, id=asset_id)
+	name = request.user.username
+
+	if not asset:
+		return HttpResponseRedirect(reverse('asset_detail' + '?id=%s' % (asset_id, )))
+	else:
+		asset_ansible_update([asset], name)
+	return HttpResponseRedirect(reverse('asset_detail' + '?id=%s' % (asset_id, )))
 
 
 @require_role(role='super')

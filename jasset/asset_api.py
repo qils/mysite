@@ -3,6 +3,8 @@
 
 import xlrd
 from mysite.api import *
+from jperm.perm_api import gen_resource
+from jperm.ansible_api import MyRunner
 from jasset.models import ASSET_STATUS, ASSET_TYPE, ASSET_ENV
 
 
@@ -181,3 +183,89 @@ def db_asset_alert(asset, username, alert_dic, username_old=None):
 			username=username,
 			content=alert_list			# 变更内容字段
 		)
+
+
+def get_ansible_asset_info(asset_ip, setup_info):
+	'''
+	获取对应资产的硬件信息, 返回信息格式 [mac, cpu_type...]
+	'''
+	disk_need = {}		# 保存资产磁盘信息
+	disk_all = setup_info.get('ansible_devices', '')
+	if disk_all:
+		for disk_name, disk_info in disk_all.iteritems():
+			if disk_name.startswith('sd') or disk_name.startswith('hd') or disk_name.startswith('vd') or disk_name.startswith('xvd'):
+				disk_size = disk_info.get('size', '')		# 磁盘总容量
+				if 'M' in disk_size:
+					disk_format = round(float(disk_size[:-2]) / 1000.0, 0)		# 磁盘单位转为G
+				elif 'T' in disk_size:
+					disk_format = round(float(disk_size[:-2]) * 1000.0, 0)		# 同上
+				else:
+					disk_format = float(disk_size[:-2])
+				disk_need[disk_name] = disk_format
+
+	all_ip = setup_info.get('ansible_all_ipv4_addresses', [])		# 资产上所有IPV4地址, 保存在一个列表
+	other_ip_list = all_ip.remove(asset_ip) if asset_ip in all_ip else []		# 资产其他IP
+	other_ip = ','.join(other_ip_list) if other_ip_list else ''
+
+	mac = setup_info.get('ansible_default_ipv4').get('macaddress')		# 默认网卡MAC地址
+	brand = setup_info.get('ansible_product_name')		# 资产产品名称
+
+	try:
+		cpu_type = setup_info.get('ansible_processor')[1]		# 处理器型号
+	except IndexError:
+		cpu_type = ' '.join(setup_info.get('ansible_processor')[0].split(' ')[:6])
+
+	memory = setup_info.get('ansible_memtotal_mb')		# 资产内存大小, 单位MB
+	disk = disk_need
+	system_type = setup_info.get('ansible_distribution')		# 发行版(CentOS, RedHat...)
+	if system_type.lower = 'freebsd':		# freebsd发行版
+		system_version = setup_info.get('ansible_distribution_release')		# 系统版本号
+		cpu_cores = setup_info.get('ansible_processor_count')		# 逻辑CPU个数
+	else:
+		system_type = setup_info.get('ansible_distribution_version')
+		cpu_cores = setup_info.get('ansible_processor_vcpus')		# 逻辑CPU个数
+	cpu = cpu_type + '*' + unicode(cpu_cores)		# CPU类型, 个数
+
+	system_arch = setup_info.get('ansible_architecture')		# 资产硬件架构(x86_64)
+	sn = setup_info.get('ansible_product_serial')		# 资产编号
+	asset_info = [other_ip, mac, cpu, memory, disk, sn, system_type, system_version, brand, system_arch]
+	return asset_info
+
+
+def asset_ansible_update(obj_list, name=''):
+	'''
+	调用ansible api 获取资产硬件以及其它信息
+	'''
+	resource = gen_resource(obj_list)		# 创建每个资产登录信息, resource 由字典组成的列表
+	ansible_instance = MyRunner(resource)
+	ansible_asset_info = ansible_instance.run(module_name='setup', pattern='*')		# 通过ansible api 获取所有资产的物理信息
+
+	for asset in obj_list:
+		try:
+			setup_info = ansible_asset_info['contacted'][asset.hostname]['ansible_facts']		# 获取对应资产硬件信息
+		except KeyError, e:
+			logger.debug(u'获取setup_info信息失败: %s ' % (e, ))
+			continue
+		else:
+			try:
+				asset_info = get_ansible_asset_info(asset.ip, setup_info)
+				other_ip, mac, cpu, memory, disk, sn, system_type, system_version, brand, system_arch = asset_info
+				asset_dict = {
+					'other_ip': other_ip,
+					'mac': mac,
+					'cpu': cpu,
+					'memory': memory,
+					'disk': disk,
+					'sn': sn,
+					'system_type': system_type,
+					'system_version': system_version,
+					'brand': brand,
+					'system_arch': system_arch,
+				}
+				ansible_record(asset, asset_dict, name)
+			except Exception, e:
+				logger.error('save setup info failed %s' % (e, ))
+
+
+def ansible_record(asset, asset_dict, name):
+	pass
