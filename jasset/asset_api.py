@@ -218,7 +218,7 @@ def get_ansible_asset_info(asset_ip, setup_info):
 	memory = setup_info.get('ansible_memtotal_mb')		# 资产内存大小, 单位MB
 	disk = disk_need
 	system_type = setup_info.get('ansible_distribution')		# 发行版(CentOS, RedHat...)
-	if system_type.lower = 'freebsd':		# freebsd发行版
+	if system_type.lower == 'freebsd':		# freebsd发行版
 		system_version = setup_info.get('ansible_distribution_release')		# 系统版本号
 		cpu_cores = setup_info.get('ansible_processor_count')		# 逻辑CPU个数
 	else:
