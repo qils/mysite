@@ -253,12 +253,12 @@ def perm_role_push(request):
 	role_id = request.GET.get('id', '')
 	role = get_object(PermRole, id=role_id)
 
-	asset_ids = request.GET.get('asset_id', '')
+	asset_ids = request.GET.get('asset_id', '')		# 重新推送带过来的asset_id参数
 	assets = Asset.objects.all()		# 所有主机资产
 	asset_groups = AssetGroup.objects.all()		# 所有资产组
 
 	if asset_ids:
-		need_push_asset = [get_object(Asset, id=asset_id) for asset_id in asset_ids.split(',')]
+		need_push_asset = [get_object(Asset, id=asset_id) for asset_id in set(asset_ids.split(','))]		# 增加set表示去除相同的id
 
 	if request.method == 'POST':
 		# 获取推送角色的名称列表
