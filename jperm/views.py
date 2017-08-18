@@ -291,7 +291,7 @@ def perm_role_push(request):
 			if sudo_list:
 				ret['sudo'] = task.push_sudo_file([role], sudo_list)		# 推送脚本, 修改目标主机/etc/sudoers
 			else:
-				ret['sudo'] = task.recyle_cmd_alias(role.name)		# sudo_list为空,回收对应系统用户sudo命令
+				ret['sudo'] = task.recycle_cmd_alias(role.name)		# sudo_list为空,回收对应系统用户sudo命令
 
 		logger.debug(u'推送role结果: %s' % (ret, ))
 		success_asset = {}		# 推送成功的资产

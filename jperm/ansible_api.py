@@ -167,13 +167,13 @@ class MyTask(MyRunner):
 		'''
 		删除系统用户sudo
 		'''
-		if username	== 'root':
+		if username == 'root':
 			return {'status': 'failed', 'msg': 'root can not be delete'}
-		module_args = "sed -i 's/^%s//' /etc/sudoers" % (username, )
+		module_args = "sed -i 's/^%s.*//' /etc/sudoers" % (username, )
 		self.run('command', module_args, become=True)
 		return self.results
 
-	def recyle_cmd_alias(self, role_name):
+	def recycle_cmd_alias(self, role_name):
 		if role_name == 'root':
 			return {'status': 'failed', 'msg': u'不能回收root权限'}
 		module_args = "sed -i 's/^%s.*//' /etc/sudoers" % (role_name, )
