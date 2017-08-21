@@ -389,13 +389,8 @@ def perm_role_delete(request):
 			if not role:
 				raise ServerError(u'role_id %s 无数据记录' % (role_id, ))
 			role_key = role.key_path		# 获取资产系统用户密钥存储目录
+			recycle_assets = [push.asset for push in role.perm_push.all() if push.success]		# 只对推送成功的资产删除系统用户
 
-			try:
-				recycle_assets = [push.asset for push in role.perm_push.all if push.success]		# 只对推送成功的资产删除系统用户
-			except Exception:
-				logger.debug('--->here')
-				return HttpResponse('error')
-			
 			if recycle_assets:
 				recycle_resource = gen_resource(recycle_assets)		# 生成资产信息
 				task = MyTask(recycle_resource)
