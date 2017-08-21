@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import re
 import os
+import shutil
 from jperm.perm_api import *
 from django.db.models import Q
 from jperm.utils import trans_all, gen_keys
@@ -380,7 +381,40 @@ def perm_role_delete(request):
 				return HttpResponse('filter_type: ?')
 		except ServerError, e:
 			return HttpResponse(e)
-		
+
+	if request.method == 'POST':
+		try:
+			role_id = request.POST.get('id', '')
+			role = get_object(PermRole, id=role_id)
+			if not role:
+				raise ServerError(u'role_id %s 无数据记录' % (role_id, ))
+			role_key = role.key_path		# 获取资产系统用户密钥存储目录
+
+			recycle_assets = [push.asset for push in role.perm_push.all if push.success]		# 只对推送成功的资产删除系统用户
+			if recycle_assets:
+				recycle_resource = gen_resource(recycle_assets)		# 生成资产信息
+				task = MyTask(recycle_resource)
+				try:
+					msg_del_user = task.del_user(role.name)		# 调用ansible api 删除系统用户
+					msg_del_sudo = task.del_user_sudo(role.name)		# 调用ansible api 删除sudo
+				except Exception, e:
+					raise ServerError(u'回收已推送的系统用户失败: %s' % (e, ))
+
+				logger.info('delete role %s - execute delete user: %s' % (role.name, msg_del_user))
+				logger.info('delete role %s - execute delete sudo: %s' % (role.name, msg_del_sudo))
+
+			try:
+				shutil.rmtree(role_key)		# 删除系统用户key目录
+			except Exception, e:
+				raise ServerError(u'删除系统用户key失败: %s' % (e, ))
+
+			logger.info('delete role %s - delete role key directory: %s' % (role.name, role_key))
+			role.delete()		# 从PermRole表中删除该Role记录
+			return HttpResponse(u'删除系统用户: %s' % (role.name, ))
+		except ServerError, e:
+			return HttpResponseBadRequest(u'删除失败, 原因: %s' % (e, ))
+	return HttpResponseNotAllowed(u'仅支持POST请求')
+
 
 @require_role('admin')
 def perm_role_detail(request):
