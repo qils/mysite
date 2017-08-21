@@ -202,10 +202,10 @@ def asset_update(request):
 	name = request.user.username
 
 	if not asset:
-		return HttpResponseRedirect(reverse('asset_detail' + '?id=%s' % (asset_id, )))
+		return HttpResponseRedirect(reverse('asset_detail') + '?id=%s' % (asset_id, ))
 	else:
 		asset_ansible_update([asset], name)
-	return HttpResponseRedirect(reverse('asset_detail' + '?id=%s' % (asset_id, )))
+	return HttpResponseRedirect(reverse('asset_detail') + '?id=%s' % (asset_id, ))
 
 
 @require_role(role='super')
