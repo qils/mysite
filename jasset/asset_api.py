@@ -222,7 +222,7 @@ def get_ansible_asset_info(asset_ip, setup_info):
 		system_version = setup_info.get('ansible_distribution_release')		# 系统版本号
 		cpu_cores = setup_info.get('ansible_processor_count')		# 逻辑CPU个数
 	else:
-		system_type = setup_info.get('ansible_distribution_version')
+		system_version = setup_info.get('ansible_distribution_version')
 		cpu_cores = setup_info.get('ansible_processor_vcpus')		# 逻辑CPU个数
 	cpu = cpu_type + '*' + unicode(cpu_cores)		# CPU类型, 个数
 
@@ -267,5 +267,16 @@ def asset_ansible_update(obj_list, name=''):
 				logger.error('save setup info failed %s' % (e, ))
 
 
-def ansible_record(asset, asset_dict, name):
-	pass
+def ansible_record(asset, ansible_dict, username):
+	'''
+	修改资产信息, 将变更信息保存到数据库
+	'''
+	alter_dict = {}
+	asset_dict = asset.__dict__
+	for field, value in ansible_dict.iteritems():
+		old = asset_dict.get(field)
+		new = ansible_dict.get(field)
+		if unicode(old) != unicode(new):
+			setattr(asset, field, value)
+			asset.save()
+			alter_dict[field] = [old, new]
