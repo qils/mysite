@@ -357,9 +357,30 @@ def perm_role_get(request):
 	return HttpResponse('error')
 
 
+@require_role(role='admin')
 def perm_role_delete(request):
-	pass
-
+	'''
+	删除一个资产系统用户视图
+	'''
+	if request.method == 'GET':
+		try:
+			role_id = request.GET.get('id', '')		# 通过参数获取需要删除的系统用户role_id
+			role = get_object(PermRole, id=role_id)
+			if not role:
+				raise ServerError(u'role_id %s 没有数据记录' % (role_id, ))
+			filter_type = request.GET.get('filter_type', '')
+			if filter_type:
+				if filter_type == 'recycle_assets':
+					recycle_assets = [push.asset for push in role.perm_push.all() if push.success]		# 只对推送成功的资产回收系统用户
+					recycle_assets_ip = ','.join([asset.ip for asset in recycle_assets])
+					return HttpResponse(recycle_assets_ip)
+				else:
+					return HttpResponse('no such filter_type: %s' % (filter_type, ))
+			else:
+				return HttpResponse('filter_type: ?')
+		except ServerError, e:
+			return HttpResponse(e)
+		
 
 @require_role('admin')
 def perm_role_detail(request):
