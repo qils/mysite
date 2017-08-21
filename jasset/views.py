@@ -375,8 +375,27 @@ def asset_edit_batch(request):
 	return my_render('jasset/asset_edit_batch.html', locals(), request)
 
 
+@require_role(role='admin')
 def asset_update_batch(request):
-	pass
+	'''
+	批量更新资产物理硬件信息视图
+	'''
+	if request.method == 'POST':
+		asset_list = []
+		arg = request.GET.get('arg', '')
+		name = unicode(request.user.username) + ' - ' + u'自动更新'
+		if arg == 'all':		# 更新所有资产的物理硬件信息
+			asset_list = Asset.objects.all()
+		else:
+			asset_id_all = unicode(request.POST.get('asset_id_all', ''))
+			asset_id_all = asset_id_all.split(',')
+			for asset_id in asset_id_all:
+				asset = get_object(Asset, id=asset_id)
+				if asset:
+					asset_list.append(asset)
+		asset_ansible_update(asset_list, name)
+		return HttpResponse(u'批量更新成功')
+	return HttpResponse(u'批量更新成功')
 
 
 @require_role('admin')
