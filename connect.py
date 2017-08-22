@@ -8,10 +8,22 @@ import datetime
 import socket
 import paramiko
 import operator
+import getpass
+import django
 
+from install.setup import color_print
 from mysite.api import *
 from django.contrib.sessions.models import Session
-from jperm.perm_api import user_have_perm
+from jperm.perm_api import user_have_perm, get_group_user_perm
+
+if not django.get_version().startswith('1.6'):
+	setup = django.setup()
+
+login_user = get_object(User, username=getpass.getuser())		# 登录堡垒机账号名称
+try:
+	remote_ip = os.environ.get('SSH_CLIENT', '').split()[0]		# 获取远程登录堡垒机的来源IP地址
+except (IndexError, AttributeError):
+	remote_ip = os.popen("who -m | awk '{print $NF}'").read().strip('(\n)')
 
 
 class Tty(object):
@@ -186,3 +198,36 @@ class Tty(object):
 		else:
 			self.ssh = ssh
 			return ssh
+
+
+class Nav(object):
+	'''
+	导航提示类
+	'''
+	def __init__(self, user):
+		self.user = user
+		self.user_perm = get_group_user_perm(self.user)		# 获取用户授权信息
+		if settings.NAV_SORT_BY == 'ip':		# 通过资产IP来排序
+			self.perm_assets = sorted(
+										self.user_perm.get('asset', []).keys(), key=lambda x: [int(num) for num in x.ip.split('.') if num.isdigit()]
+			)
+
+
+
+def main():
+	'''
+	授权用户登录堡垒机服务器后执行的主程序函数
+	'''
+	if not login_user:		# 检查登录用户是否存在
+		color_print(u'没有该用户, 或许你是root运行的', exits=True)
+
+	if not login_user.is_active:		# 检查登录用户是否被激活
+		color_print(u'该用户[%s]已被禁用, 请联系管理员.' % (login_user.username, ), exits=True)
+
+	gid_pattern = re.compile(r'^g\d+$')
+	nav = Nav(login_user)
+	print nav.perm_assets
+
+
+if __name__ == '__main__':
+	main()

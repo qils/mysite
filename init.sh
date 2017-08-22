@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 
-trap '' SIGINT
+trap '' SIGINT		# ºöÂÔCtrl+C ÐÅºÅ
 base_dir=$(dirname $0)
 
 export LANG='zh_CN.UTF-8'

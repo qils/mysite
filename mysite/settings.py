@@ -41,6 +41,12 @@ IP = config.get('base', 'ip')           # 服务监听IP地址
 PORT = config.get('base', 'port')       # 服务监听端口
 KEY = config.get('base', 'key')     # 加密字符KEY, 随机生成的一个16位字符
 URL = config.get('base', 'url')     # 密码重置服务器地址
+
+# ======== Connect ========
+try:
+    NAV_SORT_BY = config.get('connect', 'nav_sort_by')
+except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    NAV_SORT_BY = 'ip'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
