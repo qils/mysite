@@ -16,6 +16,7 @@ from mysite.api import *
 from django.contrib.sessions.models import Session
 from jperm.perm_api import user_have_perm, get_group_user_perm
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 if not django.get_version().startswith('1.6'):
 	setup = django.setup()
 
