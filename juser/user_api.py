@@ -86,7 +86,10 @@ def server_add_user(username, ssh_key_pwd=''):
 	'''
 	在服务器上创建一个主机用户
 	'''
-	bash("useradd -s '%s' '%s'" % (os.path.join(BASE_DIR, 'init.sh'), username))
+	bash("useradd '%s'" % (username, ))		# 这里如果指定授权用户登录shell时会导致一个问题： 使用秘钥验证没法通过
+	bash('echo "if [ -f /data/djcode/mysite/init.sh ];then" >> /home/%s/.bash_profile' % (username, ))		# 改用在每个授权的 .bash_profile文件中添加登录执行脚本
+	bash('echo "     /bin/sh /data/djcode/mysite/init.sh" >> /home/%s/.bash_profile' % (username, ))
+	bash('echo "fi" >> /home/%s/.bash_profile' % (username, ))
 	gen_ssh_key(username, ssh_key_pwd)		# 创建用户的ssh key
 
 
