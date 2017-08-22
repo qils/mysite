@@ -3,6 +3,7 @@
 
 import os
 import re
+import textwrap
 import pyte
 import datetime
 import socket
@@ -212,7 +213,37 @@ class Nav(object):
 			self.perm_assets = sorted(
 										self.user_perm.get('asset', []).keys(), key=lambda x: [int(num) for num in x.ip.split('.') if num.isdigit()]
 			)
+		elif settings.NAV_SORT_BY == 'hostname':		# 通过资产名称排序
+			self.perm_assets = self.natural_sort_hostname(self.user_perm.get('asset', []).keys())
+		else:
+			self.perm_assets = tuple(self.user_perm.get('asset', []))
 
+		self.search_result = self.perm_assets		# 所有授权的资产
+		self.perm_asset_groups = self.user_perm.get('asset_group', [])		# 所有授权的资产组
+
+	def natural_sort_hostname(self, alist):
+		convert = lambda text: int(text) if text.isdigit() else text.lower()
+		return sorted(alist, key=lambda x: [convert(c) for c in re.split('([0-9]+)', x.hostname)])
+
+	@staticmethod
+	def print_nav():
+		'''
+		打印提示导航
+		'''
+		msg = '''\n\033[1;32m###	欢迎使用Jumpserver开源跳板机系统	###\033[0m
+				1) 输入 \033[32mID\0330m 直接登录或输入\033[32m部分IP, 主机名, 备注\033[0m进行搜索登录(如果唯一).
+				2) 输入 \033[32m/\033[0m + \033[32mIP, 主机名 or 备注 \033[0m搜索, 如: /ip.
+				3) 输入 \033[32mP/p\033[0m显示有权限的主机.
+				4) 输入 \033[32mG/g\033[0m显示有权限的主机组.
+				5) 输入 \033[32mG/g\033[0m + \033[32m组ID\033[0m显示该组下的主机, 如: g1.
+				6) 输入 \033[32mE/e\033[0m批量执行命令.
+				7) 输入 \033[32mU/u\033[0m批量上传文件.
+				8) 输入 \033[32mD/d\033[0m批量下载文件.
+				9) 输入 \033[32mH/h\033[0m显示帮助.
+				10) 输入 \033[32mQ/q\033[0m退出程序.
+		'''
+		print textwrap.dedent(msg)
+		
 
 def main():
 	'''
@@ -226,8 +257,7 @@ def main():
 
 	gid_pattern = re.compile(r'^g\d+$')
 	nav = Nav(login_user)
-	print nav.perm_assets
-
+	nav.print_nav()
 
 if __name__ == '__main__':
 	main()
