@@ -226,6 +226,20 @@ class Nav(object):
 		convert = lambda text: int(text) if text.isdigit() else text.lower()
 		return sorted(alist, key=lambda x: [convert(c) for c in re.split('([0-9]+)', x.hostname)])
 
+	def get_asset_group_member(self, str_r):
+		'''
+		依据输入g1, g2, G1, G2... 查下条件, 输出对应资产组中资产信息
+		'''
+		gid_pattern = re.compile(r'^g\d+$', re.I)
+		if gid_pattern.match(str_r):
+			gid = int(str_r.lstrip('g'))		# 获取查询的gid
+			asset_group = get_object(AssetGroup, id=gid)
+			if asset_group and asset_group in self.perm_asset_groups:
+				self.search_result = list(asset_group.asset_set.all())
+			else:
+				color_print(u'没有该资产组或没有访问该资产组权限')
+				return
+
 	@staticmethod
 	def print_nav():
 		'''
@@ -291,7 +305,7 @@ class Nav(object):
 		hostname_max_length = self.get_max_asset_property_length(self.search_result)		# 获取资产最大主机名长度
 		line = '[%-5s] %-16s %-6s %-' + str(hostname_max_length) + 's %-20s %s'		# 定义输出格式
 		color_print(line % ('ID', '[Ip]', '[Port]', '[Hostname]', '[SysUser(系统用户)]', '[Comment]'), 'title')
-		if hasattr(self.search_result, '__iter__'):
+		if hasattr(self.search_result, '__iter__'):		# 当搜索结果不为空时, 迭代所有资产信息
 			for index, asset in enumerate(self.search_result):
 				asset_info = get_asset_info(asset)
 				role = [str(role.name) for role in self.user_perm.get('asset').get(asset).get('role')]		# 获取资产上的系统用户
@@ -312,7 +326,7 @@ def main():
 	if not login_user.is_active:		# 检查登录用户是否被激活
 		color_print(u'该用户[%s]已被禁用, 请联系管理员.' % (login_user.username, ), exits=True)
 
-	gid_pattern = re.compile(r'^g\d+$')
+	gid_pattern = re.compile(r'^g\d+$', re.I)		# 组匹配模式, g1, g2...., 源码中没有re.I, 增加G1, G2...匹配
 	nav = Nav(login_user)
 	nav.print_nav()
 
@@ -333,6 +347,10 @@ def main():
 
 			if option.startswith('/'):		# 搜索匹配以/ip 这种形式的资产
 				nav.search(option.lstrip('/'))
+				nav.print_search_result()
+				continue
+			elif gid_pattern.match(option):
+				nav.get_asset_group_member(str_r=option)		# 获取某个资产组中的资产信息
 				nav.print_search_result()
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
