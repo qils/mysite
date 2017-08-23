@@ -232,13 +232,13 @@ class Nav(object):
 		'''
 		gid_pattern = re.compile(r'^g\d+$', re.I)
 		if gid_pattern.match(str_r):
-			gid = int(str_r.lstrip('g'))		# 获取查询的gid
+			gid = int(str_r.lstrip('gG'))		# 获取查询的gid
 			asset_group = get_object(AssetGroup, id=gid)
 			if asset_group and asset_group in self.perm_asset_groups:
 				self.search_result = list(asset_group.asset_set.all())
 			else:
 				color_print(u'没有该资产组或没有访问该资产组权限')
-				return
+				self.search_result = []		# 没有匹配的组时, 输出结果需要置为空, 否则将会打印上一次的结果
 
 	@staticmethod
 	def print_nav():
