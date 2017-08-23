@@ -274,9 +274,9 @@ class Nav(object):
 		'''
 		if str_r:
 			try:
-				id_ = int(str_r)		# 输入的是数字字符
+				id_ = int(str_r)		# 输入的是数字字符, 直接输入ID时, 过滤需要登录的主机
 				if id_ < len(self.perm_assets):
-					self.search_result = [self.perm_assets[id_]]		# 返回对应的索引资产
+					self.search_result = [self.perm_assets[id_]]		# 返回对应的索引资产, 这里和源码不同, self.search_result 会变化, 所以用self.perm_assets
 					return
 				else:
 					raise ValueError
@@ -370,6 +370,13 @@ def main():
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
+			else:		# 主要判断是否输入的是一个ID字符数字, 通过该ID索引从self.perm_assets中取对应的一个资产
+				nav.search(option)
+				if len(nav.search_result) == 1:
+					target_asset = nav.search_result[0]
+					color_print('Only match Host: %s Ip: %s' % (target_asset.hostname, target_asset.ip))
+				else:
+					nav.print_search_result()
 	except IndexError, e:
 		color_print(e)
 		time.sleep(5)
