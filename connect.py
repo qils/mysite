@@ -330,7 +330,12 @@ def main():
 				nav.search()
 				nav.print_search_result()
 				continue
-			elif option in ['Q', 'q', 'exit']:
+
+			if option.startswith('/'):		# 搜索匹配以/ip 这种形式的资产
+				nav.search(option.lstrip('/'))
+				nav.print_search_result()
+				continue
+			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
 	except IndexError, e:
 		color_print(e)
