@@ -289,7 +289,7 @@ class Nav(object):
 		输出搜索到的资产信息
 		'''
 		hostname_max_length = self.get_max_asset_property_length(self.search_result)		# 获取资产最大主机名长度
-		line = '[%-5s] %-16s %-5s %-' + str(hostname_max_length) + 's %-20s %s'		# 定义输出格式
+		line = '[%-5s] %-16s %-6s %-' + str(hostname_max_length) + 's %-20s %s'		# 定义输出格式
 		color_print(line % ('ID', '[Ip]', '[Port]', '[Hostname]', '[SysUser(系统用户)]', '[Comment]'), 'title')
 		if hasattr(self.search_result, '__iter__'):
 			for index, asset in enumerate(self.search_result):
