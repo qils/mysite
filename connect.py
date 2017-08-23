@@ -226,6 +226,15 @@ class Nav(object):
 		convert = lambda text: int(text) if text.isdigit() else text.lower()
 		return sorted(alist, key=lambda x: [convert(c) for c in re.split('([0-9]+)', x.hostname)])
 
+	def print_asset_group(self):
+		'''
+		输出用户授权的资产组信息
+		'''
+		color_print('[%-3s] %-20s %s' % ('ID', '资产组名', '备注'))
+		for asset_group in self.perm_asset_groups:
+			print '[%-3s] %-20s %s' % (asset_group.id, asset_group.name, asset_group.comment)
+		print
+
 	def get_asset_group_member(self, str_r):
 		'''
 		依据输入g1, g2, G1, G2... 查下条件, 输出对应资产组中资产信息
@@ -352,6 +361,12 @@ def main():
 			elif gid_pattern.match(option):
 				nav.get_asset_group_member(str_r=option)		# 获取某个资产组中的资产信息
 				nav.print_search_result()
+				continue
+			elif option in ['G', 'g']:		# 打印用户授权的资产组信息
+				nav.print_asset_group()
+				continue
+			elif option in ['H', 'h']:
+				nav.print_nav()
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
