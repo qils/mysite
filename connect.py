@@ -226,6 +226,41 @@ class Nav(object):
 		convert = lambda text: int(text) if text.isdigit() else text.lower()
 		return sorted(alist, key=lambda x: [convert(c) for c in re.split('([0-9]+)', x.hostname)])
 
+	def try_connect(self):
+		'''
+		连接远程目标主机
+		'''
+		try:
+			asset = self.search_result[0]		# 获取登录的目标资产
+			roles = list(self.user_perm.get('asset').get(asset).get('role'))		# 获取资产授权的系统用户
+			if len(roles) == 1:
+				role = roles[0]
+			elif len(roles) > 1:
+				print '\033[32m[ID] 系统用户\033[0m'
+				for index, role in enumerate(roles):		# 当系统用户超过1时, 需要选择登录的系统用户
+					print '[%-2s] %s' % (index, role.name)
+				print
+
+				print '授权系统用户超过1个, 请输入ID, q退出'
+				try:
+					role_index = raw_input('\033[1;32mID>:\033[0m ').strip().lower()
+					if role_index == 'q':
+						return
+					else:
+						role = roles[int(role_index)]
+				except (IndexError, ValueError):
+					color_print(u'请输入正确的ID', color='red')
+					return
+			else:
+				color_print(u'没有授权的系统用户', color='red')
+				return
+
+			color_print(u'Connecting %s ....' % (asset.ip, ), color='blue')
+		except (KeyError, ValueError):
+			color_print(u'请输入正确的ID', color='red')
+		except ServerError, e:
+			color_print(e, color='red')
+
 	def print_asset_group(self):
 		'''
 		输出用户授权的资产组信息
@@ -374,7 +409,8 @@ def main():
 				nav.search(option)
 				if len(nav.search_result) == 1:
 					target_asset = nav.search_result[0]
-					color_print('Only match Host: %s Ip: %s' % (target_asset.hostname, target_asset.ip))
+					color_print('Only match Hostname: %s Ip: %s' % (target_asset.hostname, target_asset.ip), color='blue')
+					nav.try_connect()		# 开始连接远程目标主机
 				else:
 					nav.print_search_result()
 	except IndexError, e:
