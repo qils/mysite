@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import os
+import sys
 import re
 import textwrap
 import pyte
@@ -218,7 +219,7 @@ class Nav(object):
 		else:
 			self.perm_assets = tuple(self.user_perm.get('asset', []))
 
-		self.search_result = self.perm_assets		# 所有授权的资产
+		self.search_result = self.perm_assets		# 搜索结果保存, 默认赋值为所有授权资产
 		self.perm_asset_groups = self.user_perm.get('asset_group', [])		# 所有授权的资产组
 
 	def natural_sort_hostname(self, alist):
@@ -244,6 +245,62 @@ class Nav(object):
 		'''
 		print textwrap.dedent(msg)
 
+	def search(self, str_r=''):
+		'''
+		保存搜索结果: [<Asset: ip>, ....]
+		'''
+		if str_r:
+			try:
+				id_ = int(str_r)		# 输入的是数字字符
+				if id_ < len(self.perm_assets):
+					self.search_result = [self.perm_assets[id_]]		# 返回对应的索引资产
+					return
+				else:
+					raise ValueError
+			except (ValueError, TypeError):
+				str_r = str_r.lower()
+				self.search_result = [asset for asset in self.perm_assets if str_r in str(asset.ip).lower() or str_r in str(asset.hostname).lower() or str_r in str(asset.comment).lower()]		# 搜索匹配ip, hostname, 备注的资产
+		else:		# 没有搜索字符, 默认展示所有资产
+			self.search_result = self.perm_assets		# __init__初始化已经赋值过, 这里可以不需要在赋值
+
+	@staticmethod
+	def get_max_asset_property_length(assets, property_='hostname'):
+		'''
+		返回最大的主机名长度
+		'''
+		try:
+			return max([len(getattr(asset, property_)) for asset in assets])
+		except ValueError:
+			return 30		# 默认返回长度为30
+
+	@staticmethod
+	def truncate_str(str_, length=30):
+		'''
+		字符串截断
+		'''
+		str_ = str_.decode('utf-8')
+		if len(str_) > length:
+			str_ = str_[:14] + '...' + str_[-14:]
+		else:
+			return str_
+
+	def print_search_result(self):
+		'''
+		输出搜索到的资产信息
+		'''
+		hostname_max_length = self.get_max_asset_property_length(self.search_result)		# 获取资产最大主机名长度
+		line = '[%-5s] %-16s %-5s %-' + str(hostname_max_length) + 's %-20s %s'		# 定义输出格式
+		color_print(line % ('ID', 'Ip', 'Port', 'Hostname', 'SysUser(系统用户)', 'Comment'), 'title')
+		if hasattr(self.search_result, '__iter__'):
+			for index, asset in enumerate(self.search_result):
+				asset_info = get_asset_info(asset)
+				role = [str(role.name) for role in self.user_perm.get('asset').get(asset).get('role')]		# 获取资产上的系统用户
+				try:
+					print line % (index, asset.ip, asset_info.get('port'), self.truncate_str(asset.hostname), str(role).replace("'", ''), asset.comment)
+				except:
+					print line % (index, asset.ip, asset_info.get('port'), self.truncate_str(asset.hostname), str(role).replace("'", ''), '')
+		print
+					
 
 def main():
 	'''
@@ -258,6 +315,27 @@ def main():
 	gid_pattern = re.compile(r'^g\d+$')
 	nav = Nav(login_user)
 	nav.print_nav()
+
+	try:
+		while True:
+			try:
+				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
+			except EOFError:
+				nav.print_nav()
+				continue
+			except KeyboardInterrupt:
+				sys.exit(0)
+
+			if option in ['P', 'p', '\n', '']:		# 输出用户授权的主机信息
+				nav.search()
+				nav.print_search_result()
+				continue
+			elif option in ['Q', 'q', 'exit']:
+				sys.exit()
+	except IndexError, e:
+		color_print(e)
+		time.sleep(5)
+
 
 if __name__ == '__main__':
 	main()
