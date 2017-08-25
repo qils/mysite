@@ -12,6 +12,7 @@ import paramiko
 import operator
 import getpass
 import django
+import struct, fcntl, signal
 
 from install.setup import color_print
 from mysite.api import *
@@ -27,6 +28,14 @@ try:
 	remote_ip = os.environ.get('SSH_CLIENT', '').split()[0]		# 获取远程登录堡垒机的来源IP地址
 except (IndexError, AttributeError):
 	remote_ip = os.popen("who -m | awk '{print $NF}'").read().strip('(\n)')
+
+try:
+	import termios
+	import tty
+except ImportError:
+	color_print(u'仅支持类Unix系统')
+	time.sleep(3)
+	sys.exit()
 
 
 class Tty(object):
@@ -174,12 +183,12 @@ class Tty(object):
 			if role_key and os.path.isfile(role_key):
 				try:
 					ssh.connect(
-						connect_info.get('ip'),
-						port=connect_info.get('port'),
-						username=connect_info.get('role_name'),
-						password=connect_info.get('role_pass'),
-						key_filename=role_key,		# 通过密钥验证连接目标主机
-						look_for_keys=False
+						connect_info.get('ip'),		# 连接IP
+						port=connect_info.get('port'),		# 连接端口号
+						username=connect_info.get('role_name'),		# 系统用户名
+						password=connect_info.get('role_pass'),		# 系统用户密码
+						key_filename=role_key,		# 通过密钥验证连接目标主机, 可用使用timeout设置连接超时时间
+						look_for_keys=False		# 是否允许搜索私钥文件
 					)
 					return ssh
 				except (paramiko.ssh_exception.AuthenticationException, paramiko.ssh_exception.SSHException):
@@ -191,7 +200,7 @@ class Tty(object):
 				port=connect_info.get('port'),
 				username=connect_info.get('role_name'),
 				password=connect_info.get('role_pass'),
-				allow_agent=False,
+				allow_agent=False,		# 是否允许使用ssh代理
 				look_for_keys=False
 			)
 		except (paramiko.ssh_exception.AuthenticationException, paramiko.ssh_exception.SSHException):
@@ -201,6 +210,50 @@ class Tty(object):
 		else:
 			self.ssh = ssh
 			return ssh
+
+
+class SshTty(Tty):
+	'''
+	一个虚拟终端类, 实现ssh连接和记录日志
+	'''
+	@staticmethod
+	def get_win_size():
+		'''
+		获取terminal窗口大小
+		'''
+		if 'TIOCGWINSZ' in dir(termios):
+			TIOCGWINSZ = termios.TIOCGWINSZ
+		else:
+			TIOCGWINSZ = 1074295912L
+		s = struct.pack('4H', 0, 0, 0, 0)
+		x = fcntl.ioctl(sys.stdout.fileno(), TIOCGWINSZ, s)
+		return struct.unpack('4H', x)[0:2]
+
+	@staticmethod
+	def set_win_size():
+		'''
+		设置terminal 窗口大小
+		'''
+
+	def connect(self):
+		'''
+		连接服务器
+		'''
+		ssh = self.get_connection()		# 建立ssh 实列对象
+		transport = ssh.get_transport()
+		transport.set_keepalive(30)
+		transport.use_compression(True)
+
+		global channel
+		win_size = self.get_win_size()
+		self.channel = channel = transport.open_session()
+		channel.get_pty(term='xterm', height=win_size[0], width=win_size[1])
+		channel.invoke_shell()
+
+		try:
+			signal.signal(signal.SIGWINCH, self.set_win_size)
+		except:
+			pass
 
 
 class Nav(object):
@@ -256,6 +309,8 @@ class Nav(object):
 				return
 
 			color_print(u'Connecting %s ....' % (asset.ip, ), color='blue')
+			ssh_tty = SshTty(login_user, asset, role)		# 创建ssh_tty实列对象
+			ssh_tty.connect()
 		except (KeyError, ValueError):
 			color_print(u'请输入正确的ID', color='red')
 		except ServerError, e:
@@ -338,7 +393,7 @@ class Nav(object):
 		'''
 		str_ = str_.decode('utf-8')
 		if len(str_) > length:
-			str_ = str_[:14] + '...' + str_[-14:]
+			return str_[:14] + '...' + str_[-14:]
 		else:
 			return str_
 
@@ -412,7 +467,7 @@ def main():
 					color_print('Only match Hostname: %s Ip: %s' % (target_asset.hostname, target_asset.ip), color='blue')
 					nav.try_connect()		# 开始连接远程目标主机
 				else:
-					nav.print_search_result()
+					nav.print_search_result()		# 搜索到的资产大于1,将打印搜索结果
 	except IndexError, e:
 		color_print(e)
 		time.sleep(5)
