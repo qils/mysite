@@ -90,6 +90,7 @@ def server_add_user(username, ssh_key_pwd=''):
 	bash('echo "if [ -f /data/djcode/mysite/init.sh ];then" >> /home/%s/.bash_profile' % (username, ))		# 改用在每个授权的 .bash_profile文件中添加登录执行脚本
         bash('echo "    source /data/venv/bin/activate" >> /home/%s/.bash_profile' % (username, ))
 	bash('echo "    /bin/sh /data/djcode/mysite/init.sh" >> /home/%s/.bash_profile' % (username, ))
+        bash('echo "    exit" >> /home/%s/.bash_profile' % (username, ))
 	bash('echo "fi" >> /home/%s/.bash_profile' % (username, ))
 	gen_ssh_key(username, ssh_key_pwd)		# 创建用户的ssh key
 
