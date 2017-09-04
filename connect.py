@@ -23,6 +23,8 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 if not django.get_version().startswith('1.6'):
 	setup = django.setup()
 
+from jlog.views import TermLogRecorder
+
 login_user = get_object(User, username=getpass.getuser())		# 登录堡垒机账号名称
 try:
 	remote_ip = os.environ.get('SSH_CLIENT', '').split()[0]		# 获取远程登录堡垒机的来源IP地址
@@ -131,7 +133,7 @@ class Tty(object):
 
 		if self.login_type == 'ssh':		# ssh 连接过来, 记录为connect.py的pid, web terminal终端连接记录为日志的id
 			pid = os.getpid()
-			# self.remote_ip = remote_ip
+			self.remote_ip = remote_ip		# 保存客户端IP
 		else:
 			pid = 0
 
@@ -232,8 +234,20 @@ class SshTty(Tty):
 	@staticmethod
 	def set_win_size():
 		'''
-		设置terminal 窗口大小
+		设置terminal 窗口大小, 在捕获SIGWINCH窗口大小变化时调用
 		'''
+		try:
+			win_size = self.get_win_size()
+			self.channel.resize_pty(height=win_size[0], width=win_size[1])
+		except Exception:
+			pass
+
+	def posix_shell(self):
+		'''
+		使用paramiko模块的channel(通道), 连接后端, 进入交互式
+		'''
+		log_file_f, log_time_f, log = self.get_log()
+		termlog = TermLogRecorder(User.objects.get(id=self.user.id))
 
 	def connect(self):
 		'''
@@ -248,12 +262,17 @@ class SshTty(Tty):
 		win_size = self.get_win_size()
 		self.channel = channel = transport.open_session()
 		channel.get_pty(term='xterm', height=win_size[0], width=win_size[1])
-		channel.invoke_shell()
+		channel.invoke_shell()		# 建立交互式shell连接
 
 		try:
-			signal.signal(signal.SIGWINCH, self.set_win_size)
+			signal.signal(signal.SIGWINCH, self.set_win_size)		# 设置信号处理函数, SIGWINCH为窗口大小变化信号
 		except:
 			pass
+
+		self.posix_shell()
+
+		channel.close()
+		ssh.close()
 
 
 class Nav(object):
