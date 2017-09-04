@@ -283,8 +283,8 @@ class Nav(object):
 		self.user = user
 		self.user_perm = get_group_user_perm(self.user)		# 获取用户授权信息
 		if settings.NAV_SORT_BY == 'ip':		# 通过资产IP来排序
-			self.perm_assets = sorted(
-										self.user_perm.get('asset', []).keys(), key=lambda x: [int(num) for num in x.ip.split('.') if num.isdigit()]
+			self.perm_assets = sorted(		# 返回排序后的资产列表
+				self.user_perm.get('asset', []).keys(), key=lambda x: [int(num) for num in x.ip.split('.') if num.isdigit()]
 			)
 		elif settings.NAV_SORT_BY == 'hostname':		# 通过资产名称排序
 			self.perm_assets = self.natural_sort_hostname(self.user_perm.get('asset', []).keys())
@@ -445,7 +445,7 @@ def main():
 		color_print(u'该用户[%s]已被禁用, 请联系管理员.' % (login_user.username, ), exits=True)
 
 	gid_pattern = re.compile(r'^g\d+$', re.I)		# 组匹配模式, g1, g2...., 源码中没有re.I, 增加G1, G2...匹配
-	nav = Nav(login_user)
+	nav = Nav(login_user)		# 创建一个导航栏实例对象
 	nav.print_nav()
 
 	try:
@@ -456,7 +456,7 @@ def main():
 				nav.print_nav()
 				continue
 			except KeyboardInterrupt:
-				sys.exit(0)
+				sys.exit()
 
 			if option in ['P', 'p', '\n', '']:		# 输出用户授权的主机信息
 				nav.search()
