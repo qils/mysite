@@ -47,15 +47,15 @@ class Tty(object):
 	'''
 	def __init__(self, user, asset, role, login_type='ssh'):
 		self.username = user.username
-		self.asset_name = asset.hostname
+		self.asset_name = asset.hostname		# 登录资产名称
 		self.ip = None
 		self.port = 22
 		self.ssh = None		# 连接成功后的ssh对象
 		self.channel = None
 		self.asset = asset		# 资产对象
-		self.user = user
+		self.user = user		# User授权用户对象
 		self.role = role		# 系统用户对象
-		self.remote_ip = ''		# 获取客户端IP
+		self.remote_ip = ''		# 保存登录的远程客户端IP(从哪个客户端IP登录到跳板机)
 		self.login_type = login_type		# 登录类型, 通过web登录, 或者ssh登录
 		self.vim_flag = False
 		self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
@@ -178,18 +178,18 @@ class Tty(object):
 		'''
 		connect_info = self.get_connect_info()
 
-		ssh = paramiko.SSHClient()		# 发起ssh连接请求
+		ssh = paramiko.SSHClient()		# 建立一个sshclient对象
 		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())		# 允许连接不在know_hosts文件中的主机
 		try:
-			role_key = connect_info.get('role_key')
+			role_key = connect_info.get('role_key')		# 获取系统用户的私钥文件路径
 			if role_key and os.path.isfile(role_key):
 				try:
-					ssh.connect(
+					ssh.connect(		# 调用connect方法连接目标服务器
 						connect_info.get('ip'),		# 连接IP
 						port=connect_info.get('port'),		# 连接端口号
 						username=connect_info.get('role_name'),		# 系统用户名
 						password=connect_info.get('role_pass'),		# 系统用户密码
-						key_filename=role_key,		# 通过密钥验证连接目标主机, 可用使用timeout设置连接超时时间
+						key_filename=role_key,		# 通过私钥验证连接目标主机, 可用使用timeout设置连接超时时间
 						look_for_keys=False		# 是否允许搜索私钥文件
 					)
 					return ssh
@@ -247,7 +247,9 @@ class SshTty(Tty):
 		使用paramiko模块的channel(通道), 连接后端, 进入交互式
 		'''
 		log_file_f, log_time_f, log = self.get_log()
-		termlog = TermLogRecorder(User.objects.get(id=self.user.id))
+		termlog = TermLogRecorder(User.objects.get(id=self.user.id))		# 创建一个TermLogRecorder实例
+		termlog.setid(log.id)
+		old_tty = termios.tcgetattr(sys.stdin)		# 获取原操作终端属性
 
 	def connect(self):
 		'''
@@ -260,9 +262,9 @@ class SshTty(Tty):
 
 		global channel
 		win_size = self.get_win_size()
-		self.channel = channel = transport.open_session()
-		channel.get_pty(term='xterm', height=win_size[0], width=win_size[1])
-		channel.invoke_shell()		# 建立交互式shell连接
+		self.channel = channel = transport.open_session()		# 打开一个channel(通道)
+		channel.get_pty(term='xterm', height=win_size[0], width=win_size[1])		# 获取终端
+		channel.invoke_shell()		# 建立交互式shell连接, 激活终端, 可以登录到终端
 
 		try:
 			signal.signal(signal.SIGWINCH, self.set_win_size)		# 设置信号处理函数, SIGWINCH为窗口大小变化信号
@@ -327,7 +329,7 @@ class Nav(object):
 				color_print(u'没有授权的系统用户', color='red')
 				return
 
-			color_print(u'Connecting %s ....' % (asset.ip, ), color='blue')
+			color_print(u'Connecting %s, username %s ....' % (asset.ip, role.name), color='blue')
 			ssh_tty = SshTty(login_user, asset, role)		# 创建ssh_tty实列对象
 			ssh_tty.connect()
 		except (KeyError, ValueError):
@@ -393,7 +395,7 @@ class Nav(object):
 				str_r = str_r.lower()
 				self.search_result = [asset for asset in self.perm_assets if str_r in str(asset.ip).lower() or str_r in str(asset.hostname).lower() or str_r in str(asset.comment).lower()]		# 搜索匹配ip, hostname, 备注的资产
 		else:		# 没有搜索字符, 默认展示所有资产
-			self.search_result = self.perm_assets		# __init__初始化已经赋值过, 这里可以不需要在赋值
+			self.search_result = self.perm_assets
 
 	@staticmethod
 	def get_max_asset_property_length(assets, property_='hostname'):
@@ -481,7 +483,7 @@ def main():
 				sys.exit()
 			else:		# 主要判断是否输入的是一个ID字符数字, 通过该ID索引从self.perm_assets中取对应的一个资产
 				nav.search(option)
-				if len(nav.search_result) == 1:
+				if len(nav.search_result) == 1:		# 匹配只有一台主机时才会进行登录连接操作
 					target_asset = nav.search_result[0]
 					color_print('Only match Hostname: %s Ip: %s' % (target_asset.hostname, target_asset.ip), color='blue')
 					nav.try_connect()		# 开始连接远程目标主机
