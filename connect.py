@@ -4,6 +4,7 @@
 import os
 import sys
 import re
+import errno
 import textwrap
 import pyte
 import datetime
@@ -12,7 +13,7 @@ import paramiko
 import operator
 import getpass
 import django
-import struct, fcntl, signal
+import struct, fcntl, signal, select
 
 from install.setup import color_print
 from mysite.api import *
@@ -57,9 +58,11 @@ class Tty(object):
 		self.role = role		# 系统用户对象
 		self.remote_ip = ''		# 保存登录的远程客户端IP(从哪个客户端IP登录到跳板机)
 		self.login_type = login_type		# 登录类型, 通过web登录, 或者ssh登录
-		self.vim_flag = False
-		self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
-		self.vim_data = ''
+		self.vim_flag = False		# 标识输入的是否为vim命令, 如果为vim则不纪录
+		self.vim_begin_pattern = re.compile(r'\x1b\[\?1049h', re.X)		# vim 开始, 源码反馈说有性能问题, 现在改用这种方式
+		self.vim_end_pattern = re.compile(r'\x1b\[\?1049l', re.X)		# vim 结束
+		# self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
+		# self.vim_data = ''
 		self.stream = None		# 初始化字符流
 		self.screen = None		# 初始化屏幕
 		self.__init_screen_stream()
@@ -71,6 +74,14 @@ class Tty(object):
 		self.stream = pyte.ByteStream()
 		self.screen = pyte.Screen(80, 24)
 		self.stream.attach(self.screen)
+
+	@staticmethod
+	def is_output(string):
+		newline_char = ['\n', '\r', '\r\n']
+		for char in newline_char:
+			if char in string:
+				return True
+		return False
 
 	@staticmethod
 	def command_parser(command):
@@ -250,6 +261,94 @@ class SshTty(Tty):
 		termlog = TermLogRecorder(User.objects.get(id=self.user.id))		# 创建一个TermLogRecorder实例
 		termlog.setid(log.id)
 		old_tty = termios.tcgetattr(sys.stdin)		# 获取原操作终端属性
+		pre_timestamp = time.time()
+		data = ''
+		input_mode = False
+
+		try:
+			tty.setraw(sys.stdin.fileno())		# 将当前操作终端属性设置为服务器原操作终端属性
+			tty.setcbreak(sys.stdin.fileno())
+			self.channel.settimeout(0.0)
+
+			while True:
+				try:
+					r, w, e = select.select([self.channel, sys.stdin], [], [])		# select对输入终端和channel进行监控
+					flag = fcntl.fcntl(sys.stdin, fcntl.F_GETFL, 0)
+					fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, flag|os.O_NONBLOCK)
+				except Exception:
+					pass
+
+				if self.channel in r:		# 远程服务器返回执行命令结果, channel通道接受到结果发生变化, select感知到变化
+					try:
+						x = self.channel.recv(10240)		# 从通道读取服务器返回的数据
+						if len(x) == 0:
+							break
+
+						index = 0
+						len_x = len(x)
+						while index < len_x:
+							try:
+								n = os.write(sys.stdout.fileno(), x[index:])		# 将结果输出到终端
+								sys.stdout.flush()
+								index += n
+							except OSError as msg:
+								if msg.errno == errno.EAGAIN:
+									continue
+
+						now_timestamp = time.time()
+						# termlog.wirte(x)
+						termlog.recoder = False
+						log_time_f.write('%s %s\n' % (round(now_timestamp - pre_timestamp, 4), len(x)))		# 纪录时间差和返回字符长度
+						log_time_f.flush()
+						log_file_f.write(x)		# 将返回结果写入文件
+						log_file_f.flush()
+						pre_timestamp = now_timestamp		# 重置时间
+
+						# self.vim_data += x		# 将返回值保存在self.vim_data中, 当输入回车后, 重置为空, 保存执行命令后的结果字符
+						if self.vim_begin_pattern.findall(x):
+							self.vim_flag = True
+						elif self.vim_end_pattern.findall(x):
+							self.vim_flag = False
+
+						if input_mode:		# 判断是否是输入模式, 如果是则保存输入字符命令
+							data += x
+					except socket.timeout:
+						pass
+
+				if sys.stdin in r:		# 终端输入命令, sys.stdin发生变化, select感知到变化
+					try:
+						x = os.read(sys.stdin.fileno(), 4096)		# 获取终端输入的内容
+					except OSError:
+						pass
+
+					termlog.recoder = True
+					input_mode = True
+					if self.is_output(str(x)):		# 检查终端输入字符是否为 \n, \r, \rn 这三种字符, 如果是则返回True
+						if len(str(x)) > 1:		# 表示复制内容到终端
+							data = x
+
+						if not self.vim_flag:
+							self.vim_flag = False
+							data = self.deal_command(data)[0:200]
+							if data is not None:
+								TtyLog(log=log, datetime=datetime.datetime.now(), cmd=data).save()
+
+						data = ''		# 重新将输入命令设置为空
+						input_mode = False		# 设置为False, 在命令返回结果时保证data不保存返回的结果字符
+
+					if len(x) == 0:
+						break
+					self.channel.send(x)		# 将输入字符通过channel通道发送到远程服务器
+		finally:
+			termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_tty)		# 将现在操作终端属性设置为最初保存的操作终端属性
+			log_file_f.write('End time is %s\n' % (datatime.datetime.now()))
+			log_file_f.close()
+			log_time_f.close()
+			# termlog.save()
+			# log.filename = termlog.filename
+			log.is_finished = True
+			log.end_time = datetime.datetime.now()
+			log.save()
 
 	def connect(self):
 		'''

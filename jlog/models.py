@@ -33,7 +33,7 @@ class Alert(models.Model):
 
 
 class TtyLog(models.Model):
-	log = models.ForeignKey(Log)
+	log = models.ForeignKey(Log)		# 外键关联到Log
 	datetime = models.DateTimeField(auto_now=True)
 	cmd = models.CharField(max_length=200)
 
