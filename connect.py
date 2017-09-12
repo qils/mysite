@@ -554,7 +554,8 @@ def main():
 			try:
 				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
 			except EOFError as msg:
-				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
+				s = os.read(sys.stdin.fileno(), 1024)
+				logger.debug(s)
 				# nav.print_nav()
 				# continue
 			except KeyboardInterrupt:
