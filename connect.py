@@ -58,7 +58,7 @@ class Tty(object):
 		self.role = role		# 系统用户对象
 		self.remote_ip = ''		# 保存登录的远程客户端IP(从哪个客户端IP登录到跳板机)
 		self.login_type = login_type		# 登录类型, 通过web登录, 或者ssh登录
-		self.vim_flag = False		# 标识输入的是否为vim命令, 如果为vim则不纪录
+		self.vim_flag = False
 		self.vim_begin_pattern = re.compile(r'\x1b\[\?1049h', re.X)		# vim 开始, 源码反馈说有性能问题, 现在改用这种方式
 		self.vim_end_pattern = re.compile(r'\x1b\[\?1049l', re.X)		# vim 结束
 		# self.vim_end_pattern = re.compile(r'\x1b\[\?1049', re.X)
@@ -554,10 +554,11 @@ def main():
 			try:
 				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
 			except EOFError as msg:
-				nav.print_nav()
+				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
+				# nav.print_nav()
 				# continue
 			except KeyboardInterrupt:
-				sys.exit()
+				sys.exit(0)
 
 			if option in ['P', 'p', '\n', '']:		# 输出用户授权的主机信息
 				nav.search()
