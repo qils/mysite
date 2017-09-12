@@ -341,7 +341,7 @@ class SshTty(Tty):
 					self.channel.send(x)		# 将输入字符通过channel通道发送到远程服务器
 		finally:
 			termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_tty)		# 将现在操作终端属性设置为最初保存的操作终端属性
-			log_file_f.write('End time is %s\n' % (datatime.datetime.now()))
+			log_file_f.write('End time is %s\n' % (datetime.datetime.now()))
 			log_file_f.close()
 			log_time_f.close()
 			# termlog.save()
