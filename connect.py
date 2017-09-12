@@ -551,14 +551,13 @@ def main():
 
 	try:
 		while True:
-			try:
-				option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
-			except EOFError as msg:
-				print msg
-				nav.print_nav()
-				continue
-			except KeyboardInterrupt:
-				sys.exit()
+			# try:
+			option = raw_input('\033[1;32mOpt or ID>:\033[0m ').strip()
+			# except EOFError as msg:
+			#	nav.print_nav()
+			#	continue
+			#except KeyboardInterrupt:
+			#	sys.exit()
 
 			if option in ['P', 'p', '\n', '']:		# 输出用户授权的主机信息
 				nav.search()
