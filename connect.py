@@ -100,9 +100,9 @@ class Tty(object):
 		处理截获的命令
 		'''
 		command = ''
-		logger.debug(data)
 		try:
 			self.stream.feed(data)
+			logger.debug(self.screen.buffer)
 			for line in reversed(self.screen.buffer):
 				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()
 				if len(line_data) > 0:
