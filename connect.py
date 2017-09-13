@@ -329,7 +329,7 @@ class SshTty(Tty):
 
 						if not self.vim_flag:
 							self.vim_flag = False
-							data = self.deal_command(data)[0:200]
+							# data = self.deal_command(data)[0:200]
 							if data is not None:
 								TtyLog(log=log, datetime=datetime.datetime.now(), cmd=data).save()
 
