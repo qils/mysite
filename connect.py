@@ -102,7 +102,6 @@ class Tty(object):
 		command = ''
 		try:
 			self.stream.feed(data)
-			logger.debug(self.screen.buffer)
 			for line in reversed(self.screen.buffer):
 				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()
 				if len(line_data) > 0:
