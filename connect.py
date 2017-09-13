@@ -100,6 +100,7 @@ class Tty(object):
 		处理截获的命令
 		'''
 		command = ''
+		logger.debug(data)
 		try:
 			self.stream.feed(data)
 			for line in reversed(self.screen.buffer):
@@ -329,7 +330,7 @@ class SshTty(Tty):
 
 						if not self.vim_flag:
 							self.vim_flag = False
-							# data = self.deal_command(data)[0:200]
+							data = self.deal_command(data)[0:200]		# 对data进行处理, 主要是在Tab补齐是会有很多额外的返回字符
 							if data is not None:
 								TtyLog(log=log, datetime=datetime.datetime.now(), cmd=data).save()
 
