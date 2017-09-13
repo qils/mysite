@@ -4,7 +4,11 @@
 import re
 import time
 import pyte
+import json
+import zipfile
+
 from mysite.api import *
+from mysite import settings
 from django.shortcuts import render
 
 # Create your views here.
@@ -52,9 +56,41 @@ class TermLogRecorder(object):
 		TermLogRecorder.loglist[str(id)] = [self]
 
 	def write(self, msg):
+		if self.recoder and not self._in_vim:
+			if self.commands.__len__() == 0:
+				self._stream.feed(msg)
+			elif not self.vim_pattern.search(self.commands[-1]):
+				pass
+			else:
+				pass
+		else:
+			pass
+
 		try:
 			self.write_message(msg)
 		except:
 			pass
 
 		self.log[str(time.time() - self.recoderStartTime)] = msg.decode('utf-8', 'replace')
+
+	def save(self, path=settings.LOG_DIR):
+		date = datetime.datetime.now().strftime('%Y%m%d')		# 纪录日志时间: 年, 月, 日
+		filename = str(uuid.uuid4())
+		self.filename = filename
+		filepath = os.path.join(path, 'tty', date, filename + '.zip')
+
+		if not os.path.isdir(os.path.dirname(filepath)):
+			mkdir(os.path.dirname(filepath), mode=777)
+
+		# while True:		# 暂时没发现该判断有什么作用
+			# filename = str(uuid.uuid4())
+			# filepath = os.path.join(path, 'tty', date, filename + '.zip')
+		password = str(uuid.uuid4())		# 设置ZIP文件密码
+
+		try:
+			zf = zipfile.ZipFile(filepath, 'w', zipfile.ZIP_DEFLATED)
+			zf.setpassword(password)		# 设置密码
+			zf.writestr(filename, json.dumps(self.log))
+			zf.close()
+		except:
+			pass

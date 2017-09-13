@@ -311,6 +311,7 @@ class SshTty(Tty):
 							self.vim_flag = False
 
 						if input_mode:		# 判断是否是输入模式, 如果是则保存输入字符命令
+							logger.debug('Connect success--->')
 							data += x
 					except socket.timeout:
 						pass
