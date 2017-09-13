@@ -349,6 +349,7 @@ class SshTty(Tty):
 			log.is_finished = True
 			log.end_time = datetime.datetime.now()
 			log.save()
+			return None
 
 	def connect(self):
 		'''
