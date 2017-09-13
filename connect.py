@@ -349,7 +349,6 @@ class SshTty(Tty):
 			log.is_finished = True
 			log.end_time = datetime.datetime.now()
 			log.save()
-			raise ServerError('test')
 
 	def connect(self):
 		'''
@@ -582,16 +581,13 @@ def main():
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
 			else:		# 主要判断是否输入的是一个ID字符数字, 通过该ID索引从self.perm_assets中取对应的一个资产
-				try:
-					nav.search(option)
-					if len(nav.search_result) == 1:		# 匹配只有一台主机时才会进行登录连接操作
-						target_asset = nav.search_result[0]
-						color_print('Only match Hostname: %s Ip: %s' % (target_asset.hostname, target_asset.ip), color='blue')
-						nav.try_connect()		# 开始连接远程目标主机
-					else:
-						nav.print_search_result()		# 搜索到的资产大于1,将打印搜索结果
-				except ServerError:
-					continue
+				nav.search(option)
+				if len(nav.search_result) == 1:		# 匹配只有一台主机时才会进行登录连接操作
+					target_asset = nav.search_result[0]
+					color_print('Only match Hostname: %s Ip: %s' % (target_asset.hostname, target_asset.ip), color='blue')
+					nav.try_connect()		# 开始连接远程目标主机
+				else:
+					nav.print_search_result()		# 搜索到的资产大于1,将打印搜索结果
 	except IndexError, e:
 		color_print(e)
 		time.sleep(5)
