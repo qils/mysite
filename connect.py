@@ -349,6 +349,7 @@ class SshTty(Tty):
 			log.is_finished = True
 			log.end_time = datetime.datetime.now()
 			log.save()
+			raise ServerError('test')
 
 	def connect(self):
 		'''
@@ -588,6 +589,8 @@ def main():
 					nav.try_connect()		# 开始连接远程目标主机
 				else:
 					nav.print_search_result()		# 搜索到的资产大于1,将打印搜索结果
+	except ServerError:
+		continue
 	except IndexError, e:
 		color_print(e)
 		time.sleep(5)
