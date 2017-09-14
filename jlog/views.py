@@ -43,6 +43,9 @@ class TermLogRecorder(object):
 		self._in_vim = False
 		self.CMD = {}
 
+	def _command(self):
+		logger.debug(self._screen.display)
+
 	def __init_screen_stream(self):
 		'''
 		初始化虚拟屏幕和字符流
@@ -64,7 +67,10 @@ class TermLogRecorder(object):
 			else:
 				pass
 		else:
-			pass
+			if self._in_vim:
+				pass
+			else:
+				self._commmand()
 
 		try:
 			self.write_message(msg)

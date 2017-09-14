@@ -296,7 +296,7 @@ class SshTty(Tty):
 									continue
 
 						now_timestamp = time.time()
-						# termlog.wirte(x)
+						termlog.wirte(x)
 						termlog.recoder = False
 						log_time_f.write('%s %s\n' % (round(now_timestamp - pre_timestamp, 4), len(x)))		# 纪录时间差和返回字符长度
 						log_time_f.flush()
@@ -311,7 +311,6 @@ class SshTty(Tty):
 							self.vim_flag = False
 
 						if input_mode:		# 判断是否是输入模式, 如果是则保存输入字符命令
-							logger.debug('Connect success--->')
 							data += x
 					except socket.timeout:
 						pass
