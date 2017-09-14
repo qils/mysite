@@ -70,7 +70,7 @@ class TermLogRecorder(object):
 			if self._in_vim:
 				pass
 			else:
-				self._commmand()
+				self._command()
 
 		try:
 			self.write_message(msg)
