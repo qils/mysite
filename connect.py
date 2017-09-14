@@ -296,7 +296,7 @@ class SshTty(Tty):
 									continue
 
 						now_timestamp = time.time()
-						termlog.wirte(x)
+						termlog.write(x)
 						termlog.recoder = False
 						log_time_f.write('%s %s\n' % (round(now_timestamp - pre_timestamp, 4), len(x)))		# 纪录时间差和返回字符长度
 						log_time_f.flush()
