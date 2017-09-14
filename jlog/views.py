@@ -44,7 +44,7 @@ class TermLogRecorder(object):
 		self.CMD = {}
 
 	def _command(self):
-		logger.debug(self._screen.display)
+		pass
 
 	def __init_screen_stream(self):
 		'''
@@ -59,6 +59,7 @@ class TermLogRecorder(object):
 		TermLogRecorder.loglist[str(id)] = [self]
 
 	def write(self, msg):
+		logger.debug(msg)
 		if self.recoder and not self._in_vim:
 			if self.commands.__len__() == 0:
 				self._stream.feed(msg)
