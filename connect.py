@@ -280,7 +280,7 @@ class SshTty(Tty):
 
 				if self.channel in r:		# 远程服务器返回执行命令结果, channel通道接受到结果发生变化, select感知到变化
 					try:
-						x = self.channel.recv(10240)		# 从通道读取服务器返回的数据
+						x = self.channel.recv(10240)		# 从通道读取服务器返回的数据, 第一次连接上服务器会返回两次数据
 						if len(x) == 0:
 							break
 
