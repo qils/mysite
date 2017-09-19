@@ -86,7 +86,7 @@ class Tty(object):
 	@staticmethod
 	def command_parser(command):
 		result = None
-		match = re.compile('\[?.*@.*\]?[\$#]\s').split(command)
+		match = re.compile('\[?.*@.*\]?[\$#]\s').split(command)		# 依据终端提示符分割, 取最后的索引能获得输入的命令
 		if match:
 			result = match[-1].strip()
 		else:
@@ -97,14 +97,13 @@ class Tty(object):
 
 	def deal_command(self, data):
 		'''
-		处理截获的命令
+		处理截获的命令, 主要是处理Tab键补齐时，从返回的数据中提取输入的命令字符
 		'''
 		command = ''
 		try:
 			self.stream.feed(data)
 			for line in reversed(self.screen.buffer):
 				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()		# operator获取对象的属性
-				logger.debug(line_data)
 				if len(line_data) > 0:
 					parser_result = self.command_parser(line_data)
 					if parser_result is not None:
@@ -341,7 +340,7 @@ class SshTty(Tty):
 						break
 					self.channel.send(x)		# 将输入字符通过channel通道发送到远程服务器
 		finally:
-			termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_tty)		# 将现在操作终端属性设置为最初保存的操作终端属性
+			termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_tty)		# 将当前操作终端属性设置为最初保存的操作终端属性
 			log_file_f.write('End time is %s\n' % (datetime.datetime.now()))
 			log_file_f.close()
 			log_time_f.close()

@@ -80,7 +80,7 @@ class TermLogRecorder(object):
 		if not os.path.isdir(os.path.dirname(filepath)):
 			mkdir(os.path.dirname(filepath), mode=777)
 
-		# while True:		# 暂时没发现该判断有什么作用
+		# while os.path.isfile(filepath):		# 暂时没发现该判断有什么作用
 			# filename = str(uuid.uuid4())
 			# filepath = os.path.join(path, 'tty', date, filename + '.zip')
 		password = str(uuid.uuid4())		# 设置ZIP文件密码
@@ -90,5 +90,30 @@ class TermLogRecorder(object):
 			zf.setpassword(password)		# 设置密码
 			zf.writestr(filename, json.dumps(self.log))
 			zf.close()
+			record = TermLog.objects.create(
+				logPath=filepath,
+				logPWD=password,
+				filename=filename,
+				history=json.dumps(self.CMD),
+				timestamp=int(self.recoderStartTime)
+			)
+
+			if self.user:
+				record.user.add(self.user)
 		except:
+			record = TermLog.objects.create(
+				logPath='locale',
+				logPWD=password,
+				log=json.dumps(self.log),
+				filename=filename,
+				history=json.dumps(self.CMD),
+				timestamp=int(self.recoderStartTime)
+			)
+
+			if self.user:
+				record.user.add(self.user)
+
+		try:
+			del TermLogRecorder.loglist[str(self.id)]
+		except KeyError:
 			pass

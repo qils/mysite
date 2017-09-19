@@ -18,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from mysite.models import Setting
 from juser.models import User, UserGroup
 from jasset.models import Asset, AssetGroup, AssetRecord, IDC
-from jlog.models import Log, TtyLog
+from jlog.models import Log, TtyLog, TermLog
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response
