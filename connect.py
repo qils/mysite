@@ -102,6 +102,7 @@ class Tty(object):
 		command = ''
 		try:
 			self.stream.feed(data)
+			logger.debug(self.screen.buffer)
 			for line in reversed(self.screen.buffer):
 				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()
 				if len(line_data) > 0:
@@ -312,7 +313,6 @@ class SshTty(Tty):
 
 						if input_mode:		# 判断是否是输入模式, 如果是则保存输入字符命令
 							data += x
-							logger.debug(data)
 					except socket.timeout:
 						pass
 
