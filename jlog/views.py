@@ -70,7 +70,6 @@ class TermLogRecorder(object):
 			pass
 
 		self.log[str(time.time() - self.recoderStartTime)] = msg.decode('utf-8', 'replace')
-		logger.debug(self.log)
 
 	def save(self, path=settings.LOG_DIR):
 		date = datetime.datetime.now().strftime('%Y%m%d')		# 纪录日志时间: 年, 月, 日

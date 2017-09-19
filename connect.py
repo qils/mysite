@@ -312,6 +312,7 @@ class SshTty(Tty):
 
 						if input_mode:		# 判断是否是输入模式, 如果是则保存输入字符命令
 							data += x
+							logger.debug(data)
 					except socket.timeout:
 						pass
 
