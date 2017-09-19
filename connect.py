@@ -102,9 +102,9 @@ class Tty(object):
 		command = ''
 		try:
 			self.stream.feed(data)
-			logger.debug(self.screen.buffer)
 			for line in reversed(self.screen.buffer):
-				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()
+				line_data = ''.join(map(operator.attrgetter('data'), line)).strip()		# operator获取对象的属性
+				logger.debug(line_data)
 				if len(line_data) > 0:
 					parser_result = self.command_parser(line_data)
 					if parser_result is not None:
