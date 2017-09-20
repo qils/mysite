@@ -154,7 +154,7 @@ def gen_resource(ob, perm=None):
 				info = {
 					'hostname': asset.hostname,
 					'ip': asset.ip,
-					'port': asset_info.get('ip'),
+					'port': asset_info.get('port'),
 					'username': role.name,		# 所有主机登录系统用户名称一样
 					'ansible_ssh_private_key_file': role_key
 				}
