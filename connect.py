@@ -18,7 +18,7 @@ import struct, fcntl, signal, select
 from install.setup import color_print
 from mysite.api import *
 from django.contrib.sessions.models import Session
-from jperm.perm_api import user_have_perm, get_group_user_perm
+from jperm.perm_api import user_have_perm, get_group_user_perm, gen_resource
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 if not django.get_version().startswith('1.6'):
@@ -466,7 +466,11 @@ class Nav(object):
 				except (IndexError, ValueError):
 					color_print(u'输入错误', color='red')
 				else:
-					role = roles[role_id]		# 取索引对应的系统用户
+					try:
+						role = roles[role_id]		# 取索引对应的系统用户
+					except IndexError:
+						print u'输入索引超过授权系统用户个数'
+						continue
 			elif len(roles) == 1:
 				role = roles[0]
 			else:
@@ -478,7 +482,15 @@ class Nav(object):
 			for asset in assets:
 				print '%s' % (asset.hostname, )
 			print
-			break
+
+			print u'请输入主机名或ansible支持的pattern, 多个主机:分隔, q退出'
+			pattern = raw_input('\033[1;32mPattern>:\033[0m ').strip().lower()
+			if pattern == 'q':
+				break
+			else:
+				res = gen_resource({'user': self.user, 'asset': assets, 'role': role}, perm=self.user_perm)
+				print res
+				break
 
 	def get_asset_group_member(self, str_r):
 		'''

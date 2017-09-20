@@ -133,7 +133,57 @@ def gen_resource(ob, perm=None):
 	'''
 	res = []
 	if isinstance(ob, dict):
-		pass
+		role = ob.get('role')		# 获取授权系统用户
+		asset_r = ob.get('asset')		# 获取授权目标主机
+		user = ob.get('user')		# 获取堡垒机授权用户
+
+		if not perm:
+			perm = get_group_user_perm(user)
+
+		if role:
+			roles = perm.get('role').keys()
+			if role not in roles:
+				return {}
+
+			role_assets_all = perm.get('role').get(role).get('asset')
+			assets = set(role_assets_all) & set(asset_r)
+
+			for asset in assets:		# 遍历所有授权主机, 获取主机登录信息
+				asset_info = get_asset_info(asset)
+				role_key = get_role_key(user, role)		# 获取主机私钥存放路径
+				info = {
+					'hostname': asset.hostname,
+					'ip': asset.ip,
+					'port': asset_info.get('ip'),
+					'username': role.name,		# 所有主机登录系统用户名称一样
+					'ansible_ssh_private_key_file': role_key
+				}
+
+				if os.path.isfile(role_key):
+					info['ssh_key'] = role_key
+				res.append(info)		# 将目标主机登录信息保存在列表中
+		else:
+			for asset, asset_info in perm.get('asset').iteritems():
+				if asset not in asset_r:
+					continue
+				asset_info = get_asset_info(asset)
+				try:
+					role = sorted(list(perm.get('asset').get(asset).get('role')))[0]		# 当不输入role时, 从授权资产中选择一个系统用户
+				except IndexError:
+					continue
+
+				role_key = get_role_key(user, role)
+				info = {
+					'hostname': asset.hostname,
+					'ip': asset.ip,
+					'port': asset_info.get('port'),
+					'username': role.name,
+					'ansible_ssh_private_key_file': role_key
+				}
+
+				if os.path.isfile(role_key):
+					info['ssh_key'] = role_key
+				res.append(info)
 	elif isinstance(ob, User):
 		pass
 	elif isinstance(ob, (list, QuerySet)):
