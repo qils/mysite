@@ -445,6 +445,40 @@ class Nav(object):
 			print '[%-3s] %-20s %s' % (asset_group.id, asset_group.name, asset_group.comment)
 		print
 
+	def exec_cmd(self):
+		'''
+		批量执行命令
+		'''
+		while True:
+			roles = self.user_perm.get('role').keys()		# 获取授权的系统用户
+			if len(roles) > 1:		# 当授权的系统用户大于一时需要选择用哪个系统用户登录远程主机执行命令
+				color_print('[%-2s] %-15s' % ('ID', u'系统用户'), color='info')
+
+				for i, r in enumerate(roles):
+					print '[%-2s] %-15s' % (i, r.name)
+				print
+				print u'请输入运行命令所关联系统用户ID, q退出'
+
+				try:
+					role_id = int(raw_input('\033[1;32mRole>:\033[0m ').strip().lower())		# 增加小写转换函数
+					if role_id == 'q':
+						break
+				except (IndexError, ValueError):
+					color_print(u'输入错误', color='red')
+				else:
+					role = roles[role_id]		# 取索引对应的系统用户
+			elif len(roles) == 1:
+				role = roles[0]
+			else:
+				color_print(u'当前用户未被授权系统用户, 无法执行任何操作, 请联系管理员')
+				return
+
+			assets = list(self.user_perm.get('role').get(role).get('asset'))		# 获取系统用户授权的所有资产
+			print u'授权包含该系统用户的所有主机'
+			for asset in assets:
+				print '%s' % (asset.hostname, )
+			print
+
 	def get_asset_group_member(self, str_r):
 		'''
 		依据输入g1, g2, G1, G2... 查下条件, 输出对应资产组中资产信息
@@ -578,6 +612,9 @@ def main():
 				continue
 			elif option in ['H', 'h']:
 				nav.print_nav()
+				continue
+			elif option in ['E', 'e']:
+				nav.exec_cmd()
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
