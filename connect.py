@@ -478,6 +478,7 @@ class Nav(object):
 			for asset in assets:
 				print '%s' % (asset.hostname, )
 			print
+			break
 
 	def get_asset_group_member(self, str_r):
 		'''
