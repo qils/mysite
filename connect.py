@@ -19,6 +19,7 @@ from install.setup import color_print
 from mysite.api import *
 from django.contrib.sessions.models import Session
 from jperm.perm_api import user_have_perm, get_group_user_perm, gen_resource
+from jperm.ansible_api import MyRunner
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 if not django.get_version().startswith('1.6'):
@@ -477,20 +478,31 @@ class Nav(object):
 				color_print(u'当前用户未被授权系统用户, 无法执行任何操作, 请联系管理员')
 				return
 
-			assets = list(self.user_perm.get('role').get(role).get('asset'))		# 获取系统用户授权的所有资产
+			assets = list(self.user_perm.get('role').get(role).get('asset'))		# 获取所选系统用户授权的所有资产
 			print u'授权包含该系统用户的所有主机'
 			for asset in assets:
 				print '%s' % (asset.hostname, )
 			print
 
 			print u'请输入主机名或ansible支持的pattern, 多个主机:分隔, q退出'
-			pattern = raw_input('\033[1;32mPattern>:\033[0m ').strip().lower()
+			pattern = raw_input('\033[1;32mPattern>:\033[0m ').strip()
 			if pattern == 'q':
 				break
 			else:
 				res = gen_resource({'user': self.user, 'asset': assets, 'role': role}, perm=self.user_perm)
-				print res
-				break
+				runner = MyRunner(res)		# 调用ansible接口, 初始化所有目标主机信息
+
+				# 这里改写源码的内容, 源码里面依据模式来匹配执行的目标主机, 这里改为对所有授权的主机执行
+				while True:
+					print u'请输入执行的命令: 按q退出'
+					command = raw_input('\033[1;32mCmds>:\033[0m ').strip()
+					if command == 'q':
+						break
+					elif not command:
+						color_print(u'输入命令不能为空...')
+						continue
+
+					runner.run('shell', command, pattern=pattern)
 
 	def get_asset_group_member(self, str_r):
 		'''

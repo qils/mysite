@@ -138,7 +138,7 @@ def gen_resource(ob, perm=None):
 		user = ob.get('user')		# 获取堡垒机授权用户
 
 		if not perm:
-			perm = get_group_user_perm(user)
+			perm = get_group_user_perm(user)		# 获取用户授权的资产, 资产组, 系统用户信息
 
 		if role:
 			roles = perm.get('role').keys()
