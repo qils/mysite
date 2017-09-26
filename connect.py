@@ -492,7 +492,13 @@ class Nav(object):
 				res = gen_resource({'user': self.user, 'asset': assets, 'role': role}, perm=self.user_perm)
 				runner = MyRunner(res)		# 调用ansible接口, 初始化所有目标主机信息
 
-				# 这里改写源码的内容, 源码里面依据模式来匹配执行的目标主机, 这里改为对所有授权的主机执行
+				asset_name_str = ''		# 匹配目的主机, 批量执行时可以先对一台设备执行, 然后可以选*对所有设备执行
+				print u'匹配主机: '
+				for inv in runner.inventory.get_hosts(pattern=pattern):
+					print '%s' % (inv.name, )
+					asset_name_str += ' %s' % (inv.name, )
+				print
+
 				while True:
 					print u'请输入执行的命令: 按q退出'
 					command = raw_input('\033[1;32mCmds>:\033[0m ').strip()
@@ -501,8 +507,27 @@ class Nav(object):
 					elif not command:
 						color_print(u'输入命令不能为空...')
 						continue
-
 					runner.run('shell', command, pattern=pattern)
+					ExecLog(host=asset_name_str[0:10], 		# 防止目标主机执行过多调整为只存10条主机记录
+						user=self.user.username,
+						cmd=command,
+						remote_ip=remote_ip,
+						result='success'
+					).save()
+
+					for k, v in runner.results().iteritems():
+						if k == 'ok':
+							for host, output in v.iteritems():
+								color_print('%s => %s' % (host, 'Success'), color='green')
+								print output
+								print
+						else:
+							for host, output in v.iteritems():
+								color_print('%s => %s' % (host, 'Fail'), color='red')
+								print output
+								print
+					print '~o~ Task finished ~o~'
+					print
 
 	def get_asset_group_member(self, str_r):
 		'''

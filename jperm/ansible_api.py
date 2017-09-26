@@ -84,7 +84,7 @@ class MyRunner(MyInventory):
 
 		if dark:
 			for host, info in dark.iteritems():
-				result['failed'][host] = info.get('msg')
+				result['failed'][host] = info.get('msg')		# 存储执行失败信息
 
 		if contacted:
 			for host, info in contacted.iteritems():
