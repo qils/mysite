@@ -515,7 +515,7 @@ class Nav(object):
 						result='success'
 					).save()
 
-					for k, v in runner.results():
+					for k, v in runner.results.iteritems():
 						if k == 'ok':
 							for host, output in v.iteritems():
 								color_print('%s => %s' % (host, 'Success'), color='green')
