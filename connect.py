@@ -508,14 +508,14 @@ class Nav(object):
 						color_print(u'输入命令不能为空...')
 						continue
 					runner.run('shell', command, pattern=pattern)
-					ExecLog(host=asset_name_str[0:10], 		# 防止目标主机执行过多调整为只存10条主机记录
+					ExecLog(host=asset_name_str.split(' ')[0:10], 		# 防止目标主机执行过多调整为只存10条主机记录
 						user=self.user.username,
 						cmd=command,
 						remote_ip=remote_ip,
 						result='success'
 					).save()
 
-					for k, v in runner.results().iteritems():
+					for k, v in runner.results():
 						if k == 'ok':
 							for host, output in v.iteritems():
 								color_print('%s => %s' % (host, 'Success'), color='green')
