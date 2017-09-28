@@ -707,7 +707,7 @@ def main():
 				nav.exec_cmd()
 				continue
 			elif option in ['D', 'd']:
-				nav.download()		# 批量从目标资产下载文件
+				nav.down_load()		# 批量从目标资产下载文件
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
