@@ -158,6 +158,16 @@ def mkdir(dir_name, username='', mode=755):
 		chown(dir_name, username)
 
 
+def get_tmp_dir():
+	'''
+	下载文件临时存储目录
+	'''
+	seed = uuid.uuid4().hex[:4]
+	dir_name = os.path.join('/tmp', '%s-%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), seed))
+	mkdir(dir_name, mode=777)
+	return dir_name
+
+
 def my_render(template, data, request):
 	return render_to_response(template, data, context_instance=RequestContext(request))
 

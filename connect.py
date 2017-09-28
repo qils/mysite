@@ -528,6 +528,44 @@ class Nav(object):
 								print
 					print '~o~ Task finished ~o~'
 					print
+	def down_load(self):
+		'''
+		批量下载
+		'''
+		while True:
+			try:
+				print u'进入批量下载模式'
+				print u'请输入主机名或ansible支持的pattern, 多个主机:分隔,q退出'
+				pattern = raw_input('\033[1;32mPattern>:\033[0m ').strip()
+
+				if pattern == 'q':
+					break
+				else:
+					assets = self.user_perm.get('asset').keys()
+					res = gen_resource({'user': self.user, 'asset': assets}, perm=self.user_perm)
+					runner = MyRunner(res)
+					asset_name_str = ''
+					print u'匹配主机'
+					for inv in runner.inventory.get_hosts(pattern=pattern):
+						asset_name_str += '%s ' % (inv.hostname, )
+						print '%s' % (inv.hostname, )
+
+					if not asset_name_str:
+						color_print('没有匹配的主机')
+						continue
+					print
+					while True:
+						tmp_dir = get_tmp_dir()
+						logger.debug('Download tmp dir: %s' % (tmp_dir, ))
+						print u'请输入需要下载的文件路径(不支持目录)'
+						file_path = raw_input('\033[1;32mPath>:\033[0m ').strip()
+						if file_path == 'q':
+							break
+
+						if not file_path:
+							color_print('文件路径为空')
+
+						runner.run('fetch', module_args='src=%s dest=%s' % (file_path, tmp_dir), pattern=pattern)
 
 	def get_asset_group_member(self, str_r):
 		'''
@@ -665,6 +703,9 @@ def main():
 				continue
 			elif option in ['E', 'e']:
 				nav.exec_cmd()
+				continue
+			elif option in ['D', 'd']:
+				nav.download()		# 批量从目标资产下载文件
 				continue
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
