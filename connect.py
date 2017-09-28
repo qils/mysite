@@ -566,6 +566,8 @@ class Nav(object):
 							color_print('文件路径为空')
 
 						runner.run('fetch', module_args='src=%s dest=%s' % (file_path, tmp_dir), pattern=pattern)
+			except IndexError:
+				pass
 
 	def get_asset_group_member(self, str_r):
 		'''
