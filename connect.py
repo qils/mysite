@@ -559,7 +559,7 @@ class Nav(object):
 						tmp_dir = get_tmp_dir()
 						logger.debug('Download tmp dir: %s' % (tmp_dir, ))
 						print u'请输入需要下载的文件路径(不支持目录)'
-						file_path = raw_input('\033[1;32mPath>:\033[0m ').strip()
+						file_path = raw_input('\033[1;32mDownload_File_Path>:\033[0m ').strip()
 						if file_path == 'q':
 							break
 
