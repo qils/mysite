@@ -528,6 +528,7 @@ class Nav(object):
 								print
 					print '~o~ Task finished ~o~'
 					print
+
 	def down_load(self):
 		'''
 		批量下载
@@ -548,7 +549,7 @@ class Nav(object):
 					print u'匹配主机'
 					for inv in runner.inventory.get_hosts(pattern=pattern):
 						asset_name_str += '%s ' % (inv.hostname, )
-						print '%s' % (inv.hostname, )
+						print '%s' % (inv.name, )
 
 					if not asset_name_str:
 						color_print('没有匹配的主机')
