@@ -548,7 +548,7 @@ class Nav(object):
 					asset_name_str = ''
 					print u'匹配主机'
 					for inv in runner.inventory.get_hosts(pattern=pattern):
-						asset_name_str += '%s ' % (inv.hostname, )
+						asset_name_str += '%s ' % (inv.name, )
 						print '%s' % (inv.name, )
 
 					if not asset_name_str:
