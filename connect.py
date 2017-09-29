@@ -552,7 +552,7 @@ class Nav(object):
 						print '%s' % (inv.name, )
 
 					if not asset_name_str:
-						color_print('没有匹配的主机')
+						color_print(u'没有匹配的主机')
 						continue
 					print
 					while True:
@@ -564,7 +564,7 @@ class Nav(object):
 							break
 
 						if not file_path:
-							color_print('文件路径为空')
+							color_print(u'文件路径为空')
 							continue
 						# 会因为普通系统用户权限问题,导致有些文件没法取到
 						runner.run('fetch', module_args='src=%s dest=%s' % (file_path, tmp_dir), pattern=pattern)
@@ -582,14 +582,14 @@ class Nav(object):
 						os.chdir('/tmp')
 						tmp_dir_name = os.path.basename(tmp_dir)
 						if not os.listdir(tmp_dir_name):
-							color_print('下载全部失败', color='red')
+							color_print(u'下载全部失败', color='red')
 							continue
 
 						if ret.get('failed'):
-							error = '文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
+							error = u'文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
 							color_print(error)
 						else:
-							msg = '文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok').keys()))
+							msg = u'文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok').keys()))
 							color_print(msg, color='green')
 							print
 			except IndexError:
