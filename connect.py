@@ -586,12 +586,54 @@ class Nav(object):
 							continue
 
 						if ret.get('failed'):
-							error = u'文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
+							error = u'文件名称: %s\n下载失败[ %s ]\n下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
 							color_print(error)
 						else:
-							msg = u'文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok').keys()))
+							msg = u'文件名称: %s\n下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok').keys()))
 							color_print(msg, color='green')
 							print
+			except IndexError:
+				pass
+
+	def upload(self):
+		'''
+		批量上传文件到目标资产
+		'''
+		while True:
+			try:
+				print u'进入批量上传模式'
+				print u'请输入主机名或ansible支持的pattern, 多个主机:分隔,q退出'
+				pattern = raw_input('\033[1;32mPattern>:\033[0m ').strip()
+
+				if pattern == 'q':
+					break
+
+				else:
+					assets = self.user_perm.get('asset').keys()
+					res = gen_resource({'user': self.user, 'asset': assets}, perm=self.user_perm)
+					runner = MyRunner(res)
+					asset_name_str = ''
+					print u'匹配主机'
+					for inv in runner.inventory.get_hosts(pattern=pattern):
+						print inv.name
+						asset_name_str += inv.name
+
+					if not asset_name_str:
+						color_print(u'没有匹配的主机')
+						continue
+
+					tmp_dir = get_tmp_dir()		# 临时存放文件目录
+					logger.debug(u'Upload tmp dir: %s' % (tmp_dir, ))
+					os.chdir(tmp_dir)
+					bash('rz')		# 上传本地文件到堡垒机服务器
+					filename_str = ' '.join(os.listdir(tmp_dir))
+					if not filename_str:
+						color_print(u'上传文件为空')
+						continue
+					logger.debug(u'上传文件: %s' % (os.path.join(tmp_dir, filename_str)))
+					# 文件上传到目标资产/tmp目录下
+					runner.run('copy', module_args='src=%s dest=%s directory_mode' (tmp_dir, '/tmp'), pattern=pattern)
+					logger.debug(runner.results)
 			except IndexError:
 				pass
 
@@ -726,15 +768,17 @@ def main():
 			elif option in ['G', 'g']:		# 打印用户授权的资产组信息
 				nav.print_asset_group()
 				continue
-			elif option in ['H', 'h']:
+			elif option in ['H', 'h']:		# 打印帮助信息
 				nav.print_nav()
 				continue
-			elif option in ['E', 'e']:
+			elif option in ['E', 'e']:		# 批量执行命令
 				nav.exec_cmd()
 				continue
 			elif option in ['D', 'd']:
 				nav.down_load()		# 批量从目标资产下载文件
 				continue
+			elif option in ['U', 'u']:		# 批量上传文件到目标主机
+				nav.upload()
 			elif option in ['Q', 'q', 'exit', 'quit']:		# 退出循环
 				sys.exit()
 			else:		# 主要判断是否输入的是一个ID字符数字, 通过该ID索引从self.perm_assets中取对应的一个资产
