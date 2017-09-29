@@ -565,8 +565,11 @@ class Nav(object):
 
 						if not file_path:
 							color_print('文件路径为空')
-
+							continue
+						# 会因为普通系统用户权限问题,导致有些文件没法取到
 						runner.run('fetch', module_args='src=%s dest=%s' % (file_path, tmp_dir), pattern=pattern)
+						ret = runner.results
+						logger.debug(ret)
 			except IndexError:
 				pass
 
