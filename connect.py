@@ -569,7 +569,29 @@ class Nav(object):
 						# 会因为普通系统用户权限问题,导致有些文件没法取到
 						runner.run('fetch', module_args='src=%s dest=%s' % (file_path, tmp_dir), pattern=pattern)
 						ret = runner.results
-						logger.debug(ret)
+						FileLog(
+							user=self.user.name,
+							host=asset_name_str.split()[:10],
+							filename=file_path,
+							type='download',
+							remote_ip=remote_ip,
+							result='success',
+						).create()
+						logger.debug('Download file result: %s' % (ret, ))
+
+						os.chdir('/tmp')
+						tmp_dir_name = os.path.basename(tmp_dir)
+						if not os.listdir(tmp_dir_name):
+							color_print('下载全部失败', color='red')
+							continue
+
+						if ret.get('failed'):
+							error = '文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed')), ', '.join(ret.get('ok')))
+							color_print(error)
+						else:
+							msg = '文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok')))
+							color_print(msg, color='green')
+							print
 			except IndexError:
 				pass
 
