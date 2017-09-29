@@ -586,10 +586,10 @@ class Nav(object):
 							continue
 
 						if ret.get('failed'):
-							error = '文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed')), ', '.join(ret.get('ok')))
+							error = '文件名称: %s\n 下载失败[ %s ]\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
 							color_print(error)
 						else:
-							msg = '文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok')))
+							msg = '文件名称: %s\n 下载成功[ %s ]' % (file_path, ', '.join(ret.get('ok').keys()))
 							color_print(msg, color='green')
 							print
 			except IndexError:
