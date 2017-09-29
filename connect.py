@@ -576,7 +576,7 @@ class Nav(object):
 							type='download',
 							remote_ip=remote_ip,
 							result='success',
-						).create()
+						).save()
 						logger.debug('Download file result: %s' % (ret, ))
 
 						os.chdir('/tmp')
