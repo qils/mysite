@@ -630,9 +630,9 @@ class Nav(object):
 					if not filename_str:
 						color_print(u'上传文件为空')
 						continue
-					logger.debug(u'上传文件: %s' % (os.path.join(tmp_dir, filename_str)))
+					logger.debug('上传文件: %s' % (str(os.path.join(tmp_dir, filename_str))))
 					# 文件上传到目标资产/tmp目录下
-					runner.run('copy', module_args='src=%s dest=%s directory_mode' (tmp_dir, '/tmp'), pattern=pattern)
+					runner.run('copy', module_args='src=%s dest=%s directory_mode' % (tmp_dir, '/tmp'), pattern=pattern)
 					logger.debug(runner.results)
 			except IndexError:
 				pass
