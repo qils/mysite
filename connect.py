@@ -496,7 +496,7 @@ class Nav(object):
 				print u'匹配主机: '
 				for inv in runner.inventory.get_hosts(pattern=pattern):
 					print '%s' % (inv.name, )
-					asset_name_str += ' %s' % (inv.name, )
+					asset_name_str += '%s ' % (inv.name, )
 				print
 
 				while True:
@@ -571,7 +571,7 @@ class Nav(object):
 						ret = runner.results
 						FileLog(
 							user=self.user.name,
-							host=asset_name_str.split()[:10],
+							host=asset_name_str.split(' ')[:10],
 							filename=file_path,
 							type='download',
 							remote_ip=remote_ip,
@@ -616,7 +616,7 @@ class Nav(object):
 					print u'匹配主机'
 					for inv in runner.inventory.get_hosts(pattern=pattern):
 						print inv.name
-						asset_name_str += inv.name
+						asset_name_str += '%s ' % (inv.name, )
 
 					if not asset_name_str:
 						color_print(u'没有匹配的主机')
@@ -636,7 +636,7 @@ class Nav(object):
 					ret = runner.results
 					FileLog(
 						user=self.user.name,
-						host=asset_name_str.split()[:10],
+						host=asset_name_str.split(' ')[:10],
 						filename=filename_str,
 						remote_ip=remote_ip,
 						type='upload',
