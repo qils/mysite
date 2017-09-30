@@ -633,7 +633,24 @@ class Nav(object):
 					logger.debug('上传文件: %s' % (str(os.path.join(tmp_dir, filename_str))))
 					# 文件上传到目标资产/tmp目录下
 					runner.run('copy', module_args='src=%s dest=%s directory_mode' % (tmp_dir, '/tmp'), pattern=pattern)
-					logger.debug(runner.results)
+					ret = runner.results
+					FileLog(
+						user=self.user.name,
+						host=asset_name_str.split()[:10],
+						filename=filename_str,
+						remote_ip=remote_ip,
+						type='upload',
+						result='success'
+					).save()
+					logger.debug('Upload file: %s' % (ret, ))
+
+					if ret.get('failed'):
+						error = u'上传目录: %s\n上传失败: [ %s ]\n上传成功: [ %s ]' % (tmp_dir, ', '.join(ret.get('failed').keys()), ','.join(ret.get('ok').keys()))
+						color_print(error, color=red)
+					else:
+						msg = u'上传目录: %s\n上传成功 [ %s ]' % (tmp_dir, ', '.join(ret.get('ok').keys()))
+						color_print(msg, color='green')
+					print
 			except IndexError:
 				pass
 
