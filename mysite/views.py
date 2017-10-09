@@ -179,7 +179,7 @@ def upload(request):
 	'''
 	页面上传文件视图
 	'''
-	user = require.user		# 登录用户对象
+	user = request.user		# 登录用户对象
 	assets = get_group_user_perm(user).get('asset').keys()		# 获取用户授权的所有资产
 	asset_select = []
 
