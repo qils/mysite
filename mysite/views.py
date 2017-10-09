@@ -14,6 +14,8 @@ from django.db.models import Count
 from django.template import RequestContext
 from mysite.models import Setting
 
+from jperm.perm_api import get_group_user_perm
+
 
 def getDaysByNum(num):
 	'''
@@ -172,8 +174,19 @@ def Login(request):
 	return render_to_response('login.html', {'error': error})
 
 
+@require_role(role='user')
 def upload(request):
-	pass
+	'''
+	页面上传文件视图
+	'''
+	user = require.user		# 登录用户对象
+	assets = get_group_user_perm(user).get('asset').keys()		# 获取用户授权的所有资产
+	asset_select = []
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('upload.html', locals(), request)
 
 
 def download(request):
