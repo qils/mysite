@@ -14,7 +14,8 @@ from django.db.models import Count
 from django.template import RequestContext
 from mysite.models import Setting
 
-from jperm.perm_api import get_group_user_perm
+from jperm.perm_api import get_group_user_perm, gen_resource
+from jperm.ansible_api import MyRunner
 
 
 def getDaysByNum(num):
@@ -179,12 +180,36 @@ def upload(request):
 	'''
 	页面上传文件视图
 	'''
+	path1 = u'上传文件'
 	user = request.user		# 登录用户对象
 	assets = get_group_user_perm(user).get('asset').keys()		# 获取用户授权的所有资产
 	asset_select = []
 
 	if request.method == 'POST':
-		pass
+		remote_ip = request.META.get('REMOTE_ADDR')		# 获取远程上传的客户端IP
+		asset_ids = request.POST.getlist('asset_ids', [])		# 获取用户选择上传的资产id
+		upload_files = request.FILES.getlist('file[]', [])		# 获取用户上传的文件对象
+		date_now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+		upload_dir = get_tmp_dir()
+
+		for asset_id in asset_ids:
+			asset_select.append(get_object(Asset, id=asset_id))
+
+		if not set(asset_select).issubset(set(assets)):		# 选择上传的资产必须是授权资产的子集
+			illegal_asset = list(set(asset_select) - set(assets))		# 这里和源码里面不一样
+			return HttpResponse(u'非法的资产: %s' % (','.join([asset.hostname for asset in illegal_asset])))
+
+		for upload_file in upload_files:
+			file_path = '%s/%s' % (upload_dir, upload_file.name)
+			with open(file_path, 'w') as f:
+				for chunk in upload_file.chunks():
+					f.write(chunk)
+
+		res = gen_resource({'user': user, 'asset': asset_select})
+		runner = MyRunner(res)
+		runner.run('copy', module_args='src=%s dest=%s directory_mode' % (upload_dir, '/tmp/'), pattern='*')
+		ret = runner.results
+		logger.debug(ret)
 
 	return my_render('upload.html', locals(), request)
 
