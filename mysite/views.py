@@ -201,7 +201,7 @@ def upload(request):
 
 		for upload_file in upload_files:
 			file_path = '%s/%s' % (upload_dir, upload_file.name)
-			with open(file_path, 'w') as f:
+			with open(file_path, 'w') as f:		# 将上传的文件写入服务器的随机生成的/tmp目录
 				for chunk in upload_file.chunks():
 					f.write(chunk)
 
@@ -210,6 +210,22 @@ def upload(request):
 		runner.run('copy', module_args='src=%s dest=%s directory_mode' % (upload_dir, '/tmp/'), pattern='*')
 		ret = runner.results
 		logger.debug(ret)
+
+		FileLog(
+			user=user.username,
+			host=' '.join([asset.hostname for asset in asset_select]),		# 记录上传的主机名
+			filename=', '.join([f.name for f in upload_files]),
+			type='upload',
+			remote_ip=remote_ip,
+			result=ret
+		).save()
+
+		if ret.get('failed'):
+			error = u'上传目录: %s<br>上传失败: [ %s ]<br>上传成功: [%s]' % (upload_dir, ', '.join(ret.get('failed').keys()), ', '.join(ret.get('ok').keys()))
+			return HttpResponse(error, status=500)
+
+		msg = u'上传目录: [ %s ]<br>传送成功: [ %s ]' % (upload_dir, ', '.join(ret.get('ok').keys()))
+		return HttpResponse(msg)
 
 	return my_render('upload.html', locals(), request)
 
