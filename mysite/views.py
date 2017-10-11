@@ -3,6 +3,7 @@
 
 import os
 import datetime
+import zipfile
 from mysite.api import *
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
@@ -207,7 +208,7 @@ def upload(request):
 
 		res = gen_resource({'user': user, 'asset': asset_select})
 		runner = MyRunner(res)
-		runner.run('copy', module_args='src=%s dest=%s directory_mode' % (upload_dir, '/tmp/'), pattern='*')
+		runner.run('copy', module_args='src=%s dest=%s directory_mode' % (upload_dir, '/tmp/'), pattern='*')		# 上传到目标资产会多一层目录
 		ret = runner.results
 		logger.debug(ret)
 
@@ -256,8 +257,32 @@ def download(request):
 
 		res = gen_resource({'user': user, 'asset': asset_select})
 		runner = MyRunner(res)
-		runner.run('fetch', module_args='src=%s dest=%s' % (file_path, download_dir), pattern='*')		# 从目标资产下载文件
+		runner.run('fetch', module_args='src=%s dest=%s' % (file_path, download_dir), pattern='*')		# 从目标资产下载文件, 文件存储路径包括每台主机名称
 		logger.debug(runner.results)
+		FileLog(
+			user=user.username,
+			host=' '.join([asset.hostname for asset in asset_select]),
+			filename=file_path,
+			type='download',
+			remote_ip=remote_ip,
+			result=runner.results
+		).save()
+
+		tmp_dir_name = os.path.basename(download_dir)
+		file_zip = os.path.join('/tmp', tmp_dir_name, '.zip')
+		zf = zipfile.ZipFile(file_zip, 'w', zipfile.ZIP_DEFLATED)		# 创建ZIP文件
+		for dirname, subdirs, files in os.walk(download_dir):
+			zf.write(dirname)
+			for filename in files:
+				zf.write(os.path.join(dirname, files))
+		zf.close()
+
+		f = open(file_zip)
+		data = f.read()
+		f.close()
+		response = HttpResponse(data, content_type='application/octet-stream')
+		response['Content-Disposition'] = 'attachment; filename=%s.zip' % (tmp_dir_name, )
+		return response
 
 	return my_render('download.html', locals(), request)
 
