@@ -248,7 +248,7 @@ def download(request):
 		date_now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 		for asset_id in asset_ids:
-			asset_select.append(get(Asset, id=asset_id))
+			asset_select.append(get_object(Asset, id=asset_id))
 
 		if not set(asset_select).issubset(set(assets)):
 			illegal_asset = list(set(asset_select) - set(assets))
