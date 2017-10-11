@@ -272,7 +272,7 @@ def download(request):
 		file_zip = os.path.join('/tmp', tmp_dir_name, '.zip')
 		zf = zipfile.ZipFile(file_zip, 'w', zipfile.ZIP_DEFLATED)		# 创建ZIP文件
 		for dirname, subdirs, files in os.walk(download_dir):
-			zf.write(dirname)
+			zf.write(dirname)		# 增加压缩包目录信息 download_dir + hostname + /tmp/
 			for filename in files:
 				zf.write(os.path.join(dirname, filename))
 		zf.close()

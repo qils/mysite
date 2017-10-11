@@ -10,12 +10,33 @@ import zipfile
 from mysite.api import *
 from mysite import settings
 from django.shortcuts import render
+from django.db.models import Q
 
 # Create your views here.
 
 
-def log_list(request, offset):
-	pass
+@require_role(role='admin')
+def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函数
+	'''
+	日志审计视图
+	'''
+	header_title, path1 = u'审计', u'操作审计'
+	date_seven_day = request.GET.get('start', '')
+	date_now_str = request.GET.get('end', '')
+	username_list = request.GET.getlist('username', [])
+	host_list = request.GET.getlist('host', [])
+	cmd = request.GET.get('cmd', '')
+
+	if offset == 'online':
+		keyword = request.GET.get('keyword', '')
+		posts = Log.objects.filter(is_finished=False).order_by('-start_time')		# 过滤在线的所有登录日志
+		if keyword:
+			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(login_type=keyword))
+
+	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
+	session_id = request.session.session_key
+
+	return my_render('jlog/log_%s.html' % (offset, ), locals(), request)
 
 
 class TermLogRecorder(object):
