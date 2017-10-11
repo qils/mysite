@@ -39,6 +39,22 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 	return my_render('jlog/log_%s.html' % (offset, ), locals(), request)
 
 
+def log_history(request):
+	pass
+
+
+def log_detail(request):
+	pass
+
+
+def log_kill(request):
+	pass
+
+
+def log_record(request):
+	pass
+
+
 class TermLogRecorder(object):
 	loglist = dict()
 
