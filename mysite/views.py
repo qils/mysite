@@ -230,8 +230,20 @@ def upload(request):
 	return my_render('upload.html', locals(), request)
 
 
+@require_role(role='user')
 def download(request):
-	pass
+	'''
+	文件下载视图
+	'''
+	path1 = u'文件下载'
+	user = request.user
+	assets = get_group_user_perm(user).get('asset').keys()
+	asset_select = []
+
+	if request.method == 'POST':
+		pass
+
+	return my_render('download.html', locals(), request)
 
 
 @require_role('admin')
