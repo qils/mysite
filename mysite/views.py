@@ -237,11 +237,27 @@ def download(request):
 	'''
 	path1 = u'文件下载'
 	user = request.user
-	assets = get_group_user_perm(user).get('asset').keys()
-	asset_select = []
+	assets = get_group_user_perm(user).get('asset').keys()		# 授权所有资产
+	asset_select = []		# 定义选择下载的目标资产
 
 	if request.method == 'POST':
-		pass
+		remote_ip = request.META.get('REMOTE_ADDR')
+		asset_ids = request.POST.getlist('asset_ids', [])
+		file_path = request.POST.get('file_path')
+		download_dir = get_tmp_dir()
+		date_now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
+		for asset_id in asset_ids:
+			asset_select.append(get(Asset, id=asset_id))
+
+		if not set(asset_select).issubset(set(assets)):
+			illegal_asset = list(set(asset_select) - set(assets))
+			return HttpResponse(u'没有授权的服务器: %s' % (', '.join([asset.hostname for asset in illegal_asset])))
+
+		res = gen_resource({'user': user, 'asset': asset_select})
+		runner = MyRunner(res)
+		runner.run('fetch', module_args='src=%s dest=%s' % (file_path, download_dir), pattern='*')		# 从目标资产下载文件
+		logger.debug(runner.results)
 
 	return my_render('download.html', locals(), request)
 
