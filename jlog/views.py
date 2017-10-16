@@ -20,14 +20,14 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 	'''
 	日志审计视图
 	'''
-	header_title, path1 = u'审计', u'操作审计'
+	path1, path2 = u'审计', u'操作审计'
 	date_seven_day = request.GET.get('start', '')
 	date_now_str = request.GET.get('end', '')
 	username_list = request.GET.getlist('username', [])
 	host_list = request.GET.getlist('host', [])
 	cmd = request.GET.get('cmd', '')
 
-	if offset == 'online':
+	if offset == 'online':		# 在线统计
 		keyword = request.GET.get('keyword', '')
 		posts = Log.objects.filter(is_finished=False).order_by('-start_time')		# 过滤在线的所有登录日志
 		if keyword:
@@ -39,8 +39,23 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 	return my_render('jlog/log_%s.html' % (offset, ), locals(), request)
 
 
+@require_role(role='admin')
 def log_history(request):
-	pass
+	'''
+	用户命令执行日志
+	'''
+	id = request.GET.get('id')
+	log = get_object(Log, id=id)
+
+	if log:
+		content = ''
+		tty_logs = log.ttylog_set.all()
+		for tty_log in tty_logs:
+			content += '%s: %s\n' % (tty_log.datetime.strftime('%Y-%m-%d %H:%M:%S'), tty_log.cmd)
+	else:
+		content = u'无日志记录'
+
+	return HttpResponse(content)
 
 
 def log_detail(request):
