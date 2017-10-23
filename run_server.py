@@ -66,6 +66,7 @@ def require_auth(role='user'):
 						request.user = user		# 保存User对象
 						if role == 'admin':
 							if user.role in ['SU', 'GA']:
+								logger.debug('--->here')
 								return func(request, *args, **kwargs)		# 等价于执行 open(self)
 							logger.debug('Websocket: user [ %s ] is not admin' % (user.username, ))
 						else:
@@ -173,7 +174,7 @@ class MonitorHandler(tornado.web.RequestHandler):
 			MonitorHandler.clients.remove(self)
 			MonitorHandler.threads.remove(MonitorHandler.threads[client_index])
 
-		logger.debug('Websocket: Monitor Client num: %s, thread num: %s' % (len(MonitorHandler.clients), len(MonitorHandler.threads)))
+		logger.debug('Websocket: Monitor client num: %s, thread num: %s' % (len(MonitorHandler.clients), len(MonitorHandler.threads)))
 
 	def on_message(self, message):
 		'''
