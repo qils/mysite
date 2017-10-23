@@ -14,6 +14,8 @@ import threading
 import tornado.httpserver
 import tornado.websocket
 
+from pyinotify import WatchManager, ProcessEvent, IN_DELETE, IN_CREATE, IN_MODIFY, AsyncNotifier
+
 from tornado.websocket import WebSocketClosedError
 from connect import logger, get_object, User, Asset, Tty, ServerError
 from connect import Session, user_have_perm
@@ -99,8 +101,97 @@ class WebTty(Tty):
 		self.input_mode = False
 
 
+class EventHandler(object):
+	def __init__(self, client=None):
+		self.client = client
+
+	def process_IN_MODIFY(self, event):
+		self.client.write_message(f.read().decode('utf-8', 'replace'))		# 将日志文件变更信息,返回给web客户端
+
+
+def file_monitor(path='.', client=None):
+	'''
+	实时日志监控, 通过调用pyinotify模块基于inotify事件驱动机制
+	'''
+	vm = WatchManager()		# 创建实例
+	mask = IN_DELETE | IN_CREATE | IN_MODIFY		# 定义监控事件: 文件创建, 文件删除, 文件内容变更
+	notifier = AsyncNotifier(wm, EventHandler(client))		# 指定事件处理器
+	wm.add_watch(path, mask, auto_add=True, rec=True)		# 添加监控事件, 对指定的path文件系统监控
+
+	if not os.path.isfile(path):
+		logger.debug(u'File %s is not exist' % (path, ))
+		sys.exit(3)
+	else:
+		logger.debug(u'Now starting monitor file %s' % (path, ))
+		global f
+		with open(path, 'r') as f:
+			st_size = os.stat(path)
+			f.seek(st_size)		# 文件指针偏转到文件末尾
+
+	while True:
+		try:
+			notifier.process_events()		# 处理事件
+			if notifier.check_events():
+				notifier.read_events()		# 读取事件缓存
+		except KeyboardInterrupt:
+			notifier.stop()
+			break
+
+
 class MonitorHandler(tornado.web.RequestHandler):
-	pass
+	'''
+	日志监控
+	'''
+	clients = []		# 定义客户端类属性, 所有实例访问结果一样
+	threads = []		# 定义线程类属性
+
+	def __init__(self, *args, **kwargs):
+		self.file_path = None
+		super(self.__class__, self).__init__(*args, **kwargs)
+
+	def check_origin(self, origin):
+		return True
+
+	@django_request_support
+	@require_auth('admin')
+	def open(self):
+		self.file_path = self.get_argument('file_path', '')		# 获取提交的参数
+		MonitorHandler.clients.append(self)
+		thread = MyThread(target=file_monitor, args=('%s.log' % (self.file_path, ), self))		# 创建线程
+		MonitorHandler.threads.append(thread)
+		self.stream.set_nodelay(True)
+
+		try:
+			for t in MonitorHandler.threads:
+				if t.is_active():
+					continue
+				t.setDaemon(True)
+				t.start()
+		except WebSocketClosedError:
+			client_index = MonitorHandler.clients.index(self)
+			MonitorHandler.threads[client_index].stop()		# WebSocket关闭时, 停掉进程
+			MonitorHandler.clients.remove(self)
+			MonitorHandler.threads.remove(MonitorHandler.threads[client_index])
+
+		logger.debug('Websocket: Monitor Client num: %s, thread num: %s' % (len(MonitorHandler.clients), len(MonitorHandler.threads)))
+
+	def on_message(self, message):
+		'''
+		监控日志, 发生变动发给客户端
+		'''
+		pass
+
+	def on_close(self):
+		'''
+		客户端主动关闭
+		'''
+		logger.debug('Websocket: Monitor client close request')
+		try:
+			client_index = MonitorHandler.clients.index(self)
+			MonitorHandler.clients.remove(self)
+			MonitorHandler.threads.remove(MonitorHandler.threads[client_index])
+		except Exception:
+			pass
 
 
 class WebTerminalHandler(tornado.websocket.WebSocketHandler):		# tornado websocket实现http长轮询
