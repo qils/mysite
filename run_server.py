@@ -66,7 +66,6 @@ def require_auth(role='user'):
 						request.user = user		# 保存User对象
 						if role == 'admin':
 							if user.role in ['SU', 'GA']:
-								logger.debug('--->here')
 								return func(request, *args, **kwargs)		# 等价于执行 open(self)
 							logger.debug('Websocket: user [ %s ] is not admin' % (user.username, ))
 						else:
@@ -139,7 +138,7 @@ def file_monitor(path='.', client=None):
 			break
 
 
-class MonitorHandler(tornado.web.RequestHandler):
+class MonitorHandler(tornado.websocket.WebSocketHandler):
 	'''
 	日志监控
 	'''
@@ -178,7 +177,7 @@ class MonitorHandler(tornado.web.RequestHandler):
 
 	def on_message(self, message):
 		'''
-		监控日志, 发生变动发给客户端
+		客户端发送消息后调用
 		'''
 		pass
 

@@ -49,7 +49,7 @@ def log_history(request):
 
 	if log:
 		content = ''
-		tty_logs = log.ttylog_set.all()
+		tty_logs = log.ttylog_set.all()		# 反向选择登录用户执行的所有命令
 		for tty_log in tty_logs:
 			content += '%s: %s\n' % (tty_log.datetime.strftime('%Y-%m-%d %H:%M:%S'), tty_log.cmd)
 	else:
