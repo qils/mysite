@@ -125,9 +125,9 @@ def file_monitor(path='.', client=None):
 	else:
 		logger.debug(u'Now starting monitor file %s' % (path, ))
 		global f
-		with open(path, 'r') as f:
-			st_size = os.stat(path)[6]
-			f.seek(st_size)		# 文件指针偏转到文件末尾
+		f = open(path, 'r')
+		st_size = os.stat(path)[6]
+		f.seek(st_size)		# 文件指针偏转到文件末尾
 
 	while True:
 		try:
