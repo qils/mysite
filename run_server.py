@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import re
+import sys
 import time
 import select
 import datetime
@@ -113,7 +114,7 @@ def file_monitor(path='.', client=None):
 	'''
 	实时日志监控, 通过调用pyinotify模块基于inotify事件驱动机制
 	'''
-	vm = WatchManager()		# 创建实例
+	wm = WatchManager()		# 创建实例
 	mask = IN_DELETE | IN_CREATE | IN_MODIFY		# 定义监控事件: 文件创建, 文件删除, 文件内容变更
 	notifier = AsyncNotifier(wm, EventHandler(client))		# 指定事件处理器
 	wm.add_watch(path, mask, auto_add=True, rec=True)		# 添加监控事件, 对指定的path文件系统监控
