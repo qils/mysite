@@ -163,7 +163,7 @@ class MonitorHandler(tornado.websocket.WebSocketHandler):
 
 		try:
 			for t in MonitorHandler.threads:
-				if t.is_active():
+				if t.is_alive():
 					continue
 				t.setDaemon(True)
 				t.start()
