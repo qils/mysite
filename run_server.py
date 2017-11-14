@@ -102,7 +102,7 @@ class WebTty(Tty):
 		self.input_mode = False
 
 
-class EventHandler(object):
+class EventHandler(ProcessEvent):
 	def __init__(self, client=None):
 		self.client = client
 
