@@ -2,6 +2,7 @@
 # --*-- coding: utf-8 --*--
 
 import re
+import ast
 import time
 import pyte
 import json
@@ -64,8 +65,16 @@ def log_history(request):
 	return HttpResponse(content)
 
 
-def log_detail(request):
-	pass
+@require_role(role='admin')
+def log_detail(request, offset):
+	'''
+	日志详细记录视图
+	'''
+	id = request.GET.get('id', '')
+	if offset == 'exec':
+		execlog = ExecLog.objects.filter(id=id)
+		assets_hostname = [hostname for hostname in ast.literal_eval(execlog.host) if hostname]
+		return my_render('jlog/exec_detail.html', locals(), request)
 
 
 @require_role(role='admin')
