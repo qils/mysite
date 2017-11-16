@@ -10,6 +10,7 @@ import zipfile
 from mysite.api import *
 from mysite import settings
 from django.shortcuts import render
+from django.http import HttpResponseNotFound
 from django.db.models import Q
 
 # Create your views here.
@@ -34,7 +35,7 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(login_type=keyword))
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
-	session_id = request.session.session_key
+	session_id = request.session.session_key		# 获取session key
 
 	return my_render('jlog/log_%s.html' % (offset, ), locals(), request)
 
@@ -62,8 +63,24 @@ def log_detail(request):
 	pass
 
 
+@require_role(role='admin')
 def log_kill(request):
-	pass
+	'''
+	管理员结束连接进程
+	'''
+	pid = request.GET.get('id')		# 获取提交的进程pid
+	log = Log.objects.filter(pid=pid)
+	if log:
+		log = log[0]
+		try:
+			os.kill(int(pid), 9)		# 结束进程
+		except Exception:
+			pass
+
+		Log.objects.filter(id=pid).update(is_finished=True, end_time=datetime.datetime.now())		# 手动更新
+		return my_render('jlog/log_offline.html', locals(), request)
+	else:
+		return HttpResponseNotFound(u'没有此进程')
 
 
 def log_record(request):

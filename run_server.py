@@ -103,6 +103,9 @@ class WebTty(Tty):
 
 
 class EventHandler(ProcessEvent):
+	'''
+	事件处理handler
+	'''
 	def __init__(self, client=None):
 		self.client = client
 
