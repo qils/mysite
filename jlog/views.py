@@ -72,8 +72,8 @@ def log_detail(request, offset):
 	'''
 	id = request.GET.get('id', '')
 	if offset == 'exec':
-		execlog = ExecLog.objects.get(id=id)
-		assets_hostname = [hostname for hostname in ast.literal_eval(execlog.host) if hostname]
+		log = ExecLog.objects.get(id=id)
+		assets_hostname = [hostname for hostname in ast.literal_eval(log.host) if hostname]
 		return my_render('jlog/exec_detail.html', locals(), request)
 
 
