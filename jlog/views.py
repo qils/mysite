@@ -77,7 +77,7 @@ def log_kill(request):
 		except Exception:
 			pass
 
-		Log.objects.filter(id=pid).update(is_finished=True, end_time=datetime.datetime.now())		# 手动更新
+		Log.objects.filter(pid=pid).update(is_finished=True, end_time=datetime.datetime.now())		# 手动更新
 		return my_render('jlog/log_offline.html', locals(), request)
 	else:
 		return HttpResponseNotFound(u'没有此进程')
