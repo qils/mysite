@@ -33,6 +33,11 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		posts = Log.objects.filter(is_finished=False).order_by('-start_time')		# 过滤在线的所有登录日志
 		if keyword:
 			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(login_type=keyword))
+	elif offset == 'exec':		# 批量执行命令统计
+		posts = ExecLog.objects.all().order_by('-id')
+		keyword = request.GET.get('keyword', '')
+		if keyword:
+			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(cmd__contains=keyword))
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
 	session_id = request.session.session_key		# 获取session key

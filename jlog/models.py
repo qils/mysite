@@ -33,12 +33,18 @@ class Alert(models.Model):
 
 
 class TtyLog(models.Model):
+	'''
+	记录用户登录远程主机执行命令模型
+	'''
 	log = models.ForeignKey(Log)		# 外键关联到Log
 	datetime = models.DateTimeField(auto_now=True)
 	cmd = models.CharField(max_length=200)
 
 
 class ExecLog(models.Model):
+	'''
+	批量执行命令模型, 记录批量主机执行记录
+	'''
 	user = models.CharField(max_length=100)
 	host = models.TextField()
 	cmd = models.TextField()
@@ -48,6 +54,9 @@ class ExecLog(models.Model):
 
 
 class FileLog(models.Model):
+	'''
+	批量文件上传, 下载模型, 记录批量文件上传, 下载记录
+	'''
 	user = models.CharField(max_length=100)
 	host = models.TextField()
 	filename = models.TextField()
