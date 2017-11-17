@@ -44,6 +44,15 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		posts = FileLog.objects.all().order_by('-id')
 		if keyword:
 			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(filename__icontains=keyword))
+	else:
+		posts = Log.objects.filter(is_finished=True)		# 过滤已经退出的登录记录
+		username_all = set([log.user for log in Log.objects.all()])		# 过滤所有登录的用户
+		ip_all = set([log.host for log in Log.objects.all()])		# 过滤所有登录的主机
+
+		if not date_seven_day:
+			date_now = datetime.datetime.now()
+			date_now_str = date_now.strftime('%m/%d/%Y')
+			date_seven_day = (datetime.datetime.now() + datetime.timedelta(days=-7)).striftime('%m/%d/%Y')
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
 	session_id = request.session.session_key		# 获取session key
