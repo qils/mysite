@@ -83,7 +83,7 @@ def log_detail(request, offset):
 	elif offset == 'file':
 		log = FileLog.objects.get(id=id)
 		file_list = log.filename.split(' ')
-		aassets_hostname = [hostname for hostname in ast.literal_eval(log.host) if hostname]
+		assets_hostname = [hostname for hostname in ast.literal_eval(log.host) if hostname]
 		return my_render('jlog/file_detail.html', locals(), request)
 
 
