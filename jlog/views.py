@@ -52,7 +52,7 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		if not date_seven_day:
 			date_now = datetime.datetime.now()
 			date_now_str = date_now.strftime('%m/%d/%Y')
-			date_seven_day = (datetime.datetime.now() + datetime.timedelta(days=-7)).striftime('%m/%d/%Y')
+			date_seven_day = (datetime.datetime.now() + datetime.timedelta(days=-7)).strftime('%m/%d/%Y')
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
 	session_id = request.session.session_key		# 获取session key
