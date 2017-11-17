@@ -80,6 +80,10 @@ def log_detail(request, offset):
 		log = ExecLog.objects.get(id=id)
 		assets_hostname = [hostname for hostname in ast.literal_eval(log.host) if hostname]
 		return my_render('jlog/exec_detail.html', locals(), request)
+	elif offset == 'file':
+		log = FileLog.objects.get(id=id)
+		aassets_hostname = [hostname for hostname in ast.literal_eval(log.host) if hostname]
+		return my_render('jlog/file_detail.html', locals(), request)
 
 
 @require_role(role='admin')
