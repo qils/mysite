@@ -39,6 +39,11 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		keyword = request.GET.get('keyword', '')
 		if keyword:
 			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(cmd__contains=keyword))
+	elif offset == 'file':		# 批量文件执行统计
+		keyword = request.GET.get('keyword', '')
+		posts = FileLog.objects.all().order_by('-id')
+		if keyword:
+			posts = posts.filter(Q(user__icontains=keyword) | Q(host__icontains=keyword) | Q(filename__icontains=keyword))
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
 	session_id = request.session.session_key		# 获取session key
