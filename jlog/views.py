@@ -23,11 +23,12 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 	日志审计视图
 	'''
 	path1, path2 = u'审计', u'操作审计'
-	date_seven_day = request.GET.get('start', '')		# 从表单提交
-	date_now_str = request.GET.get('end', '')		# 从表单提交
-	username_list = request.GET.getlist('username', [])		# 从表单提交
-	host_list = request.GET.getlist('host', [])		# 从表单提交
-	cmd = request.GET.get('cmd', '')		# 从表单提交
+	date_seven_day = request.GET.get('start', '')		# 从表单提交, 开始时间
+	logger.debug(date_seven_day)
+	date_now_str = request.GET.get('end', '')		# 从表单提交, 结束时间
+	username_list = request.GET.getlist('username', [])		# 从表单提交, 查询username
+	host_list = request.GET.getlist('host', [])		# 从表单提交, 查询主机名
+	cmd = request.GET.get('cmd', '')		# 从表单提交, 查询命令
 
 	if offset == 'online':		# 在线统计
 		keyword = request.GET.get('keyword', '')
@@ -51,8 +52,8 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 
 		if not date_seven_day:
 			date_now = datetime.datetime.now()
-			date_now_str = date_now.strftime('%m/%d/%Y')
-			date_seven_day = (datetime.datetime.now() + datetime.timedelta(days=-7)).strftime('%m/%d/%Y')
+			date_now_str = date_now.strftime('%m/%d/%Y')		# 当前时间
+			date_seven_day = (datetime.datetime.now() + datetime.timedelta(days=-7)).strftime('%m/%d/%Y')		# 七天前时间
 
 	contact_list, p, contacts, page_range, current_range, show_first, show_end = pages(posts, request)
 	session_id = request.session.session_key		# 获取session key

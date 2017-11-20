@@ -63,11 +63,11 @@
                             <li><a href="{% url 'log_list' 'file' %}" class="text-center"><i class="fa fa-bar-chart-o"></i> 上传下载 </a></li>
                         </ul>
                     </div>
-                    <form class="form-inline" action="" method="get">
+                    <form class="form-inline" action="" method="">
                         <div class="form-group" id="date_5">
                             <div class="input-daterange input-group" id="datepicker">
                                 <input type="text" class="input-sm form-control" style="width: 100px;" name="start" value="{{ date_seven_day }}">
-                                <span class="input-group-addon">to</span>
+                                <span class="input-group-addon">—</span>
                                 <input type="text" class="input-sm form-control" style="width: 100px;"  name="end" value="{{ date_now_str }}">
                             </div>
                         </div>
