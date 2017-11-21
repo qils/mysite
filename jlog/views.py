@@ -60,8 +60,10 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		if host_list:
 			posts = posts.filter(host__in=host_list)
 
+		logger.debug(posts.count())
 		if cmd:
 			cmd_list = TtyLog.objects.filter(cmd__icontains=cmd)
+			logger.debug(cmd_list.count())
 			posts = posts.filter(id__in=set([cmd_log.log_id for cmd_log in cmd_list]))
 
 		if not date_seven_day:
