@@ -131,8 +131,13 @@ def log_kill(request):
 		return HttpResponseNotFound(u'没有此进程')
 
 
+@require_role(role='admin')
 def log_record(request):
-	pass
+	'''
+	录像回看视图
+	'''
+	if request.method == 'GET':
+		return my_render('jlog/record.html')
 
 
 class TermLogRecorder(object):
