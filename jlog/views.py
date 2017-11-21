@@ -137,7 +137,7 @@ def log_record(request):
 	录像回看视图
 	'''
 	if request.method == 'GET':
-		return my_render('jlog/record.html')
+		return render('jlog/record.html')
 
 
 class TermLogRecorder(object):
