@@ -24,7 +24,6 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 	'''
 	path1, path2 = u'审计', u'操作审计'
 	date_seven_day = request.GET.get('start', '')		# 从表单提交, 开始时间
-	logger.debug(date_seven_day)
 	date_now_str = request.GET.get('end', '')		# 从表单提交, 结束时间
 	username_list = request.GET.getlist('username', [])		# 从表单提交, 查询username
 	host_list = request.GET.getlist('host', [])		# 从表单提交, 查询主机名
@@ -49,6 +48,21 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 		posts = Log.objects.filter(is_finished=True)		# 过滤已经退出的登录记录
 		username_all = set([log.user for log in Log.objects.all()])		# 过滤所有登录的用户
 		ip_all = set([log.host for log in Log.objects.all()])		# 过滤所有登录的主机
+
+		if date_seven_day and date_now_str:
+			start_time = datetime.datetime.strptime(date_seven_day + ' 00:00:01', '%m/%d/%Y %H:%M:%S')
+			end_time = datetime.datetime.strptime(date_now_str + ' 23:59:59', '%m/%d/%Y %H:%M:%S')
+			posts = posts.filter(start_time__gte=start_time).filter(end_time__lt=end_time)
+
+		if username_list:
+			posts = posts.filter(username__in=username_list)
+
+		if host_list:
+			posts = posts.filter(host__in=host_list)
+
+		if cmd:
+			cmd_list = TtyLog.objects.filter(cmd__icontains=cmd)
+			posts = posts.filter(id__in=set([cmd.log_id for cmd in cmd_list]))
 
 		if not date_seven_day:
 			date_now = datetime.datetime.now()
