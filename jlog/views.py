@@ -62,7 +62,7 @@ def log_list(request, offset):		# URL中捕获的参数值, 传递给视图函�
 
 		if cmd:
 			cmd_list = TtyLog.objects.filter(cmd__icontains=cmd)
-			posts = posts.filter(id__in=set([cmd.log_id for cmd in cmd_list]))
+			posts = posts.filter(id__in=set([cmd_log.log_id for cmd_log in cmd_list]))
 
 		if not date_seven_day:
 			date_now = datetime.datetime.now()
